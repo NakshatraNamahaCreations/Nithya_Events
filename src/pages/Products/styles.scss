@@ -1,0 +1,136 @@
+.products-page {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  @media (max-width: 600px) {
+    padding: 1rem;
+    display: block;
+  }
+}
+
+.filters-sidebar {
+  width: 20%;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  @media (max-width: 600px) {
+    width: 76%;
+    margin-left: 2rem;
+  }
+}
+
+.filters-title {
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 2rem;
+  color: black;
+}
+
+.filter-button-active {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(
+    90deg,
+    rgb(196, 70, 255) -14.33%,
+    rgb(120, 1, 251) 38.59%,
+    rgb(62, 0, 130) 98.88%
+  );
+  color: white !important;
+  border: none;
+}
+
+.filter-button {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  background-color: transparent;
+  color: black !important;
+  border: 1px solid #e0e0e0;
+  transition: background-color 0.3s, color 0.3s;
+
+  &:hover {
+    background-color: #f3f3f3;
+    color: black;
+  }
+}
+.price-input {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.search-brand {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+/* Main Content */
+.main-content {
+  flex-grow: 1;
+  @media (max-width: 600px) {
+    margin-left: 2rem;
+  }
+}
+
+.sorting-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  // width: 1rem;
+}
+
+.product-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  transition: transform 0.3s;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  @media (max-width: 600px) {
+    width: 42%;
+    height: 102px;
+    object-fit: cover;
+    display: flex;
+    margin: 0 auto;
+  }
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.product-title {
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.product-price {
+  display: flex;
+}
+
+.product-price {
+  color: #388e3c;
+  font-size: 1.2rem;
+}
+
+.product-discount {
+  color: #f44336;
+  font-size: 0.9rem;
+}

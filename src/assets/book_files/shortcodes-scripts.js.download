@@ -1,0 +1,22 @@
+jQuery(document).ready(function ($) {
+    "use strict";
+var ajaxurl = urltheme.template_url;
+$('.product_categories').select2({
+	//width: 'resolve',
+});
+$('.product_categories').on('change', function(){
+	console.log(document.getElementById("term").value);
+})
+
+window.addEventListener('resize', function(event) {	
+	var product_name = document.getElementById("product_name");
+	if(typeof(product_name) != 'undefined' && product_name != null){
+		document.getElementById("product_name").style.width = "100%";
+	}
+}, true);
+
+$('#product_names').select2();
+
+
+
+})

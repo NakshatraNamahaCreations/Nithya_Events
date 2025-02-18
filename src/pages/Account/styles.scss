@@ -1,0 +1,167 @@
+.account-page {
+  max-width: 800px;
+  margin: 20px auto;
+  background: #f8f8f8;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #c026d3;
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px 10px 0 0;
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .icons {
+      display: flex;
+      gap: 15px;
+
+      i {
+        font-size: 20px;
+        cursor: pointer;
+
+        &:hover {
+          color: #e3e3e3;
+        }
+      }
+    }
+  }
+
+  .profile-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 1px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+
+    .profile-info {
+      display: flex;
+      gap: 15px;
+
+      .profile-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+      }
+
+      .user-details {
+        h2 {
+          margin: 0;
+          font-size: 20px;
+        }
+
+        p {
+          margin: 5px 0 0;
+          font-size: 14px;
+          color: #666;
+        }
+      }
+    }
+
+    .edit-btn {
+      background: white;
+      // color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      img{
+          width: 2rem;
+      }
+
+    }
+  }
+
+  .options {
+    margin-top: 20px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  p{
+    text-align: center;
+  }
+    h3 {
+      margin-bottom: 15px;
+      font-size: 18px;
+      color: #333;
+    }
+    a{
+      text-decoration: none;
+     }
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+  
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 10px;
+        font-size: 16px;
+        border-bottom: 1px solid #e8e8e8;
+        cursor: pointer;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        i:first-child {
+          margin-right: 10px;
+          color: #6a0dad;
+        }
+
+        i:last-child {
+          color: #ccc;
+        }
+
+        &:hover {
+          background: #f9f9f9;
+        }
+      }
+    }
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .account-page {
+    padding: 15px;
+
+    .header h1 {
+      font-size: 20px;
+    }
+
+    .profile-section {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+
+      .profile-info {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .edit-btn {
+        margin-top: 10px;
+      }
+    }
+
+    .options ul li {
+      font-size: 14px;
+    }
+  }
+}

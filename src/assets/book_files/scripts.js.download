@@ -1,0 +1,219 @@
+(function( $ ) {
+    'use strict';
+    
+	var browser_lang = document.getElementsByTagName('html')[0].getAttribute('lang');
+	console.log(browser_lang);
+	var dateformat = $(".barb-pickup-date").data( "dateformat");
+	var currentDate = moment().format(dateformat);
+	var tomorrowDate = moment().add(1, 'days').format(dateformat);
+	// creat cookie
+	function cratecookie(name,re_date) {
+			document.cookie = name+'='+re_date + "; path=/";
+	}
+	// get cookie
+	function getCookie(c_name) {
+			
+			if (document.cookie.length > 0) {
+				var c_start = document.cookie.indexOf(c_name + "=");
+				if (c_start != -1) {
+					c_start = c_start + c_name.length + 1;
+					var c_end = document.cookie.indexOf(";", c_start);
+					if (c_end == -1) {
+						c_end = document.cookie.length;
+					}
+					
+					return unescape(document.cookie.substring(c_start, c_end));
+				}
+			}
+			return "";
+		}
+		// delete cookie
+		function deletecookie(name) {
+			cratecookie(name, '');
+		}
+	var maxday = $(".barb-pickup-date").data( "maxday");
+	if(maxday != 0) {
+			maxday = maxday;
+	}else {
+			maxday = 9999;
+	}
+
+	var disableweekends = $(".barb-pickup-date").data( "weekends");
+	var time_picker_Hour = $(".barb-pickup-date").data( "timepicker24hour");
+
+	const germanMapping = {
+			
+			'Su': 'So',
+			'Mo': 'Mo',
+			'Tu': 'Di',
+			'We': 'Mi',
+			'Th': 'Do',
+			'Fr': 'Fr',
+			'Sa': 'Sa',
+
+			'January': 'Januar',
+			'February': 'Februar',
+			'March': 'März',
+			'April': 'April',
+			'May': 'Mai',
+			'June': 'Juni',
+			'July': 'Juli',
+			'August': 'August',
+			'September': 'September',
+			'October': 'Oktober',
+			'November': 'November',
+			'December': 'Dezember',
+
+			"Apply": "Applay",
+			"Cancel": "Cancel"
+	}
+	const tc = (val) => germanMapping[val];
+
+	$('.backhoe_cart input[name="start_date"], .backhoe_cart input[name="end_date"]').daterangepicker({
+			autoApply: true,
+			autoUpdateInput: false,
+			isInvalidDate: function(date) {
+			if (date.day() == 0 || date.day() == 6)
+				return disableweekends;
+			return false;
+		},
+			maxSpan: {
+				day: maxday,
+			},
+			locale: {
+						format: dateformat,
+						/*applyLabel: tc('Apply'),
+									cancelLabel: tc('Cancel'),
+									customRangeLabel: tc('Custom Range'),
+									daysOfWeek: [
+											tc('Su'), tc('Mo'), tc('Tu'), tc('We'), tc('Th'), tc('Fr'), tc('Sa')
+									],
+						monthNames: [
+											tc('January'), tc('February'), tc('March'), tc('April'), tc('May'), tc('June'), 
+											tc('July'), tc('August'), tc('September'), tc('October'), tc('November'), tc('December')
+									],*/
+			},
+			
+			timePicker: true,
+			timePicker24Hour: time_picker_Hour,
+			minDate: currentDate
+	});
+           
+	var backhoe_fdate = $('#backhoe_fdate').val();
+	var backhoe_tdate = $('#backhoe_tdate').val();
+	if (backhoe_fdate != '' || backhoe_tdate != '') {
+		$('#wd-add-to-cart').attr('disabled', false);
+	} else {
+		$('#wd-add-to-cart').attr('disabled', true);
+	}
+	$('#backhoe_fdate,#backhoe_tdate').on('keyup', function () {
+		if (backhoe_fdate != '' && backhoe_tdate != '') {
+			$('#wd-add-to-cart').attr('disabled', false);
+		} else {
+			$('#wd-add-to-cart').attr('disabled', true);
+		}
+	});
+
+	function enable_disable_btn_booking() {
+		var backhoe_fdate = $('#backhoe_fdate').val();
+		var backhoe_tdate = $('#backhoe_tdate').val();
+		if (backhoe_fdate != '' || backhoe_tdate != '') {
+			$('#wd-add-to-cart').attr('disabled', false);
+		} else {
+			$('#wd-add-to-cart').attr('disabled', true);						
+		}
+	}
+
+	function check_availability(){
+		var ele_addon = [];         
+		$("input.backhoe_checkboxaddons:checkbox:checked").each(function(){
+			ele_addon.push($(this).val());            
+		});
+		var addons 				 = (ele_addon) ?  ele_addon : 0;
+		var fromd 				 = $('#backhoe_fdate').val();
+		var tod						 = $('#backhoe_tdate').val();
+		var variation_id 	 = ''//jQuery('.variation_id').val();
+		var quantity 			 = $('.qty').val();
+		var product_id		 = $('.backhoe_product_id').val();
+		var product_price  = $('.backhoe_price').val();
+		$(".backhoe_duration_and_price").html('<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>');
+		
+		const dates = [ 
+			{
+				startDateTime: formatedDate( new Date( $('#backhoe_fdate').val() ), true ),
+				endDateTime: formatedDate( new Date( $('#backhoe_tdate').val() ), true )
+			} 
+		]
+		jQuery.post(
+				ajaxurl, 
+				{
+					'action': 'backhoe_booking_check_availability',
+					'product_id':product_id,
+					'variation_id': variation_id,  
+					'dates': JSON.stringify( dates ),
+					'quantity':quantity,
+					'price':product_price,
+					'addons': addons
+				}, 						
+				function(response) {
+					$('.backhoe_duration_and_price').html(response.results?.content);
+				},						
+		);
+	}
+
+	$('.backhoe_cart input[name="start_date"], .backhoe_cart input[name="end_date"]').val('');
+	var ajaxurl = urltheme.template_url;
+	var product_type = $('.backhoe_product_type').val();
+	$('.backhoe_cart input[name="start_date"], .backhoe_cart input[name="end_date"]').on('apply.daterangepicker', function(ev, picker) {	//'MM/DD/YYYY hh:mm A'
+		$('.backhoe_cart input[name="start_date"]').val( picker.startDate.format(dateformat) );
+		$('.backhoe_cart input[name="end_date"]').val( picker.endDate.format(dateformat) );
+		enable_disable_btn_booking();
+		check_availability();
+	});
+	
+	$('.backhoe_checkboxaddons').on('change', function(){        
+		check_availability();
+	});
+
+	$('.backhoe_cart input[name="quantity"]').on('change', function(){       
+		check_availability();
+	});
+	
+	
+	$('.backhoe_cart input[name="start_date"]').val( currentDate );
+	$('.backhoe_cart input[name="end_date"]').val( tomorrowDate );
+	// calcul total if cookie existe 
+	if(getCookie('rental_start_date_cookie') != '') {
+		$('.backhoe_cart input[name="start_date"]').val(getCookie('rental_start_date_cookie'));
+		$('.backhoe_cart input[name="end_date"]').val( getCookie('rental_end_date_cookie'));
+	}
+
+	enable_disable_btn_booking();
+
+	check_availability();
+
+   
+  // save ookie from calendar home page
+  $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {    
+		var cookie_date = $('input[name="daterange"]').val().split('-');
+		var cookie_start = cookie_date[0];
+		var cookie_end = cookie_date[1];
+		deletecookie('rental_start_date_cookie');
+		deletecookie('rental_end_date_cookie');
+		cratecookie('rental_start_date_cookie',cookie_start);
+		cratecookie('rental_end_date_cookie',cookie_end);     
+  });                
+
+	function formatedDate( date, time) {
+    let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1,
+        day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate(),
+        hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours(),
+        minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes(),
+        seconds = date.getSeconds() < 10 ? `0${date.getSeconds()}` : date.getSeconds(),
+        dateString
+    dateString = `${date.getFullYear()}-${month}-${day}`
+    dateString += time ? ` ${hours}:${minutes}:${seconds}` : ``
+    return dateString
+  }
+
+})( jQuery );

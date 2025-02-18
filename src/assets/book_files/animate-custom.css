@@ -1,0 +1,329 @@
+.animated {
+  -webkit-animation-fill-mode: both;
+  -moz-animation-fill-mode: both;
+  -ms-animation-fill-mode: both;
+  -o-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  -ms-animation-duration: 1s;
+  -o-animation-duration: 1s;
+  animation-duration: 1s;
+}
+
+.animated.hinge {
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  -ms-animation-duration: 1s;
+  -o-animation-duration: 1s;
+  animation-duration: 1s;
+}
+
+.flash {
+  opacity: 1;
+}
+
+.shake {
+  transform: translateX(-10px);
+
+}
+
+.bounce {
+  transform: translateY(-30px);
+}
+
+.tada {
+
+  -webkit-transform: scale(0.9) rotate(-3deg);
+}
+
+
+.swing {
+  transform-origin: top center;
+  transform: rotate(15deg);
+}
+
+/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */
+
+.wobble {
+  transform: translateX(20%) rotate(3deg);
+}
+
+/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */
+
+.pulse {
+  transform: scale(1);
+}
+
+.animated.flip {
+  backface-visibility: visible !important;
+  transform: perspective(400px) translateZ(150px) rotateY(170deg) scale(1);
+  animation-timing-function: ease-out;
+}
+
+.flipInX {
+  transform: perspective(400px) rotateX(90deg);
+  opacity: 1;
+  backface-visibility: visible !important;
+}
+
+.flipOutX {
+  transform: perspective(400px) rotateX(-90deg);
+  opacity: 1;
+  backface-visibility: visible !important;
+}
+
+.flipInY {
+  transform: perspective(400px) rotateY(90deg);
+  backface-visibility: visible !important;
+
+}
+
+.flipOutY {
+  transform: perspective(400px) rotateY(-90deg);
+  backface-visibility: visible !important;
+  opacity: 1;
+
+}
+
+.fadeIn {
+  opacity: 0;
+}
+
+div.animated.fadeInUp,
+li.animated.fadeInUp {
+  animation: none;
+  will-change: opacity, transform;
+  opacity: 0;
+  transform-style: preserve-3d;
+  transform-origin: center bottom;
+  transform: rotateX(-30deg) translateY(50px);
+}
+
+div.animated.fadeInDown {
+  animation: none;
+  transform: translateY(-30px);
+  will-change: opacity, transform;
+  opacity: 0;
+}
+
+div.animated.fadeInLeft,
+li.animated.fadeInLeft {
+  animation: none;
+  transform: translateX(-20px);
+  will-change: opacity, transform;
+  opacity: 0;
+}
+
+div.animated.fadeInRight {
+  animation: none;
+  transform: translateX(20px);
+  will-change: opacity, transform;
+  opacity: 0;
+}
+
+div.animated.fadeInUpBig {
+  opacity: 0;
+  transform: translateY(2000px);
+}
+
+div.animated.fadeInDownBig {
+  opacity: 0;
+  transform: translateY(-2000px);
+}
+
+div.animated.fadeInLeftBig {
+  opacity: 0;
+  transform: translateX(-2000px);
+}
+
+div.animated.fadeInRightBig {
+  opacity: 0;
+  transform: translateX(2000px);
+}
+
+div.animated.fadeOut {
+  opacity: 1;
+}
+
+div.animated.fadeOutUp {
+  opacity: 1;
+  transform: translateY(-20px);
+}
+
+div.animated.fadeOutDown {
+  opacity: 1;
+  transform: translateY(20px);
+}
+
+div.animated.fadeOutLeft {
+  opacity: 1;
+  transform: translateX(-20px);
+}
+
+div.animated.fadeOutRight {
+  opacity: 1;
+  transform: translateX(20px);
+}
+
+div.animated.fadeOutUpBig {
+  opacity: 1;
+  transform: translateY(-2000px);
+}
+
+div.animated.fadeOutDownBig {
+  opacity: 1;
+  transform: translateY(2000px);
+}
+
+div.animated.fadeOutLeftBig {
+  opacity: 1;
+  transform: translateX(-2000px);
+}
+
+div.animated.fadeOutRightBig {
+  opacity: 1;
+  transform: translateX(2000px);
+}
+
+.bounceIn {
+  opacity: 0;
+  transform: scale(1);
+}
+
+.bounceInUp {
+  opacity: 0;
+  transform: translateY(2000px);
+}
+
+.bounceInDown {
+  opacity: 1;
+  transform: translateY(-2000px);
+}
+
+.bounceInLeft {
+  opacity: 1;
+  transform: translateX(-2000px);
+}
+
+.bounceInRight {
+  opacity: 1;
+  transform: translateX(2000px);
+}
+
+.bounceOut {
+  transform: scale(1);
+}
+
+.bounceOutUp {
+  opacity: 1;
+  transform: translateY(-2000px);
+}
+
+.bounceOutDown {
+  opacity: 1;
+  transform: translateY(2000px);
+}
+
+.bounceOutLeft {
+  transform: translateX(-2000px);
+}
+
+.bounceOutRight {
+  opacity: 1;
+  transform: translateX(2000px);
+}
+
+.rotateIn {
+  transform-origin: center center;
+  transform: rotate(-200deg);
+  opacity: 0;
+}
+
+.rotateInUpLeft {
+  transform-origin: left bottom;
+  transform: rotate(90deg);
+  opacity: 0;
+}
+
+.rotateInDownLeft {
+  transform-origin: left bottom;
+  transform: rotate(-90deg);
+  opacity: 0;
+}
+
+.rotateInUpRight {
+  transform-origin: right bottom;
+  transform: rotate(-90deg);
+  opacity: 0;
+}
+
+.rotateInDownRight {
+  transform-origin: right bottom;
+  transform: rotate(90deg);
+  opacity: 0;
+}
+
+.rotateOut {
+
+  transform-origin: center center;
+  transform: rotate(200deg);
+  opacity:0;
+}
+
+.rotateOutUpLeft {
+  transform-origin: left bottom;
+  transform: rotate(90deg);
+  opacity: 0;
+}
+
+.rotateOutDownLeft {
+  transform-origin: left bottom;
+  transform: rotate(90deg);
+  opacity: 0;
+}
+
+.rotateOutUpRight {
+  transform-origin: right bottom;
+  transform: rotate(90deg);
+  opacity: 0;
+}
+
+.rotateOutDownRight {
+  transform-origin: right bottom;
+  transform: rotate(-90deg);
+  opacity: 0;
+}
+
+.lightSpeedIn {
+  transform: translateX(-100%) skewX(30deg);
+  opacity: 1;
+  animation-timing-function: ease-out;
+}
+
+.lightSpeedOut {
+  transform: translateX(100%) skewX(-30deg);
+  opacity: 1;
+  animation-timing-function: ease-in;
+}
+
+.hinge {
+  transform: translateY(700px); opacity: 0;
+  transform-origin: top left;
+  animation-timing-function: ease-in-out;
+}
+
+/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */
+
+.rollIn {
+  opacity: 0;
+  transform: translateX(-100%) rotate(-120deg);
+}
+
+/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */
+
+.rollOut {
+
+  opacity: 0;
+  transform: translateX(100%) rotate(120deg);
+}

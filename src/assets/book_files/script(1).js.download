@@ -1,0 +1,78 @@
+(function( $ ) {
+  'use strict';
+
+  /****************************** add listing multi select filters ********************************/
+  const pathArray = window.location.pathname.split('/')
+  if ( pathArray[ pathArray.length - 2 ] == 'add-listing' && document.querySelector('.add-listing-form__select__multiple') ) {
+    $('.add-listing-form__select__multiple').select2({
+      tags: true,
+      placeholder: 'Select an option',
+      allowClear: true,
+      width: '100%'
+    })
+  }  
+
+  /******************************* product slide gallery && timer observer *****************************************/
+  
+  const target = document.querySelector('#advancedFiltersContent')
+  const swipe = () => {
+    const swiper = new Swiper('.cardsSwiper', {
+      loop: true,
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true
+      }
+    });
+  }
+  if(typeof Swiper !== 'undefined') {
+    swipe()
+    const SwipObserver = new MutationObserver( function() {
+      swipe()
+    });
+  }
+
+  if ( target )
+    SwipObserver.observe( target, {
+      childList:     true,
+      // attributes:    true,
+      // characterData: true
+    });
+  
+  const timerObserver = new MutationObserver(function() {
+    $( ".auction-time-countdown" ).each(function( index ) {
+      var time 	= $(this).data('time');
+      var format 	= $(this).data('format');
+      var compact = false;
+
+      if(format == ''){
+        format = 'yowdHMS';
+      }
+      if(data.compact_counter == 'yes'){
+        compact	 = true;
+      } else{
+        compact	 = false;
+      }
+      var etext ='';
+      if($(this).hasClass('future') ){
+        var etext = '<div class="started">'+data.started+'</div>';
+      } else{
+        var etext = '<div class="over">'+data.checking+'</div>';
+      }
+
+      if ( ! $(' body' ).hasClass('logged-in') ) {
+        time = $.SAcountdown.UTCDate(-(new Date().getTimezoneOffset()),new Date(time*1000));
+      }
+
+      $(this).SAcountdown({
+        until: time,
+        format: format,
+        compact:  compact,
+
+        onExpiry: closeAuction,
+        expiryText: etext
+      });
+    });
+  });
+  if ( target ) timerObserver.observe( target, { childList: true } );
+
+})( jQuery );

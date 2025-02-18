@@ -1,0 +1,49 @@
+/*!********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[3].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[3].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[3].use[3]!./includes/block-editor/blocks/accordion-block/style.scss ***!
+  \********************************************************************************************************************************************************************************************************************************************************************************/
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+.wd-blocks-accordion__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  --gray-2-color: #fdf8f2;
+  background: var(--gray-2-color);
+  padding: 0.5em;
+}
+.wd-blocks-accordion__title__text {
+  margin: 0 0 0 0.5rem;
+}
+.wd-blocks-accordion__title__icon {
+  display: flex;
+  transition: transform 0.5s ease-in-out 0.2s;
+}
+.wd-blocks-accordion__title__icon.accordion-hide {
+  transform: rotate(-180deg);
+}
+.wd-blocks-accordion__title__icon svg {
+  height: 20px;
+  width: 20px;
+}
+.wd-blocks-accordion__title:hover {
+  cursor: pointer;
+}
+.wd-blocks-accordion__content {
+  padding-inline: 0.5rem;
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows ease-in-out;
+}
+.wd-blocks-accordion__content__wrapper {
+  overflow: hidden;
+}
+.wd-blocks-accordion__content.accordion-hide {
+  grid-template-rows: 0fr;
+  display: none;
+}
+
+/*# sourceMappingURL=style-index.css.map*/

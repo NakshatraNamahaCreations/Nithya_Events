@@ -1,0 +1,27 @@
+/*!*************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[3].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[3].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[3].use[3]!./includes/block-editor/blocks/count-up/style.scss ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************/
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+.wp-block-webdevia-count-up {
+  text-align: center;
+  padding: 1rem;
+}
+.wp-block-webdevia-count-up__picture {
+  margin: 0 auto 1.25em;
+}
+.wp-block-webdevia-count-up__picture img {
+  width: 100%;
+}
+.wp-block-webdevia-count-up__info__counter {
+  margin: 0;
+}
+.wp-block-webdevia-count-up__info__label {
+  margin: 0;
+}
+
+/*# sourceMappingURL=style-index.css.map*/

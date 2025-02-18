@@ -1,0 +1,152 @@
+/*!*************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[3].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[3].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[3].use[3]!./includes/block-editor/blocks/timeline/style.scss ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************/
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+.wd-block-webdevia-timeline {
+  position: relative;
+}
+.wd-block-webdevia-timeline__events {
+  list-style-type: none;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 0;
+  padding: 10px;
+}
+.wd-block-webdevia-timeline__events .timeline__event {
+  display: flex;
+  position: relative;
+  width: 100%;
+}
+.wd-block-webdevia-timeline__events .timeline__event__img {
+  height: 200px;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+.wd-block-webdevia-timeline__events .timeline__event__content__head {
+  margin: 0;
+}
+.wd-block-webdevia-timeline__events .timeline__event__content__head a {
+  text-decoration: none;
+}
+.wd-block-webdevia-timeline__events .timeline__event::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background-color: hsl(0, 100%, 3%);
+}
+.wd-block-webdevia-timeline__events::before {
+  content: "";
+  position: absolute;
+  background-color: #d3d3d3;
+}
+.wd-block-webdevia-timeline__events-layout-ha, .wd-block-webdevia-timeline__events-layout-hs {
+  flex-direction: row;
+  gap: 15px;
+  flex-wrap: nowrap;
+  overflow-x: scroll;
+}
+.wd-block-webdevia-timeline__events-layout-ha .timeline__event, .wd-block-webdevia-timeline__events-layout-hs .timeline__event {
+  gap: 60px;
+}
+.wd-block-webdevia-timeline__events-layout-ha .timeline__event__content, .wd-block-webdevia-timeline__events-layout-hs .timeline__event__content {
+  text-align: center;
+}
+.wd-block-webdevia-timeline__events-layout-ha::before, .wd-block-webdevia-timeline__events-layout-hs::before {
+  width: 95%;
+  height: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.wd-block-webdevia-timeline__events-layout-ha .timeline__event {
+  flex-direction: column;
+}
+.wd-block-webdevia-timeline__events-layout-ha .timeline__event__img {
+  padding-block: 0 30px;
+}
+.wd-block-webdevia-timeline__events-layout-ha .timeline__event__content {
+  padding-block: 0 30px;
+}
+.wd-block-webdevia-timeline__events-layout-ha .timeline__event:nth-child(even) {
+  flex-direction: column-reverse;
+}
+.wd-block-webdevia-timeline__events-layout-ha .timeline__event:nth-child(even) .timeline__event__img {
+  padding-block: 30px 0;
+}
+.wd-block-webdevia-timeline__events-layout-ha .timeline__event:nth-child(even) .timeline__event__content {
+  padding-block: 30px 0;
+}
+.wd-block-webdevia-timeline__events-layout-hs .timeline__event {
+  flex-direction: column;
+  gap: 0;
+}
+.wd-block-webdevia-timeline__events-layout-hs .timeline__event__img {
+  padding-block: 0 80px;
+}
+.wd-block-webdevia-timeline__events-layout-vse, .wd-block-webdevia-timeline__events-layout-vsi {
+  flex-direction: column;
+}
+.wd-block-webdevia-timeline__events-layout-vse .timeline__event, .wd-block-webdevia-timeline__events-layout-vsi .timeline__event {
+  align-items: center;
+}
+.wd-block-webdevia-timeline__events-layout-vse .timeline__event__img, .wd-block-webdevia-timeline__events-layout-vse .timeline__event__content, .wd-block-webdevia-timeline__events-layout-vsi .timeline__event__img, .wd-block-webdevia-timeline__events-layout-vsi .timeline__event__content {
+  width: 50%;
+}
+.wd-block-webdevia-timeline__events-layout-vse::before, .wd-block-webdevia-timeline__events-layout-vsi::before {
+  width: 2px;
+  height: 95%;
+}
+.wd-block-webdevia-timeline__events-layout-vse .timeline__event {
+  gap: 100px;
+  flex-direction: row;
+}
+.wd-block-webdevia-timeline__events-layout-vse .timeline__event:nth-child(even) {
+  flex-direction: row-reverse;
+}
+.wd-block-webdevia-timeline__events-layout-vse .timeline__event:nth-child(even) .timeline__event__content {
+  text-align: right;
+}
+.wd-block-webdevia-timeline__events-layout-vsi .timeline__event {
+  width: 48%;
+  gap: 20px;
+  flex-direction: row-reverse;
+  margin: 0 0 0 52%;
+}
+.wd-block-webdevia-timeline__events-layout-vsi .timeline__event::before {
+  left: -4.2%;
+}
+.wd-block-webdevia-timeline__events-layout-vsi .timeline__event:nth-child(even) {
+  flex-direction: row;
+  margin: 0 52% 0 0;
+}
+.wd-block-webdevia-timeline__events-layout-vsi .timeline__event:nth-child(even)::before {
+  left: 104.2%;
+}
+.wd-block-webdevia-timeline__events__navigation__next, .wd-block-webdevia-timeline__events__navigation__prev {
+  display: flex;
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+.wd-block-webdevia-timeline__events__navigation__next {
+  right: 0;
+}
+.wd-block-webdevia-timeline__events__navigation__prev {
+  left: 0;
+}
+.wd-block-webdevia-timeline__events::-webkit-scrollbar {
+  display: none;
+}
+
+/*# sourceMappingURL=style-index.css.map*/

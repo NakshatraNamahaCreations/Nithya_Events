@@ -1,0 +1,73 @@
+/*!*******************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[3].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[3].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[3].use[3]!./includes/block-editor/blocks/text-with-icon/style.scss ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************/
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+.wp-block-webdevia-text-with-icon {
+  display: flex;
+  gap: 1rem;
+}
+.wp-block-webdevia-text-with-icon img {
+  width: 100%;
+}
+.wp-block-webdevia-text-with-icon p {
+  margin: 5px 0;
+}
+.wp-block-webdevia-text-with-icon__info__title__position-top {
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.wp-block-webdevia-text-with-icon__info__title__position-right {
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+.wp-block-webdevia-text-with-icon__info__title__position-bottom {
+  flex-direction: column-reverse;
+  gap: 0.2rem;
+}
+.wp-block-webdevia-text-with-icon__info__title__position-left {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+@media (max-width: 750px) {
+  .wp-block-webdevia-text-with-icon__info__title__position-top, .wp-block-webdevia-text-with-icon__info__title__position-right, .wp-block-webdevia-text-with-icon__info__title__position-bottom, .wp-block-webdevia-text-with-icon__info__title__position-left {
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+}
+.wp-block-webdevia-text-with-icon__info__title__text {
+  margin: 0;
+}
+.wp-block-webdevia-text-with-icon__position-top {
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.wp-block-webdevia-text-with-icon__position-right {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+.wp-block-webdevia-text-with-icon__position-bottom {
+  flex-direction: column-reverse;
+  gap: 0.2rem;
+}
+.wp-block-webdevia-text-with-icon__position-left {
+  flex-direction: row;
+}
+@media (max-width: 750px) {
+  .wp-block-webdevia-text-with-icon__position-top, .wp-block-webdevia-text-with-icon__position-right, .wp-block-webdevia-text-with-icon__position-bottom, .wp-block-webdevia-text-with-icon__position-left {
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+}
+
+/*# sourceMappingURL=style-index.css.map*/

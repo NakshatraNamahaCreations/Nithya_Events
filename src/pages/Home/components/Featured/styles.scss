@@ -1,0 +1,117 @@
+.container-featured {
+  // background-color: #f7f4f0;
+  padding: 20px;
+
+  .featured-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .featured-heading {
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-height: 32px !important;
+      white-space: nowrap;
+      color: rgb(32, 34, 38) !important;
+      font-family: "Bebas Neue" !important;
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 100%;
+      margin-left: 2rem;
+      text-transform: uppercase;
+    }
+  }
+
+  .featured-main {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    padding: 20px;
+  }
+
+  .product-card {
+    width: 100%;
+    position: relative;
+    overflow: visible;
+    white-space: normal;
+    border-radius: 6px;
+    border: 1px solid rgb(240, 241, 242);
+    background: white;
+    cursor: pointer;
+    width: 20rem;
+
+    img {
+      width: 100%;
+      height: 180px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .product-name {
+      margin-top: 15px;
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .product-description {
+      font-size: 0.9rem;
+      color: #777;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .product-price {
+      display: flex;
+      font-size: 1rem;
+      font-weight: bold;
+      position: relative;
+      align-items: center;
+      gap: 1rem;
+      .money-icon {
+        // position: absolute;
+        width: 26%;
+        height: 40px;
+        top: -5rem;
+      }
+    }
+
+    .product-category {
+      display: flex;
+      font-size: 1rem;
+      font-weight: bold;
+      position: relative;
+      align-items: center;
+      gap: 1rem;
+      .category-icon {
+        // position: absolute;
+        width: 22%;
+        height: 35px;
+        top: -5rem;
+      }
+    }
+
+    .product-stocks {
+      position: absolute;
+      display: flex;
+      font-size: 1rem;
+      font-weight: bold;
+      align-items: center;
+      gap: 1rem;
+      .category-icon {
+        // position: absolute;
+        width: 7%;
+        height: 35px;
+        top: -5rem;
+      }
+    }
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    }
+  }
+}

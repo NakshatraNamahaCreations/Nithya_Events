@@ -1,0 +1,34 @@
+.image-slider {
+    width: 68%;
+    margin-left: 16rem;
+    margin-top: 6rem;
+    @media(max-width:600px){
+        width: 100%;
+        margin-left: 0rem;
+    }
+     
+    @media (max-width: 800px) and (min-width: 605px) {
+      width: 38rem;
+    padding-right: 2rem;
+    margin-left: 7rem;
+    }
+  }
+  
+  .slider-item {
+    position: relative;
+  }
+  
+  .slider-image {
+    width: 100%;
+    height: 470px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    @media(max-width: 600px){
+        height: 200px;
+    }
+  }
+  
+  .slick-dots {
+    bottom: -30px;
+  }
+  

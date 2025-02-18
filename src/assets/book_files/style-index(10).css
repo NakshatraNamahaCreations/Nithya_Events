@@ -1,0 +1,69 @@
+/*!******************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[3].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[3].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[3].use[3]!./includes/block-editor/blocks/pricing-table/style.scss ***!
+  \******************************************************************************************************************************************************************************************************************************************************************************/
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+.wp-block-webdevia-pricing-table {
+  padding: 50px 30px 45px;
+  margin-inline: auto;
+  transition: all 0.4s ease-in-out;
+}
+.wp-block-webdevia-pricing-table:hover {
+  transform: translate3d(0, -10px, 0) !important;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+.wp-block-webdevia-pricing-table hr {
+  max-width: unset !important;
+}
+.wp-block-webdevia-pricing-table ul, .wp-block-webdevia-pricing-table li {
+  font-size: inherit !important;
+}
+.wp-block-webdevia-pricing-table ul {
+  padding: 0 !important;
+}
+.wp-block-webdevia-pricing-table li {
+  list-style-type: none;
+  color: inherit !important;
+}
+.wp-block-webdevia-pricing-table__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.wp-block-webdevia-pricing-table__header h3 {
+  font-size: inherit !important;
+}
+.wp-block-webdevia-pricing-table__header-right h3, .wp-block-webdevia-pricing-table__header-left h3 {
+  margin-block-end: 0;
+}
+.wp-block-webdevia-pricing-table__header-right > :nth-child(2), .wp-block-webdevia-pricing-table__header-left > :nth-child(2) {
+  font-size: 14px;
+}
+.wp-block-webdevia-pricing-table__body {
+  font-weight: 400;
+}
+.wp-block-webdevia-pricing-table__body__option__icon svg {
+  display: block;
+  width: 30px;
+  height: 100%;
+}
+.wp-block-webdevia-pricing-table__body__option__icon__check {
+  fill: #FFF;
+}
+.wp-block-webdevia-pricing-table__body__option__icon__close {
+  fill: #ffc400;
+}
+.wp-block-webdevia-pricing-table__sub-body {
+  font-weight: 500;
+}
+.wp-block-webdevia-pricing-table__sub-body__option, .wp-block-webdevia-pricing-table__body__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/*# sourceMappingURL=style-index.css.map*/

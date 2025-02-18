@@ -1,0 +1,52 @@
+.Technicians-section {
+    margin-top: -2rem;
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+  
+    .Technicians-title {
+      margin-bottom: 1rem;
+    }
+  
+    .Technicians-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: stretch; /* Ensures all items stretch to match row height */
+    }
+  
+    .Technician-card {
+      flex: 1 1 calc(33.333% - 1rem);
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column; /* Ensures consistent layout inside the card */
+      justify-content: space-between; /* Spaces content evenly */
+      min-height: 250px; /* Ensures all cards are the same height */
+  
+      .Tech-name {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+      }
+  
+      .Tech-price,
+      .Tech-vendor,
+      .Tech-commission {
+        margin-bottom: 0.5rem;
+      }
+  
+      .Add-tech-btn {
+        margin-top: auto; /* Pushes button to the bottom */
+        background-color: #c026d3;
+        color: #fff;
+        &:hover {
+          background-color: #9e20b3;
+        }
+      }
+    }
+  }
+  

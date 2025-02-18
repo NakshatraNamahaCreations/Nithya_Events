@@ -1,0 +1,187 @@
+
+const DONE = 4
+const OK = 200
+const global_swiper_photoswipe_loop_setting = true
+let productImagesGallerySwiper2Array = []
+
+function generate_url_params( data ) {
+  data = data.filter(values => values[1] !== '')
+  const asString = data
+  .map(x => `${encodeURIComponent(x[0])}=${encodeURIComponent(x[1])}`)
+  .join('&')
+  return devia.home_url + '/advanced-search/?' + asString
+}
+
+function send_ajax_request( e ) {
+  const contentContainers = document.querySelectorAll('.advanced-search__content')
+  let formData
+
+  if (Array.isArray(e)){
+    formData = new FormData()
+    e.forEach( element => {
+      formData.append( element[0], element[1] )
+    })
+  } else if( e.target ) {
+    e.preventDefault()
+    formData = new FormData(e.target.closest('#wd-advanced-search-form'))
+  } else {
+    formData = new FormData(e.closest('#wd-advanced-search-form'))
+  }
+
+  if ( !contentContainers.length ) {
+    const data = [...formData.entries()]
+    window.location.href = generate_url_params( data )
+  } else {
+    contentContainers.forEach( element => {
+      element.style.opacity = .7
+    })
+    const currentProducts = document.querySelectorAll('.advanced-search__content li.product').length; 
+    let placeHolderItem = `<li class="placeholder-item product">
+                            <figure class="product_item_thumbnail">
+                              <img style="width: 100%;" width="300" height="300" src="${devia.home_url}/wp-content/uploads/woocommerce-placeholder.png" class="woocommerce-placeholder wp-post-image">
+                            </figure>
+                            <div class="product_item_details">
+                              <div class="text"></div>
+                              <div class="text" style="width: 140px;opacity: .3;height: 20px;"></div>
+                              <div class="text" style="width: 100px; "></div>
+                            </div>
+                          </li>`;
+    let placeHolder = placeHolderItem;
+    for (var i = 0; i < currentProducts - 1; i++) {
+      placeHolder += placeHolderItem;
+    }
+    document.querySelectorAll('.advanced-search__content ul.products').forEach( element => {
+      element.innerHTML = placeHolder
+    })
+
+    formData.append('action', 'wd_advanced_search')
+    // console.log( [...formData] )
+    let xhttp = new XMLHttpRequest()
+    xhttp.onreadystatechange = () => {
+      if( xhttp.readyState == DONE && xhttp.status == OK ) {
+        const data = JSON.parse( xhttp.responseText )
+        const content = document.createElement('div')
+        content.innerHTML = data.results.content
+        if( content.querySelector('#product_id') ) {
+          location.href = devia.home_url + '/product/' + content.querySelector('#product_id').textContent.trim()
+        } else {
+          contentContainers.forEach( element => {
+            element.innerHTML = data.results.content
+          })
+          wd_advanced_search_map ()
+          contentContainers.forEach( element => {
+            element.style.opacity = 1
+          })
+        }
+      }
+    }
+    xhttp.onerror = exception => {
+      let msg = ''
+      if (xhttp.status == 0) {
+        msg = 'Not connect.\n Verify Network.'
+      } else if (xhttp.status == 404) {
+        msg = 'Requested page not found. [404]'
+      } else if (xhttp.status == 500) {
+        msg = 'Internal Server Error [500].'
+      } else if (exception === 'parsererror') {
+        msg = 'Requested JSON parse failed.'
+      } else if (exception === 'timeout') {
+        msg = 'Time out error.'
+      } else if (exception === 'abort') {
+        msg = 'Ajax request aborted.'
+      } else {
+        msg = 'Uncaught Error.\n' + xhttp.responseText
+      }
+      console.error(msg)
+    }
+    xhttp.open( 'POST', devia.ajax_url, true )
+    xhttp.send( formData )
+  }
+
+}
+
+function closeAuction() {
+  var auctionid = jQuery(this).data('auctionid');
+  var future = jQuery(this).hasClass('future') ? 'true' : 'false';
+  var ajaxcontainer = jQuery(this).parent().next('.auction-ajax-change');
+  if ( ajaxcontainer.length == 0 ){
+    ajaxcontainer = jQuery(".auction_form[data-product_id='" + auctionid + "']");
+  }
+  ajaxcontainer.hide();
+  jQuery( '<div class="ajax-working"></div>' ).insertBefore(ajaxcontainer);
+  ajaxcontainer.parent().children('form.buy-now').hide();
+
+  var ajaxurl = saajaxurl+'=finish_auction';
+
+  jQuery( document.body).trigger('sa-close-auction',[auctionid]);
+  request =  jQuery.ajax({
+    type : "post",
+    url : ajaxurl,
+    cache : false,
+    data : {action: "finish_auction", post_id : auctionid, ret: ajaxcontainer.length, future: future},
+    success: function(response) {
+      if ( response ) {
+        if (response.status == 'closed' ){
+          ajaxcontainer.parent().children('form.buy-now').remove();
+          if ( response.message ){
+            jQuery('.ajax-working').remove();
+            jQuery('.main-auction.auction-time-countdown[data-auctionid='+auctionid+']').parent().remove();
+            ajaxcontainer.empty().prepend(response.message).wrap( "<div></div>" );
+            ajaxcontainer.show();
+            jQuery( document.body).trigger('sa-action-closed',[auctionid]);
+          }
+        } else if (response.status == 'running') {
+          getPriceAuction();
+          jQuery('.ajax-working').remove();
+          ajaxcontainer.show();
+          ajaxcontainer.parent().children('form.buy-now').show();
+        } else {
+          location.reload();
+        }
+      } else {
+        location.reload();
+      }
+    },
+    error: function(){
+      location.reload();
+    },
+  });
+}
+
+function geocodeLatLng( geocoder, map, infowindow, position, areas ) {
+  if(areas.hasAreas == 'on') {
+    const cityCircle = new google.maps.Circle({
+      strokeColor: "#FF0000",
+      strokeOpacity: 0.35,
+      strokeWeight: 1,
+      fillColor: "#FF0000",
+      fillOpacity: 0.35,
+      map,
+      center: position,
+      radius: parseInt(areas.areasWidth)
+    })
+  } else {
+    geocoder.geocode({ location: position }).then((response) => {
+      if (response.results[0]) {
+
+        const marker = new google.maps.Marker({
+          position: position,
+          map: map,
+        })
+        // console.log(response.results)
+        for (const result of response.results) {
+          const resultTypes = result.types
+          if(resultTypes.includes('political')) {
+            infowindow.setContent(`<p>${result.formatted_address}</p>`)
+            break
+          }
+        }
+        infowindow.open(map, marker)
+
+      } else {
+        console.error("No results found")
+      }
+    })
+    .catch((e) => console.error("Geocoder failed due to: " + e))
+  }
+}

@@ -1,0 +1,115 @@
+.Cart-container {
+  display: flex;
+  gap: 2rem;
+  padding: 3rem;
+  background-color: #f5f5f5;
+  @media (max-width: 700px) {
+    flex-direction: column;
+  }
+  .Cart-items {
+    flex: 3;
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    .Cart-title {
+      margin-bottom: 1rem;
+    }
+    .Cart-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 1rem;
+      .Cart-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+
+      .Cart-details {
+        flex: 1;
+      }
+    }
+  }
+  .Billing-summary {
+    flex: 2;
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    .Billing-title {
+      margin-bottom: 1rem;
+    }
+
+    .Billing-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .Billing-total {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+
+    .Place-order-btn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px auto;
+      background-color: #c026d3;
+    }
+  }
+}
+
+.Remove-btn {
+  margin-top: 0.5rem;
+}
+.Technicians-section {
+  margin-top: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+
+  .Technicians-title {
+    margin-bottom: 1rem;
+  }
+
+  .Technicians-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .Technician-card {
+    flex: 1 1 calc(33.333% - 1rem);
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+
+    .Tech-name {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .Tech-price,
+    .Tech-vendor,
+    .Tech-commission {
+      margin-bottom: 0.5rem;
+    }
+
+    .Add-tech-btn {
+      background-color: #c026d3;
+      color: #fff;
+      &:hover {
+        background-color: #9e20b3;
+      }
+    }
+  }
+}

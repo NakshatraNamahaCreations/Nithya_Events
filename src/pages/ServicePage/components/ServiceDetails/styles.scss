@@ -1,0 +1,30 @@
+.service-details {
+  padding: 37px;
+  padding-bottom: 9rem;
+  .service-details-heading {
+    font-size: 2rem;
+    span {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+  }
+
+  .service-card {
+    border-radius: 8px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: scale(1.02);
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  .MuiTableCell-root {
+    padding: 12px 16px;
+  }
+
+  .MuiAvatar-root {
+    margin: 0 auto;
+  }
+}

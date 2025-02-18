@@ -1,0 +1,40 @@
+/***************************************
+
+  Theme Name: Partytent
+  Theme URI: https://partytent.webdevia.com
+  Description: Event Rentals WooCommerce Theme
+
+  Author: Mymoun
+  Author URI: http://www.webdevia.com/
+  Version: 1.4
+  Text Domain: partytent
+  Domain Path: /languages
+  License: Envato
+  License URI: https://themeforest.net/licenses
+
+  Tags: two-columns, custom-background, threaded-comments, translation-ready, custom-menu
+  
+***************************************/
+/* ----------------------------------------------------------------------------
+
+  Unfortunately WordPress will require a style.css file
+  located in the theme's root folder for stuff to work.
+
+  However, we will not be using vanilla CSS. We're using Sass.
+
+  Sass is a superset of CSS that adds in amazing features
+  such as variables, nested selectors and loops..
+
+  All Sass files are located in the /scss folder.
+  Please note that none of your scss files will be compiled to /css/app.css before you run
+  'npm run watch', 'npm run build', "compass compile" or "compass watch",
+
+  More info on how to use Sass with Foundation can be found here:
+  http://foundation.zurb.com/docs/sass.html
+
+  For Define a table of contents please check /scss/app.scss.
+
+  If you for some reason would like to write plain css instead of using Sass,
+  you could just enqueue this file (style.css) to the header and add your styles in this file
+
+---------------------------------------------------------------------------- */

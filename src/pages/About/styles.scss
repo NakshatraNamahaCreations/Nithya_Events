@@ -1,0 +1,119 @@
+.about-us {
+  font-family: Arial, sans-serif;
+  .about-header {
+    padding: 50px;
+    display: flex;
+    .aboutMain {
+      width: 48.8rem;
+      height: 700px;
+      margin-left: 3rem;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+    .about-header-content {
+      h1 {
+        font-size: 3.5rem;
+        color: #333;
+        width: 40rem;
+        font-family: "Playfair Display", serif;
+      }
+
+      p {
+        margin: 20px 0;
+        font-size: 1.2rem;
+        color: #555;
+        width: 40rem;
+      }
+    }
+    .services {
+      display: flex;
+      flex-direction: column;
+      justify-content: end;
+      gap: 30px;
+
+      .service {
+        max-width: 200px;
+        display: flex;
+        align-items: center;
+
+        .about-icons {
+          width: 7rem;
+        }
+
+        i {
+          font-size: 2rem;
+          color: #ff5733;
+        }
+
+        h3 {
+          font-size: 1.6rem;
+          margin: 10px 0;
+          font-family: "Playfair Display", serif;
+        }
+
+        p {
+          font-size: 1rem;
+          color: #666;
+        }
+      }
+    }
+  }
+
+  .banner {
+    margin: 50px 0;
+
+    img {
+      width: 100%;
+      height: 507px;
+      object-fit: fill;
+    }
+  }
+
+  .team {
+    text-align: center;
+    padding: 50px;
+    background-color: #f9f8f6;
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 30px;
+    }
+
+    .team-members {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+
+      .team-member {
+        text-align: center;
+        background-color: #fdf8f2;
+        width: 20rem;
+        height: 381px;
+
+        img {
+          width: 19.8rem;
+          height: 294px;
+          margin-bottom: 10px;
+        }
+
+        h3 {
+          font-size: 1.2rem;
+          margin: 5px 0;
+          font-family: "Playfair Display", serif;
+          
+        }
+
+        p {
+          font-size: 0.9rem;
+          color: #777;
+          font-family: "Playfair Display", serif;
+        }
+
+        &:hover {
+          transform: scale(1.1);
+          transition: 0.3s ease-in-out;
+        }
+      }
+    }
+  }
+}

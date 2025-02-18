@@ -1,0 +1,105 @@
+.numbers-achievements {
+    text-align: center;
+    padding: 3px 20px;
+    // background: #f9f8f6;
+  
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      font-family: "Playfair Display", serif;
+
+    }
+    h5 {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        color: #5f5f5f;
+  
+      }
+  
+    .achievements {
+      display: flex;
+      justify-content: center;
+      gap: 18rem;
+      padding: 2rem;
+  
+      .achievement {
+        text-align: center;
+  
+        .icon {
+          font-size: 2.5rem;
+          margin-bottom: 10px;
+          width: 6rem;
+        }
+  
+        h3 {
+          font-size: 1.8rem;
+          margin: 0;
+        }
+  
+        p {
+          font-size: 1rem;
+          color: #555;
+        }
+      }
+    }
+  }
+  
+  .packages {
+    text-align: center;
+    padding: 50px 20px;
+    background: #f8f5f2;
+  
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 30px;
+    }
+  
+    .package-list {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+  
+      .package {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        width: 250px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+        h3 {
+          font-size: 1.5rem;
+          margin-bottom: 10px;
+        }
+  
+        .price {
+          font-size: 1.2rem;
+          margin: 10px 0;
+  
+          span:first-child {
+            font-size: 2rem;
+            font-weight: bold;
+          }
+        }
+  
+        .features {
+          list-style: none;
+          padding: 0;
+  
+          li {
+            margin: 5px 0;
+          }
+  
+          .available {
+            color: #333;
+          }
+  
+          .unavailable {
+            color: #999;
+            text-decoration: line-through;
+          }
+        }
+      }
+    }
+  }
+  
