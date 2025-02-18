@@ -18,8 +18,8 @@ const ReturnPolicy = () => {
       D. Rental Fees: Rental Amount: The Customer agrees to pay a rental fee of
       Amount for the entire rental duration. Due Dates: Payment must be
       made in advance on or before the first day of the rental period.
-      <br /> E. Rental Period: The rental period will commence on [Start Date]
-      and conclude on [End Date]. The Customer is responsible for returning the
+      <br /> E. Rental Period: The rental period will commence on Start Date
+      and conclude on End Date. The Customer is responsible for returning the
       rented equipment by the end of the rental period. Late returns may incur
       additional fees.
       <br /> F. Notification of Cancellation: To cancel an order, customers must

@@ -164,13 +164,13 @@ const Toc = () => {
           Refund: If a product is returned due to defects, the Company may issue
           a partial refund after an assessment of the product’s condition.
           <br /> C. Late Fees: In the event of a late payment, the Customer will
-          be liable to pay a late fee of [ or Amount] for each day the payment
+          be liable to pay a late fee of or Amount for each day the payment
           is delayed beyond the due date. <br />
           D. Rental Fees: Rental Amount: The Customer agrees to pay a rental fee
-          of [or Amount] for the entire rental duration. Due Dates: Payment must
+          of or Amount for the entire rental duration. Due Dates: Payment must
           be made in advance on or before the first day of the rental period.
-          <br /> E. Rental Period: The rental period will commence on [Start
-          Date] and conclude on [End Date]. The Customer is responsible for
+          <br /> E. Rental Period: The rental period will commence on Start
+          Date and conclude on End Date. The Customer is responsible for
           returning the rented equipment by the end of the rental period. Late
           returns may incur additional fees.
           <br /> F. Notification of Cancellation: To cancel an order, customers
@@ -181,9 +181,9 @@ const Toc = () => {
           extended rental periods, will be billed separately. These charges are
           due upon receipt of the invoice and must be settled before any future
           rentals or services can be processed. Delivery: The equipment will be
-          delivered to [Specific Location, e.g., "Renter's business address"] on
-          [Delivery Date]. All delivery-related costs will be borne by [the
-          responsible party, e.g., "the Renter" or "the Owner"]. If delivery
+          delivered to Specific Location, e.g., "Renter's business address"] on
+          Delivery Date. All delivery-related costs will be borne by the
+          responsible party, e.g., "the Renter" or "the Owner". If delivery
           fees are applicable, they will be specified during the order
           confirmation process.
         </Typography>
@@ -191,14 +191,14 @@ const Toc = () => {
         <Typography variant="body2" paragraph>
           10. RETURN AND LATE RETURNS Return:
           <br /> At the end of the rental period, the Renter shall return the
-          equipment to [Specific Return Location, e.g., "Owner's primary
-          business location"] no later than [End Date as mentioned in Rental
-          Period]. The equipment must be returned in the same condition as it
+          equipment to Specific Return Location, e.g., "Owner's primary
+          business location" no later than End Date as mentioned in Rental
+          Period. The equipment must be returned in the same condition as it
           was at the beginning of the rental period, allowing for regular wear
           and tear. Late Returns: If the Renter fails to return the equipment by
-          the specified date, a late fee of [₹ or $ Amount] will be charged for
-          each day of delay. If the equipment is not returned within [specific
-          time, e.g., "one days"] after the due date, the equipment will be
+          the specified date, a late fee of ₹ or $ Amount will be charged for
+          each day of delay. If the equipment is not returned within specific
+          time, e.g., "one days" after the due date, the equipment will be
           considered stolen, and appropriate legal actions may be taken. <br />{" "}
           <br />
           11. MAINTENANCE AND REPAIRS Renter's Responsibility:
@@ -266,14 +266,14 @@ const Toc = () => {
           condition, including any necessary legal action to recover damages or
           equipment. <br /> <br />
           17. JURISDICTION Any legal proceedings related to this agreement will
-          be brought in the courts of [Specific City, State/Country], and both
+          be brought in the courts of Specific City, State/Country, and both
           parties consent to such jurisdiction and venue. Both the Renter and
           the Owner agree that they will not contest the jurisdiction or venue
           of these courts in any legal action arising from this agreement.{" "}
           <br /> <br />
           18. BINDING ARBITRATION If mediation is unsuccessful, either party may
           propose to settle the dispute by binding arbitration under the rules
-          of [Specific Arbitration Association]. The decision reached by
+          of Specific Arbitration Association. The decision reached by
           arbitration shall be final and binding on both parties, and neither
           party shall have the right to appeal the decision in a court of law.{" "}
           <br /> <br />
