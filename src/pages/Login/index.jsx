@@ -100,13 +100,14 @@ const Login = () => {
           </Link>
 
           <Typography variant="body2" className="register-text">
-            You have already an account?{" "}
+            Don't have an account yet?
             <Typography
               component="span"
               className="register-link"
+              style={{marginLeft:'1rem'}}
               onClick={() => navigate("/signup")}
             >
-              Back to Login
+              SignUp
             </Typography>
           </Typography>
         </Box>

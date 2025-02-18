@@ -434,9 +434,9 @@ const Toc = () => {
           10. Contact Us <br />
           If you have any questions about this TERMS AND CONDITIONS Privacy
           Policy, please contact us at: <br />
-           Email: [support@nithyaevent.com]
+           Email: support@nithyaevent.com
           <br />
-           Address: [Kadagam Ventures Private Limited] <br />
+           Address: Kadagam Ventures Private Limited <br />
            No : 34. Venkatappa Road Tasker Town
           <br />
            Off Queens Road Bangalore 560051
