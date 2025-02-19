@@ -7,7 +7,7 @@ const HelpCentre = () => {
   const navigate = useNavigate();
 
   const profileData = {
-    contact_email: "support@nithyaevent.com",
+    contact_email: "Support@nithyaevents.com",
     contact_phone: "+91 99801370001",
     corporate_address: "Kadagam Ventures Private Limited, No: 34 Venkatappa Road, Tasker Town, Off Queens Road, Bangalore 560051.",
   };

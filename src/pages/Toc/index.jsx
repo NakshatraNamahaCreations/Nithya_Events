@@ -174,7 +174,7 @@ const Toc = () => {
           returning the rented equipment by the end of the rental period. Late
           returns may incur additional fees.
           <br /> F. Notification of Cancellation: To cancel an order, customers
-          must notify NithyaEvent by sending an email to support@nithyaevent.com
+          must notify NithyaEvent by sending an email to Support@nithyaevents.com
           with their order details. <br /> <br />
           9. ADDITIONAL CHARGES AND DELIVERY Additional Charges: <br /> Any
           additional costs incurred, such as equipment damages, loss, or
@@ -434,7 +434,7 @@ const Toc = () => {
           10. Contact Us <br />
           If you have any questions about this TERMS AND CONDITIONS Privacy
           Policy, please contact us at: <br />
-           Email: support@nithyaevent.com
+           Email: Support@nithyaevents.com
           <br />
            Address: Kadagam Ventures Private Limited <br />
            No : 34. Venkatappa Road Tasker Town

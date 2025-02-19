@@ -35,7 +35,7 @@ const PrivacyPolicy = () => {
     <h3>11. Contact Us</h3>
     <p>If you have any questions about this Privacy Policy, please contact us at:</p>
     <ul>
-      <li><strong>Email:</strong> support@nithyaevent.com</li>
+      <li><strong>Email:</strong> Support@nithyaevents.com</li>
       <li><strong>Address:</strong> Kadagam Ventures Private Limited, No: 34 Venkatappa Road, Tasker Town, Off Queens Road, Bangalore 560051.</li>
     </ul>
   `;
