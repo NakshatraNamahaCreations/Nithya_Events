@@ -647,7 +647,7 @@ const SingleProducts = () => {
                         style={{ width: "13px" }}
                         alt="Not Found"
                       />{" "}
-                      {item.product_price}
+                      {item.product_price} /  day
                     </Box>
 
                     <Typography

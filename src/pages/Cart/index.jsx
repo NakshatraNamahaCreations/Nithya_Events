@@ -177,7 +177,7 @@ const Cart = () => {
                         <TableRow key={item._id}>
                           <TableCell>{item.productName}</TableCell>
                           <TableCell>
-                            ₹{item.productPrice?.toFixed(2)}
+                            ₹{item.productPrice?.toFixed(2)} / day
                           </TableCell>
                           <TableCell>
                             <IconButton

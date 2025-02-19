@@ -24,7 +24,14 @@ const ReturnPolicy = () => {
       additional fees.
       <br /> F. Notification of Cancellation: To cancel an order, customers must
       notify NithyaEvent by sending an email to support@nithyaevent.com with
-      their order details. <br /> <br />
+      their order details. <br /> 
+      G. Return Policy for Wrong Product: If you receive the wrong product, you must notify NithyaEvent within 7 days of delivery by sending an email to support@nithyaevent.com with your order details. The product must be unused and in its original packaging for a successful return.  
+      <br />
+      H. Shipping Policy: All orders are processed and shipped on the same day of purchase.
+<br /><br />
+
+
+      
     </div>
   );
 };

@@ -519,7 +519,7 @@ const Category = () => {
                         </Typography>
                       </Box>
                       <Typography className="product-price">
-                        ₹{item.product_price}
+                        ₹{item.product_price} / day
                       </Typography>
                       <Typography className="product-discount">
                         {item.discount}% OFF
