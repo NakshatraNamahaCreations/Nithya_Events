@@ -196,7 +196,7 @@ const Toc = () => {
           Period. The equipment must be returned in the same condition as it
           was at the beginning of the rental period, allowing for regular wear
           and tear. Late Returns: If the Renter fails to return the equipment by
-          the specified date, a late fee of ₹ or $ Amount will be charged for
+          the specified date, a late fee of ₹ Amount will be charged for
           each day of delay. If the equipment is not returned within specific
           time, e.g., "one days" after the due date, the equipment will be
           considered stolen, and appropriate legal actions may be taken. <br />{" "}

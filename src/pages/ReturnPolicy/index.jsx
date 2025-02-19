@@ -9,8 +9,8 @@ const ReturnPolicy = () => {
       fee will be applied to cover processing and administrative costs. <br />{" "}
       B. Refund Policy: Full Refund: Eligible cancellations made within the
       specified cancellation Fees, And window will receive a full refund,
-      credited within 7 business days. Partial Refund: If a product is returned
-      due to defects, the Company may issue a partial refund after an assessment
+        credited within 7 business days. Partial Refund: If a product is returned
+        due to defects, the Company may issue a partial refund after an assessment
       of the product’s condition.
       <br /> C. Late Fees: In the event of a late payment, the Customer will be
       liable to pay a late fee of Amount for each day the payment is

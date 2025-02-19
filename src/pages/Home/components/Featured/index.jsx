@@ -112,7 +112,7 @@ const Featured = () => {
                     fontWeight: "bold",
                   }}
                 >
-                  ${item.product_price}
+                  ₹{item.product_price}
                 </Typography>
               </Box>
               <Box
