@@ -42,8 +42,8 @@ const Footer = () => {
             <li>Help Center</li>
             </Link>
             <p>Contact Us</p>
-            <p>info@nithyaevent.com</p>
-            <p>Phone: +91 98765 43210</p>
+            <p>support@nithyaevent.com</p>
+            <p>Phone: +91 99801370001</p>
           </ul>
         </div>
 
