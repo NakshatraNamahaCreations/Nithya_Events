@@ -27,7 +27,7 @@ const ExploreService = () => {
   ];
 
   return (
-    <Box sx={{ padding: "2rem", textAlign: "center" }}>
+    <Box sx={{ padding: "2rem", textAlign: "center", display:"none" }}>
       <Typography
         sx={{
           fontSize: "2rem",

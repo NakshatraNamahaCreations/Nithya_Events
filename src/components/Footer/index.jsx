@@ -56,12 +56,20 @@ const Footer = () => {
         </div>
 
         <div className="footer-column">
-          <div className="social-media">
-            <Facebook className="icon" />
-            <Instagram className="icon" />
-            <Twitter className="icon" />
-            <YouTube className="icon" />
-          </div>
+        <div className="social-media">
+      <a href="https://www.facebook.com/people/Nithya-event/61571314384247/" target="_blank" rel="noopener noreferrer">
+        <Facebook className="icon" />
+      </a>
+      <a href="https://www.instagram.com/nithya_event/" target="_blank" rel="noopener noreferrer">
+        <Instagram className="icon" />
+      </a>
+      <a href="https://x.com/Nithya_Event" target="_blank" rel="noopener noreferrer">
+        <Twitter className="icon" />
+      </a>
+      <a href="https://www.youtube.com/@nithyaevent" target="_blank" rel="noopener noreferrer">
+        <YouTube className="icon" />
+      </a>
+    </div>
           <div className="location">
             <LocationOn />
             <span>Bengaluru, India</span>

@@ -246,7 +246,7 @@ const PageHeader = () => {
                   />
                   Setting
                 </Link> */}
-                <Link
+                {/* <Link
                   to={"/services"}
                   style={{
                     textDecoration: "none",
@@ -262,7 +262,7 @@ const PageHeader = () => {
                     style={{ width: "17px", marginTop: "1.5px" }}
                   />
                   Services
-                </Link>
+                </Link> */}
                 <Link
                   to={"/booking"}
                   style={{
