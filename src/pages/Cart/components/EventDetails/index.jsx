@@ -61,6 +61,7 @@ const EventDetails = ({
     endTime: null,
     eventName: "",
     eventVenue: "",
+    venueStartTime:"",
     receiverName: "",
     receiverMobile: "",
     address: null,
@@ -341,7 +342,6 @@ const EventDetails = ({
     }
     handleClearAll();
   };
-  console.log("The technicaina ", technicianItems);
 
   const handleModalClose = () => {
     setIsOrderSummaryOpen(false);
@@ -478,6 +478,15 @@ const EventDetails = ({
                 label={<FieldLabel label="Event Venue" />}
                 name="eventVenue"
                 value={eventDetails.eventVenue}
+                onChange={handleChange}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label={<FieldLabel label="Event Name" />}
+                name="Venue Start Time"
+                value={eventDetails.venueStartTime}
                 onChange={handleChange}
                 fullWidth
               />

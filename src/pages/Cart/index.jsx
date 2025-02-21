@@ -98,10 +98,10 @@ const Cart = () => {
 
   const baseAmount = totalPrice * numberOfDays;
   const tdsCharges = baseAmount * 0.02;
-  const cgst = totalPrice * 0.09;
-  const sgst = totalPrice * 0.09;
+  const cgst = baseAmount * 0.09;
+  const sgst = baseAmount * 0.09;
   const totalGst = cgst + sgst;
-  const amountAfterTds = totalPrice - tdsCharges;
+  const amountAfterTds = baseAmount - tdsCharges;
   const grandTotal = amountAfterTds + totalGst;
 
   const handleQuantityDecrement = (itemId, type) => {
@@ -343,7 +343,7 @@ const Cart = () => {
             <Typography variant="p" sx={{ color: "#626262" }}>
               Amount After TDS Deduction:
             </Typography>
-            <Typography>-₹{baseAmount - tdsCharges}</Typography>
+            <Typography>₹{baseAmount - tdsCharges}</Typography>
           </Box>
 
           {/* CGST (9%) */}

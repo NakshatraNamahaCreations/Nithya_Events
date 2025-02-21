@@ -74,11 +74,11 @@ const Footer = () => {
             <LocationOn />
             <span>Bengaluru, India</span>
           </div>
-          <p>© 2025 | Nithya All Rights Reserved</p>
+          <p>© 2025 | copyrights its Kadagam Ventures Private Limited</p>
         </div>
       </div>
 
-      {/* 📍 Google Maps Integration */}
+      {/*  Google Maps Integration */}
       <div className="footer-map-container">
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62207.564887681794!2d77.51997442373327!3d12.973591159377882!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae17005b0a5e31%3A0xb6796593445e2823!2sKadagam%20Ventures!5e0!3m2!1sen!2sin!4v1739967980569!5m2!1sen!2sin"

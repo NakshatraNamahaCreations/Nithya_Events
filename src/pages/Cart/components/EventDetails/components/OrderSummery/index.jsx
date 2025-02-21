@@ -57,7 +57,7 @@ const OrderSummary = ({
       {cartItems?.length > 0 && (
         <>
           <Typography variant="subtitle1" fontWeight="bold">
-            🛍️ Products
+           Products
           </Typography>
           {cartItems?.map((item, index) => (
             <Grid container key={index} sx={{ mb: 1 }}>
@@ -99,11 +99,11 @@ const OrderSummary = ({
         </>
       )}
 
-      {/* 💼 Services */}
+      {/* Services */}
       {servicesItem?.length > 0 && (
         <>
           <Typography variant="subtitle1" fontWeight="bold">
-            🎯 Services
+            Services
           </Typography>
           {servicesItem.map((item, index) => (
             <Grid container key={index} sx={{ mb: 1 }}>
@@ -190,7 +190,7 @@ const OrderSummary = ({
       </Typography>
       <Divider sx={{ my: 2 }} />
 
-      {/* 📍 Event Details with Map */}
+      {/*  Event Details with Map */}
       <Typography
         variant="h6"
         sx={{ color: "#6c63ff", fontWeight: "bold", mt: 2 }}
@@ -207,10 +207,10 @@ const OrderSummary = ({
           <strong>{eventDetails?.eventName}</strong>
         </Typography>
         <Typography variant="body2" color="textSecondary">
-          📍 {eventDetails?.eventVenue}, {eventDetails?.eventLocation}
+          {eventDetails?.eventVenue}, {eventDetails?.eventLocation}
         </Typography>
         <Typography variant="body2" color="textSecondary">
-          📅 {eventDetails?.startDate} to {eventDetails?.endDate} at ⏰{" "}
+          {eventDetails?.startDate} to {eventDetails?.endDate} at {" "}
           {eventDetails?.startTime} to {eventDetails?.endTime}
         </Typography>
         <Typography variant="body2" color="textSecondary">
@@ -218,7 +218,7 @@ const OrderSummary = ({
         </Typography>
       </Box>
 
-      {/* 💬 Message Box */}
+      {/*  Message Box */}
       <TextField
         fullWidth
         multiline
@@ -228,7 +228,7 @@ const OrderSummary = ({
         sx={{ mt: 2 }}
       />
 
-      {/* 🚀 Action Buttons */}
+      {/*  Action Buttons */}
       <Box sx={{ mt: 3, textAlign: "center" }}>
         <Button
           variant="contained"
@@ -236,7 +236,7 @@ const OrderSummary = ({
           fullWidth
           sx={{
             background: "linear-gradient(to right, #6c63ff, #957dff)",
-            mb: 2,
+            mb: 2
           }}
           onClick={handleConfirmOrder}
         >

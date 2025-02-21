@@ -164,25 +164,27 @@ const SingleProducts = () => {
     if (product) {
       dispatch(
         addToCart({
-          orderId: Date.now().toString(), // Unique order ID
-          id: product._id, // Product ID
-          productName: product.product_name, // Product Name
-          productPrice: product.product_price, // Product price
-          mrpPrice: product.mrp_rate, // MRP price
-          store: product.shop_name, // Store name
-          imageUrl: product.product_image, // Product image
-          productDimension: product.product_dimension || "Not Specified", // Product dimension
-          totalPrice: product.product_price * quantity, // Total price calculation
-          quantity: quantity, // Selected quantity
-          context: "product", // Context type
-          sellerName: product.vendor_name, // Seller Name
-          sellerId: product.vendor_id, // Seller ID
-          eventStartDate: startDate, // Event start date
-          eventEndDate: endDate, // Event end date
-          commissionTax: product.commission_tax || 0, // Default to 0
-          commissionPercentage: product.commission_percentage || 0, // Default to 0
+          orderId: Date.now().toString(),
+          id: product._id, 
+          productName: product.product_name, 
+          productPrice: product.product_price, 
+          mrpPrice: product.mrp_rate, 
+          store: product.shop_name,
+          imageUrl: product.product_image,
+          productDimension: product.product_dimension || "Not Specified", 
+          totalPrice: product.product_price * quantity, 
+          quantity: quantity, 
+          context: "product", 
+          sellerName: product.vendor_name, 
+          sellerId: product.vendor_id, 
+          eventStartDate: startDate, 
+          eventEndDate: endDate, 
+          commissionTax: product.commission_tax || 0, 
+          commissionPercentage: product.commission_percentage || 0, 
         })
       );
+
+      
     }
 
     if (technicians && technicians.length > 0) {
@@ -212,7 +214,8 @@ const SingleProducts = () => {
     }
 
     setOpen(true);
-
+    setBottomDrawerOpen(false);
+    console.log("continue click");
     setTimeout(() => {
       setOpen(false);
     }, 1500);
@@ -395,18 +398,18 @@ const SingleProducts = () => {
                 </Box>
               </Box>
               <Box className="product-features">
-                <Box className="feature">
+                {/* <Box className="feature">
                   <img src={Shipping} alt="Free Delivery" />
                   <Typography variant="p" className="feature-contents">
                     Free Delivery
                   </Typography>
-                </Box>
-                <Box className="feature">
+                </Box> */}
+                {/* <Box className="feature">
                   <img src={Replace} alt="3 Days Replacement" />
                   <Typography variant="p" className="feature-contents">
                     3 Days Replacement
                   </Typography>
-                </Box>
+                </Box> */}
                 <Box className="feature">
                   <img src={Shipping} alt="Fast Delivery" />
                   <Typography variant="p" className="feature-contents">

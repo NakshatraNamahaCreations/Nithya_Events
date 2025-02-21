@@ -1,65 +1,33 @@
-// React related imports
-import { useNavigate } from "react-router-dom";
-
-// Third party library
-import { Box, Typography, Button } from "@mui/material";
+// React and react related imports 
+import React from 'react';
+import { Grid, Button, Card, CardContent, Typography, Box } from '@mui/material';
 
 // Assests
-import Shamiana from "../../../../assets/tent1.jpg";
-import Sound from "../../../../assets/speakerFinal.jpg";
-import Lights from "../../../../assets/lights.jpg";
-import Video from "../../../../assets/cameraFinal.jpg";
+// import Shamiana from "../../../../assets/tent1.jpg";
+import Shamiana from "../../../../assets/Shamiana12.png";
+import Sound from "../../../../assets/speakerbg3.png";
+import Lights from "../../../../assets/eventLights.png";
+import Video from "../../../../assets/cameraFinalPng.png";
 import Fabrication from "../../../../assets/carpet.png";
 import Genset from "../../../../assets/genset.png";
 
 // styles
 import "./styles.scss";
 
+const categories = [
+  { title: 'Speaker', color: '#f8f9fa', img: Sound, shopNow: true, cols: 4, left:"10rem", width:"15rem", height:"198px", top:"0rem" },
+  { title: 'Lighting', color: '#d4edf8', img: Lights, cols: 3 ,left:"4rem",width:"15rem", height:"198px", top:"0rem" },
+  { title: 'Samiyana', color: '#fef9c4', img: Shamiana,  cols: 3,left:"3rem", width:"18rem", height:"308px", top:"6.5rem" },
+  { title: 'Fabrication', color: '#f2e7e3', img: Fabrication, cols: 3,left:"2rem", width:"15rem", height:"198px", top:"0rem" },
+  { title: 'video', color: '#e3f2e6', img: Video, cols: 3, left:"2rem", width:"15rem", height:"198px",top:"0rem" },
+  { title: 'Genset', color: '#fae8e8', img: Genset, shopNow: true, cols: 4,left:"11rem", width:"15rem", height:"198px", top:"2rem" },
+];
+
 const ExploreCategory = () => {
-  const navigate = useNavigate();
-
-  const handleNavigation = (category) => {
-    window.scrollTo(0, 0);
-    navigate(`/category/${category}`);
-  };
-
-  const handleViewAll = () => {
-    window.scrollTo(0, 0);
-    navigate(`/categories`);
-  };
-
-  const categories = [
-    {
-      name: "Sound",
-      icon: Sound,
-      bgColor: "#f8f9fa",
-      textColor: "#444444",
-    },
-    {
-      name: "Lighting",
-      icon: Lights,
-      bgColor: "#e3f2fd",
-      textColor: "#2381ab",
-    },
-    {
-      name: "Shamiana",
-      icon: Shamiana,
-      bgColor: "#fff3cd",
-      textColor: "#d9ba18",
-    },
-    {
-      name: "Fabrication",
-      icon: Fabrication,
-      bgColor: "#f8d7da",
-      textColor: "#c63d42",
-    },
-    { name: "Video", icon: Video, bgColor: "#d4edda", textColor: "#3cd343" },
-    { name: "Genset", icon: Genset, bgColor: "#f2e7e3", textColor: "#c19d5d" },
-  ];
-
   return (
-    <Box className="main-container">
-      <Box
+    <div className="category-container">
+   
+   <Box
         className="card-header"
         sx={{
           textAlign: "center",
@@ -72,95 +40,37 @@ const ExploreCategory = () => {
         <Typography
           variant="h4"
           className="small-title"
-          sx={{ color: "#6c757d" }}
+          sx={{ color: "#1a365d", fontWeight:600 }}
         >
           Categories
         </Typography>
       </Box>
-
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 2fr))",
-          gap: "20px",
-        }}
-      >
+      <Grid container spacing={3} justifyContent="center">
         {categories.map((category, index) => (
-          <Box
-            key={index}
-            sx={{
-              backgroundColor: category.bgColor,
-              borderRadius: "10px",
-              padding: "20px",
-              textAlign: "center",
-              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-              cursor: "pointer",
-              transition: "transform 0.3s ease",
-              "&:hover": {
-                transform: "scale(1.05)",
-              },
-              "@media(max-width:600px)": {
-                width: "24rem",
-              },
-            }}
-            onClick={() => handleNavigation(category.name.toLowerCase())}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                gap: "2rem",
-                justifyContent: "space-around",
-              }}
-            >
-              <Box sx={{ display: "flex", flexDirection: "column" }}>
-                <Typography
-                  sx={{
-                    fontWeight: "600",
-                    fontSize: "2.5rem",
-                    color: "#858585",
-                  }}
-                >
-                  {category.name}
+          <Grid item xs={12} sm={category.cols} key={index}>
+            <Card className="category-card" style={{ backgroundColor: category.color }}>
+              <CardContent className="card-content">
+                <Typography variant="h5" style={{fontSize:'2.4rem', fontWeight:'600', color:'#858585'}} className="category-name">
+                  {category.title}
                 </Typography>
-                <Button
-                  sx={{
-                    backgroundColor: "black",
-                    color: "white",
-                    width: "8rem",
-                    marginTop: "1.4rem",
-                  }}
-                >
-                  Shop Now
-                </Button>
-              </Box>
-              <Box sx={{ marginBottom: "1rem", textAlign: "center" }}>
-                <img
-                  src={category.icon}
-                  alt={category.name}
-                  className="image-category-container"
-                />
-              </Box>
-            </Box>
-            <Box></Box>
-          </Box>
+                {category.shopNow && (
+                  <Button variant="contained" style={{backgroundColor:'black', marginTop:'3rem'}} className="shop-now-button">
+                    Shop Now →
+                  </Button>
+                )}
+                <div className="image-container">
+                  <img src={category.img} alt={category.title} style={{left:category.left, width:category.width, height:category.height, marginTop:category.top}} className="category-image" />
+                </div>
+         
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </Box>
-
-      <Box sx={{ textAlign: "center", marginTop: "2rem" }}>
-        <Button
-          variant="contained"
-          sx={{
-            padding: "10px 20px",
-            fontSize: "1rem",
-            fontWeight: "bold",
-            backgroundColor: "#c026d3",
-          }}
-          onClick={handleViewAll}
-        >
-          View All
-        </Button>
-      </Box>
-    </Box>
+      </Grid>
+      <Button variant="contained" color="primary"  sx={{marginTop:"4rem"}} className="view-all-button">
+        View All
+      </Button>
+    </div>
   );
 };
 
