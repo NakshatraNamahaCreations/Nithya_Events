@@ -19,13 +19,13 @@ const Calendar = ({ calendarClose }) => {
   const handleDateChange = (dates) => {
     setSelectedDates(dates);
 
-    if (dates[0] && dates[1]) {
-      dispatch(setDates({ startDate: dates[0], endDate: dates[1] }));
+    if (dates[0]) {
+      dispatch(setDates({ startDate: dates[0], endDate: dates[1] ? dates[1] : dates[0] }));
     }
   };
 
   const handleConfirm = () => {
-    if (selectedDates[0] && selectedDates[1]) {
+    if (selectedDates[0]) {
       setOpenModal(true);
       setModalMessage("Thank you! Your event dates are confirmed.");
       setModalType("success");
@@ -77,7 +77,7 @@ const Calendar = ({ calendarClose }) => {
               background: "linear-gradient(90deg, #845ec2, #6c63ff)",
             },
           }}
-          disabled={!selectedDates[0] || !selectedDates[1]}
+          disabled={!selectedDates[0]}
         >
           Confirm
         </Button>

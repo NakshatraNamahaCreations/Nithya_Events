@@ -191,23 +191,23 @@ const SingleProducts = () => {
       technicians.forEach((technician) => {
         dispatch(
           addTechnician({
-            orderId: Date.now().toString(), // Ensure unique ID
-            service_id: technician._id, // Technician ID
+            orderId: Date.now().toString(), 
+            service_id: technician._id,
             product_image:
               technician.image ||
               "https://centrechurch.org/wp-content/uploads/2022/03/img-person-placeholder.jpeg",
             category: technician.category,
-            price: technician.price, // Technician price
-            service_name: technician.service_name, // Service name
-            shop_name: technician.shop_name, // Shop name
-            vendor_id: technician.vendor_id, // Vendor ID
-            vendor_name: technician.vendor_name, // Vendor name
-            eventStartDate: startDate, // Event start date
-            eventEndDate: endDate, // Event end date
-            quantity: 1, // Default quantity
-            totalPrice: technician.price * 1, // Total price calculation
-            commission_tax: technician.commission_tax || 0, // Default commission tax
-            commission_percentage: technician.commission_percentage || 0, // Default commission percentage
+            price: technician.price,
+            service_name: technician.service_name, 
+            shop_name: technician.shop_name,
+            vendor_id: technician.vendor_id, 
+            vendor_name: technician.vendor_name, 
+            eventStartDate: startDate, 
+            eventEndDate: endDate, 
+            quantity: 1, 
+            totalPrice: technician.price * 1, 
+            commission_tax: technician.commission_tax || 0,
+            commission_percentage: technician.commission_percentage || 0,
           })
         );
       });
@@ -215,7 +215,6 @@ const SingleProducts = () => {
 
     setOpen(true);
     setBottomDrawerOpen(false);
-    console.log("continue click");
     setTimeout(() => {
       setOpen(false);
     }, 1500);

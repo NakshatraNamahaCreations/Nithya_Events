@@ -35,7 +35,7 @@ const Trusted = () => {
 
   return (
     <Box
-      sx={{ padding: { xs: "1rem", md: "2rem" }, backgroundColor: "#f8f9fa" }}
+      sx={{ padding: { xs: "1rem", md: "2rem 5rem" }, backgroundColor: "#f8f9fa" }}
     >
       {/* Header Section */}
       <Box sx={{ textAlign: "center", marginBottom: "2rem" }}>

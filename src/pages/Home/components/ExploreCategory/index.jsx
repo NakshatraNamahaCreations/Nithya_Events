@@ -13,17 +13,25 @@ import Genset from "../../../../assets/genset.png";
 
 // styles
 import "./styles.scss";
+import { useNavigate } from 'react-router-dom';
+
+
 
 const categories = [
-  { title: 'Speaker', color: '#f8f9fa', img: Sound, shopNow: true, cols: 4, left:"10rem", width:"15rem", height:"198px", top:"0rem" },
+  { title: 'Sound', color: '#f8f9fa', img: Sound, shopNow: true, cols: 4, left:"10rem", width:"15rem", height:"198px", top:"0rem" },
   { title: 'Lighting', color: '#d4edf8', img: Lights, cols: 3 ,left:"4rem",width:"15rem", height:"198px", top:"0rem" },
-  { title: 'Samiyana', color: '#fef9c4', img: Shamiana,  cols: 3,left:"3rem", width:"18rem", height:"308px", top:"6.5rem" },
+  { title: 'Shamiana', color: '#fef9c4', img: Shamiana,  cols: 3,left:"3rem", width:"18rem", height:"308px", top:"6.5rem" },
   { title: 'Fabrication', color: '#f2e7e3', img: Fabrication, cols: 3,left:"2rem", width:"15rem", height:"198px", top:"0rem" },
-  { title: 'video', color: '#e3f2e6', img: Video, cols: 3, left:"2rem", width:"15rem", height:"198px",top:"0rem" },
+  { title: 'Video', color: '#e3f2e6', img: Video, cols: 3, left:"2rem", width:"15rem", height:"198px",top:"0rem" },
   { title: 'Genset', color: '#fae8e8', img: Genset, shopNow: true, cols: 4,left:"11rem", width:"15rem", height:"198px", top:"2rem" },
 ];
 
 const ExploreCategory = () => {
+  const navigate = useNavigate();
+  
+  const handleClick = (category) => {
+    navigate(`/category/${category}`)
+  }
   return (
     <div className="category-container">
    
@@ -48,7 +56,9 @@ const ExploreCategory = () => {
       <Grid container spacing={3} justifyContent="center">
         {categories.map((category, index) => (
           <Grid item xs={12} sm={category.cols} key={index}>
-            <Card className="category-card" style={{ backgroundColor: category.color }}>
+            {console.log(category)
+            }
+            <Card className="category-card" style={{ backgroundColor: category.color }} onClick={() => handleClick(category.title.toLowerCase())}>
               <CardContent className="card-content">
                 <Typography variant="h5" style={{fontSize:'2.4rem', fontWeight:'600', color:'#858585'}} className="category-name">
                   {category.title}

@@ -54,6 +54,8 @@ const PublicRoute = ({ isAuthenticated, children }) => {
   return !isAuthenticated ? children : <Navigate to="/signup" />;
 };
 
+import "./App.css";
+
 function App() {
   const loading = useSelector((state) => state.loader.loading);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -67,7 +69,7 @@ function App() {
       <Loading loading={loading} />
       <ScrollToTop />
 
-      <Box style={{ paddingTop: "2rem" }}>
+      <Box style={{ paddingTop: "4rem" }}>
         <Suspense fallback={<Loading />}>
           <PageHeader />
           <Routes>

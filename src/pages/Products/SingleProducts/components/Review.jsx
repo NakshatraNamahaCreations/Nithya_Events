@@ -24,8 +24,10 @@ const Review = ({ onSubmit, productId }) => {
   const [reviewContent, setReviewContent] = useState("");
   const [uploadedImage, setUploadedImage] = useState(null);
   const [error, setError] = useState("");
+  const [visibleReview, setvisibleReview] = useState(5);
   const dispatch = useDispatch();
   const userDetails = useSelector((state) => state.auth.userDetails);
+  // let visibleReview =5;
 
   const fetchProductReview = async () => {
     try {
@@ -173,7 +175,7 @@ const Review = ({ onSubmit, productId }) => {
         {/* Reviews List */}
         {reviews.length > 0 ? (
           <Box>
-            {reviews.map((review, index) => (
+            {reviews.slice(0, visibleReview-1).map((review, index) => (
               <Box
                 key={index}
                 sx={{
@@ -216,13 +218,39 @@ const Review = ({ onSubmit, productId }) => {
                 </Box>
               </Box>
             ))}
+              {reviews.length > 5 && (
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: "#c026d3",
+                    color: "#fff",
+                    textTransform: "none",
+                    "&:hover": { backgroundColor: "#9b1a99" },
+                
+                  }}
+                  onClick={() => {
+                    if (visibleReview >= reviews.length) {
+                
+                      setvisibleReview(5);
+                    } else {
+                                  
+                      setvisibleReview((prev) => prev + 5);
+                    }
+                  }}
+                >
+                  {visibleReview >= reviews.length ? "Show Less" : "Show More"}
+                </Button>
+              </Box>
+            )}
           </Box>
         ) : (
           <Typography sx={{ textAlign: "center", margin: "0 auto" }}>
             No reviews yet.
           </Typography>
         )}
-      </Box>
+          </Box>
+        
 
       {/* Write a Review Button */}
       <Button

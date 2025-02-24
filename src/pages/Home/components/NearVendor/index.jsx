@@ -27,6 +27,8 @@ const NearVendor = () => {
     fetchVendors();
   }, []);
   return (
+    <Box sx={{padding:'0rem 6rem'}}>
+
     <Box className="Vendor-container">
       <Box
         className="Vendor-content"
@@ -85,6 +87,8 @@ const NearVendor = () => {
           </Box>
         ))}
       </Box>
+    </Box>
+          
     </Box>
   );
 };

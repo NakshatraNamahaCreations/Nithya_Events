@@ -34,10 +34,6 @@ const BookingDetails = () => {
         const res = await authService.getOrder(id);
         const order = res.data.orderId;
 
-        console.log(res);
-        console.log(order);
-        setBooking(order);
-
         // Combine all items into a single array
         const combinedItems = [
           ...(order.product_data || []).map((item) => ({
@@ -50,7 +46,7 @@ const BookingDetails = () => {
           })),
           ...(order.service_data || []).map((item) => ({
             id: item.id || item._id,
-            name: item.service_name || "N/A",
+            name: item.serviceName || "N/A",
             price: item.service_price || 0,
             quantity: item.quantity || 1,
             seller: item.sellerName || item.vendor_name || "Unknown",
@@ -77,150 +73,195 @@ const BookingDetails = () => {
 
     getBookingDetails();
   }, [id]);
+  const numberOfDays = booking?.number_of_days || 1;
+  const subTotal = items.reduce(
+    (acc, item) => acc + item.price * item.quantity * numberOfDays,
+    0
+  );
+  const cgst = booking?.gst_applied_value ? booking.gst_applied_value / 2 : 0;
+  const sgst = booking?.gst_applied_value ? booking.gst_applied_value / 2 : 0;
+  const grandTotal = booking?.paid_amount || subTotal + cgst + sgst;
 
   const downloadInvoice = () => {
-    const doc = new jsPDF();
+    if (!booking) return;
 
-    // Add a border and title
-    doc.setFillColor(240, 240, 240);
-    doc.rect(5, 5, 200, 287, "F");
-    doc.setFontSize(20);
-    doc.setTextColor(40, 40, 40);
-    doc.text("Invoice", 105, 15, null, null, "center");
+    const doc = new jsPDF("p", "mm", "a4");
 
-    // Event details
-    doc.setFontSize(12);
-    doc.setTextColor(40, 40, 40);
-    const leftMargin = 20;
-    const lineSpacing = 7;
-    let yPosition = 45;
+   
+    doc.setDrawColor(0, 0, 0);
+    doc.rect(10, 10, 190, 277); 
 
-    doc.text(`Event Name: ${booking.event_name}`, leftMargin, yPosition);
-    yPosition += lineSpacing;
-    doc.text(`Location: ${booking.event_location}`, leftMargin, yPosition);
-    yPosition += lineSpacing;
-    doc.text(
-      `Date: ${formatDate(booking.event_start_date)}`,
-      leftMargin,
-      yPosition
-    );
-    yPosition += lineSpacing;
-    doc.text(`Start Time: ${booking.event_start_time}`, leftMargin, yPosition);
-    yPosition += lineSpacing;
-    doc.text(`End Time: ${booking.event_end_time}`, leftMargin, yPosition);
-
-    yPosition += 10;
-
-    // Function to generate tables
-    const generateTable = (title, data) => {
-      if (data.length === 0) return;
-
-      doc.setFontSize(14);
-      doc.setTextColor(0, 0, 0);
-      doc.text(title, leftMargin, yPosition);
-      yPosition += lineSpacing;
-
-      const tableColumn = [
-        "Item Name",
-        "Category",
-        "Price",
-        "Quantity",
-        "Seller",
-      ];
-      const tableRows = [];
-
-      data.forEach((item) => {
-        tableRows.push([
-          item.name,
-          item.category,
-          `₹${item.price}`,
-          item.quantity,
-          item.seller,
-        ]);
-      });
-
-      doc.autoTable({
-        startY: yPosition,
-        head: [tableColumn],
-        body: tableRows,
-        styles: {
-          headStyles: { fillColor: [40, 116, 240], textColor: [255, 255, 255] },
-          alternateRowStyles: { fillColor: [245, 245, 245] },
-        },
-      });
-
-      yPosition = doc.previousAutoTable.finalY + 10;
-    };
-
-    // Generate tables for each category
-    generateTable(
-      "Products",
-      items.filter((item) => item.category === "Product")
-    );
-    generateTable(
-      "Services",
-      items.filter((item) => item.category === "Service")
-    );
-    generateTable(
-      "Technicians",
-      items.filter((item) => item.category === "Technician")
-    );
-
-    // Payment Details
-    doc.setFontSize(12);
-    doc.text(
-      `Base Amount:${formatCurrencyIntl(booking.base_amount)}`,
-      leftMargin,
-      yPosition
-    );
-    yPosition += lineSpacing;
-    doc.text(
-      `Amount After TDS Deduction:${formatCurrencyIntl(
-        booking.amount_after_deduction
-      )}`,
-      leftMargin,
-      yPosition
-    );
-    yPosition += lineSpacing;
-    doc.text(
-      `GST Applied Value:${formatCurrencyIntl(booking.gst_applied_value)}`,
-      leftMargin,
-      yPosition
-    );
-    yPosition += lineSpacing;
-    doc.text(
-      `Total Paid Amount:${formatCurrencyIntl(booking.paid_amount)}`,
-      leftMargin,
-      yPosition
-    );
-    yPosition += lineSpacing;
-    doc.text(
-      `Payment Method: ${booking.payment_method}`,
-      leftMargin,
-      yPosition
-    );
-    yPosition += lineSpacing;
-    doc.text(
-      `Payment Status: ${booking.payment_status}`,
-      leftMargin,
-      yPosition
-    );
-
-    // Footer
+    // =========================
+    //  COMPANY INFO (TOP-LEFT)
+    // =========================
     doc.setFontSize(10);
-    doc.setTextColor(150, 150, 150);
-    doc.text("Thank you for your business!", 105, 280, null, null, "center");
-    doc.text(
-      "Generated on: " + new Date().toLocaleString(),
-      105,
-      285,
-      null,
-      null,
-      "center"
-    );
+    let startX = 15;
+    let currentY = 20;
 
+    doc.setFont(undefined, "bold");
+    doc.text("KADAGAM VENTURES PRIVATE LIMITED", startX, currentY);
+    doc.setFont(undefined, "normal");
+    currentY += 5;
+    doc.text("#345 3rd Vishwapriya Road,", startX, currentY);
+    currentY += 5;
+    doc.text("Bengaluru, Karnataka 560068, India", startX, currentY);
+    currentY += 5;
+    doc.text("GST: 29AABCK9472B1ZW", startX, currentY); // Example GST
+    currentY += 5;
+    doc.text("SACCODE: 998597", startX, currentY);
+    currentY += 7;
+
+    // Add phone & user details
+    doc.setFont(undefined, "bold");
+    doc.text(`Phone: ${booking.receiver_mobilenumber || "N/A"}`, startX, currentY);
+    currentY += 5;
+    doc.setFont(undefined, "normal");
+    doc.text(`GST: ${booking.gst_number || "NA"}`, startX, currentY);
+    currentY += 5;
+    doc.text(
+      booking.event_location
+        ? booking.event_location
+        : "No address provided",
+      startX,
+      currentY
+    );
+    currentY += 5;
+
+    let infoBoxX = 120;
+    let infoBoxY = 20;
+    let infoBoxWidth = 75;
+    let infoBoxHeight = 50;
+    doc.rect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
+
+    let infoTextX = infoBoxX + 6;
+    let infoTextY = infoBoxY + 5;
+  
+
+
+    const invoiceDetails = [
+      { label: "Invoice #", value: "INV77KS19" },
+      { label: "Event Name", value: booking.event_name || "N/A" },
+      { label: "Ordered Date", value: formatDate(booking.ordered_date) || "-" },
+      { label: "Venue Name", value: booking.venue_name || "-" },
+      { label: "Venue Location", value: booking.event_location || "-" },
+      {
+        label: "Venue Available Time",
+        value: booking.venue_open_time || "00:00",
+      },
+      {
+        label: "Event Date/Time",
+        value:
+          formatDate(booking.event_start_date) +
+          " " +
+          (booking.event_start_time || ""),
+      },
+      { label: "No of Days", value: String(numberOfDays) },
+    ];
+
+    doc.setFontSize(9);
+    invoiceDetails.forEach((item, idx) => {
+      doc.setFont(undefined, "bold");
+      doc.text(`${item.label}`, infoTextX, infoTextY);
+      doc.setFont(undefined, "normal");
+      doc.text(item.value, infoTextX + 40, infoTextY);
+      infoTextY += 5;
+    });
+
+
+    let tableStartY = infoBoxY + infoBoxHeight + 15;
+    const columns = [
+      { header: "Product", dataKey: "name" },
+      { header: "Size", dataKey: "dimension" },
+      { header: "Qty", dataKey: "quantity" },
+      { header: "Price", dataKey: "price" },
+      { header: "Days", dataKey: "days" },
+      { header: "Amount", dataKey: "amount" },
+    ];
+    const rows = items.map((item) => {
+      const amount = item.price * item.quantity * numberOfDays;
+      return {
+        name: item.name,
+        dimension: item.dimension,
+        quantity: item.quantity,
+        price: formatCurrencyIntl(item.price),
+        days: String(numberOfDays),
+        amount: formatCurrencyIntl(amount),
+      };
+    });
+
+
+    doc.autoTable({
+      startY: tableStartY,
+      theme: "grid",
+      head: [columns.map((col) => col.header)],
+      body: rows.map((r) => columns.map((col) => r[col.dataKey])),
+      headStyles: {
+        fillColor: [255, 255, 0],
+        textColor: [0, 0, 0],
+        fontStyle: "bold",
+      },
+      styles: {
+        fontSize: 9,
+      },
+      margin: { left: 15 },
+      tableWidth: 180,
+    });
+
+
+    let finalY = doc.lastAutoTable.finalY + 5;
+
+
+    doc.setFontSize(10);
+    doc.setFont(undefined, "bold");
+    doc.text("Sub Total", 125, finalY);
+    doc.setFont(undefined, "normal");
+    doc.text(formatCurrencyIntl(subTotal), 170, finalY, { align: "right" });
+    finalY += 5;
+
+    doc.setFont(undefined, "bold");
+    doc.text("CGST(9%)", 125, finalY);
+    doc.setFont(undefined, "normal");
+    doc.text(formatCurrencyIntl(cgst), 170, finalY, { align: "right" });
+    finalY += 5;
+
+    doc.setFont(undefined, "bold");
+    doc.text("SGST(9%)", 125, finalY);
+    doc.setFont(undefined, "normal");
+    doc.text(formatCurrencyIntl(sgst), 170, finalY, { align: "right" });
+    finalY += 5;
+
+    doc.setFont(undefined, "bold");
+    doc.text("Grand Total", 125, finalY);
+    doc.setFont(undefined, "normal");
+    doc.text(formatCurrencyIntl(grandTotal), 170, finalY, { align: "right" });
+    finalY += 10;
+
+    doc.setFontSize(10);
+    doc.setFont(undefined, "bold");
+    doc.text("Terms & Condition", 15, finalY);
+    finalY += 5;
+
+    doc.setFont(undefined, "normal");
+    const terms = [
+      "Payment Terms: Payment is due [e.g., upon receipt].",
+      "Reservation & Deposit: A 100% deposit is required.",
+      "Cancellation Policy: Cancellations must be made at least 2 days in advance.",
+      "Rental Period: The rental period starts from event start time.",
+      "Delivery & Pickup: Additional fee may apply.",
+      "Condition of Equipment: Returned in original condition.",
+      "Liability: The customer agrees to assume all liability.",
+    ];
+
+    terms.forEach((line, index) => {
+      doc.text(`${index + 1}. ${line}`, 15, finalY);
+      finalY += 5;
+    });
+
+  
     doc.save("invoice.pdf");
   };
+
+
 
   if (!booking) {
     return (

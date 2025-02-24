@@ -130,21 +130,7 @@ const PageHeader = () => {
   const handleMenuClose = () => {
     setMenuAnchor(null);
   };
-  const totalPrice = cartItems.reduce((total, item) => {
-    if (!item.product_price) return total;
-    const price = item.product_price;
-    return total + (price * item.quantity || 0);
-  }, 0);
 
-  const DecrementItem = (id) => {
-    dispatch(quantityDecrement(id));
-  };
-  const IncrementItem = (id) => {
-    dispatch(quantityIncrement(id));
-  };
-  const RemoveItem = (id) => {
-    dispatch(removeFromCart(id));
-  };
   // Logout User
   const handleLogout = () => {
     dispatch(logout());
@@ -156,9 +142,8 @@ const PageHeader = () => {
         <AppBar
           position="static"
           sx={{
-            background: "#eaf7fe",
+            background: "white",
             width: "100% !important",
-            borderRadius: "10px",
           }}
         >
           <Toolbar
@@ -668,27 +653,6 @@ const PageHeader = () => {
               marginTop: "20px",
             }}
           >
-            {/* <Button
-              variant="contained"
-              onClick={handleCalendarClose}
-              sx={{
-                flex: 1,
-                background:
-                  "linear-gradient(90deg,rgb(203, 8, 229),rgb(188, 59, 205))",
-                color: "#fff",
-                textTransform: "uppercase",
-                fontWeight: "bold",
-                padding: "10px",
-                borderRadius: "8px",
-                boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.2)",
-                "&:hover": {
-                  background:
-                    "linear-gradient(90deg,rgb(164, 70, 177),rgb(146, 86, 154))",
-                },
-              }}
-            >
-              Close
-            </Button> */}
           </Box>
         </Box>
       </Modal>

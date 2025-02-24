@@ -1,21 +1,36 @@
 @import "slick-carousel/slick/slick.css";
 @import "slick-carousel/slick/slick-theme.css";
+
+.slick-list{
+  width: 102% !important;
+}
 ::-webkit-scrollbar {
   height: 8px;
 }
 
-::-webkit-scrollbar-thumb {
-  background-color: #888;
-  border-radius: 5px;
+body {
+  margin: 0;
+  padding: 0;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
+
+/* Targeting the scrollbar of a specific container */
+.my-container::-webkit-scrollbar {
+  width: 6px; /* Adjust this value to decrease/increase width */
 }
-.slick-dots li button:before {
-  color: rgb(78, 75, 75);
-  font-size: 12px;
+
+.my-container::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Optional styling for the track */
 }
+
+.my-container::-webkit-scrollbar-thumb {
+  background: #888; /* Optional styling for the thumb */
+}
+
+.my-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 
 /* Card Hover Effect */
 .card {
@@ -40,5 +55,4 @@
   justify-content: center;
   align-items: start;
   padding: 2rem;
-  border-radius: 2rem;
 }

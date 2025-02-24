@@ -532,6 +532,7 @@ const Category = () => {
                 currentPage={currentPage}
                 totalPages={Math.ceil(filteredItems.length / itemsPerPage)}
                 onPageChange={handlePageChange}
+                
               />
             </Box>
           ) : (

@@ -148,20 +148,20 @@ const EventDetails = ({
     setEventDetails({ ...eventDetails, [name]: value });
   };
   const techniciansData = technicianItem?.map((item) => ({
-    orderId: Date.now().toString(), // Unique order ID
-    service_id: item.service_id || item._id, // Use service_id if available, otherwise use _id
-    category: item.category, // Technician's category
-    price: item.price || item.product_price, // Assign correct price field
-    service_name: item.service_name || item.product_name, // Assign correct service name
-    shop_name: item.shop_name, // Technician's shop name
-    vendor_id: item.vendor_id, // Vendor ID
-    vendor_name: item.vendor_name, // Vendor name
-    eventStartDate: startDate, // Event start date
-    eventEndDate: endDate, // Event end date
-    quantity: item.quantity || 1, // Default to 1
-    totalPrice: (item.price || item.product_price || 0) * (item.quantity || 1), // Total price calculation
-    commission_tax: item.commission_tax || 0, // Default commission tax
-    commission_percentage: item.commission_percentage || 0, // Default commission percentage
+    orderId: Date.now().toString(), 
+    service_id: item.service_id || item._id,
+    category: item.category,
+    price: item.price || item.product_price,
+    service_name: item.service_name || item.product_name,
+    shop_name: item.shop_name, 
+    vendor_id: item.vendor_id, 
+    vendor_name: item.vendor_name, 
+    eventStartDate: startDate, 
+    eventEndDate: endDate,
+    quantity: item.quantity || 1, 
+    totalPrice: (item.price || item.product_price || 0) * (item.quantity || 1), 
+    commission_tax: item.commission_tax || 0, 
+    commission_percentage: item.commission_percentage || 0,
   }));
 
   // _id: `tech_${technician._id}`,
@@ -200,8 +200,6 @@ const EventDetails = ({
     commissionPercentage: item.commissionPercentage || 0,
   }));
 
-  console.log("The ser", servicesItem);
-
   const servicesData = servicesItem?.map((item) => ({
     orderId: Date.now().toString(),
     id: item.id,
@@ -209,7 +207,7 @@ const EventDetails = ({
     shopName: item.shopName,
     storeImage:
       item.storeImage ||
-      "https://centrechurch.org/wp-content/uploads/2022/03/img-person-placeholder.jpeg", // Default image if none exists
+      "https://centrechurch.org/wp-content/uploads/2022/03/img-person-placeholder.jpeg",
     vendorName: item.vendorName,
     pricing: item.pricing,
     totalPrice: (item.pricing || 0) * (item.quantity || 1),

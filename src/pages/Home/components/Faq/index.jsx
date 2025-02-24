@@ -83,10 +83,10 @@ const Faq = () => {
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
           alignItems: "center",
-          gap: "2rem",
-          maxWidth: "1200px",
-          margin: "auto",
-          padding: "2rem",
+          gap: "20rem",
+          // maxWidth: "1200px",
+          margin: "2rem",
+          padding: "2rem 5rem",
         }}
       >
         {/* FAQ Section */}

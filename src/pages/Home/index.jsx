@@ -75,10 +75,11 @@ const Home = () => {
 
   return (
     <>
-      <Box sx={{ minHeight: "55vh", padding: "0px 10px" }}>
+      <Box sx={{ minHeight: "55vh", padding: "0px" }}>
         <Box
           sx={{
-            width: "99.5%",
+            width: "98%",
+            // marginTop:'3rem',
             "@media(max-width:600px)": {
               width: "23.2rem",
             },
@@ -90,10 +91,10 @@ const Home = () => {
                 key={index}
                 sx={{
                   position: "relative",
-                  borderRadius: "2rem",
+                  borderRadius: "1rem",
                   overflow: "hidden",
-                  height: "450px",
-                  width: "20rem",
+                  height: "600px",
+                  width: "100%",
                 }}
               >
                 <img
@@ -107,7 +108,7 @@ const Home = () => {
                   }}
                 />
 
-                {/* Overlay Content */}
+          
                 <Box className="Home-overlay-text">
                   <Typography
                     variant="h3"

@@ -2,9 +2,8 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 99.5%;
+  width: 100%;
   z-index: 111;
-  padding: 0rem 1rem;
 
   @media (max-width: 600px) {
     width: 98%;
@@ -122,7 +121,7 @@
     display: inline-block;
   }
   img {
-    width: 5.2rem;
+    width: 6.8rem;
     margin-top: -0.5rem;
   }
 }

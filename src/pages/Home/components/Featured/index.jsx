@@ -28,7 +28,7 @@ const Featured = () => {
   };
 
   return (
-    <Box sx={{ padding: "2rem" }}>
+    <Box sx={{ padding: "6rem" }}>
       {/* Header Section */}
       <Box
         sx={{

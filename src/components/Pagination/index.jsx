@@ -3,6 +3,14 @@ import { Box, Button, IconButton } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  const handleViewAll = () => {
+    window.scrollTo({
+      top: 200,
+      left: 200,
+      behavior: "smooth",
+    });
+  };
+
   const generatePageNumbers = () => {
     const pages = [];
     if (totalPages <= 5) {
@@ -39,6 +47,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         marginTop: "1rem",
         padding: "0.5rem",
       }}
+      onClick={handleViewAll}
     >
       <IconButton
         onClick={() => onPageChange(currentPage - 1)}
