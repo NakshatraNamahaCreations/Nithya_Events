@@ -33,6 +33,11 @@ import BreadCrumb from "../../components/BreadCrumb";
 import StarRating from "../../components/StarRating";
 import Pagination from "../../components/Pagination";
 import DiscountSlider from "../Products/components/DiscountSlider";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
+
+
+
 
 const Category = () => {
   const { category } = useParams();
@@ -63,12 +68,16 @@ const Category = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [lowStockChecked, setLowStockChecked] = useState(false);
   const [highStockChecked, setHighStockChecked] = useState(false);
+  const [wishlist, setWishlist] = useState([]);
   const { numberOfDays } = useSelector((state) => state.date);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
   const breadcrumbPaths = [{ label: "Home", link: "/" }, { label: category }];
 
+  const handleWishlistClick = (id) => {
+    setWishlist((prev) => prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]);
+  }
   const fetchCategories = async () => {
     try {
       dispatch(setLoading(true));
@@ -88,6 +97,7 @@ const Category = () => {
       getErrorMessage(error);
     }
   };
+
   const filterProducts = () => {
     let filtered = data;
 
@@ -240,12 +250,19 @@ const Category = () => {
     <>
       <Sliders />
       <BreadCrumb paths={breadcrumbPaths} />
+      <Box sx={{ paddingLeft: '2rem', fontSize: '2rem' }}>
+        <Typography sx={{ fontSize: '2.5rem', fontWeight: '600' }} variant="h6">{category.toUpperCase() + " " + "CATEGORY"}</Typography>
+
+      </Box>
 
       <Box className="category-page">
         <Box className="products-page">
+
           <Box className="filters-sidebar">
+
             {/* Categories Section */}
             <Box className="filter-group">
+
               <Box
                 sx={{
                   display: "flex",
@@ -494,23 +511,84 @@ const Category = () => {
                       className="product-image"
                     />
                     <CardContent>
-                      <Typography variant="h6" className="product-title">
-                        {item.product_name}
-                      </Typography>
+                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: "bold",
+                            fontSize: "1rem",
+                            color: "#343a40",
+                            marginBottom: "0.5rem",
+                          }}
+                        >
+                          {item.product_name.length > 15 ? item.product_name.slice(0,15)+"..." : item.product_name}
+                        </Typography>
 
+                        <IconButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleWishlistClick(item._id);
+                          }}
+                          sx={{ color: "#c026d3" }}
+                        >
+                          {wishlist.includes(item._id) ? (
+                            <FavoriteOutlinedIcon />
+                          ) : (
+                            <FavoriteBorderIcon />
+                          )}
+                        </IconButton>
+                      </Box>
+
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "#6c757d",
+                          marginBottom: "0.5rem",
+                        }}
+                      >
+                        {item.product_category}
+                      </Typography>
                       <Box
                         sx={{
                           display: "flex",
-                          gap: "0.5rem",
-                          marginLeft: "-6px",
+                          alignItems: "center",
+                          gap: "1rem",
                         }}
                       >
-                        <StarRating
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: "bold",
+                            color: "#000",
+                            fontSize: "1rem",
+                          }}
+                        >
+                          ₹{item.product_price} / day
+                        </Typography>
+
+                        {item.discount < item.product_price && (
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              textDecoration: "line-through",
+                              color: "red",
+                              fontSize: "1.1rem",
+                              display:'flex',
+                              alignItems:'center'
+                            }}
+                          >
+                            ₹{(item.mrp_rate) || "2500"}
+                          </Typography>
+                        )}
+                      </Box>
+                      <Box sx={{display:'flex', gap:'1rem'}} mt={1}>
+                      <StarRating
                           rating={parseFloat(
                             calculateAverageRating(item.Reviews)
                           )}
+                          style={{marginRight:'2rem'}}
                         />
-                        <Typography>
+                        <Typography variant="p">
                           {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
                           Reviews
                           {/* {item.Reviews && item.Reviews.length > 0
@@ -518,12 +596,34 @@ const Category = () => {
                       : "No Ratings"} */}
                         </Typography>
                       </Box>
-                      <Typography className="product-price">
-                        ₹{item.product_price} / day
-                      </Typography>
-                      <Typography className="product-discount">
-                        {item.discount}% OFF
-                      </Typography>
+                 
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          margin: "0 auto",
+                        }}
+                      >
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            width: "15rem",
+                            textTransform: "capitalize",
+                            fontWeight: "bold",
+                            marginTop: "1rem",
+                            backgroundColor: "#c026d3",
+                            color: "white",
+                            border: "none",
+                            "&:hover": {
+                              borderColor: "black",
+                              boxShadow: "none",
+                            },
+                          }}
+                        >
+                          Add to Bag
+                        </Button>
+                      </Box>
                     </CardContent>
                   </Card>
                 ))}
@@ -532,7 +632,7 @@ const Category = () => {
                 currentPage={currentPage}
                 totalPages={Math.ceil(filteredItems.length / itemsPerPage)}
                 onPageChange={handlePageChange}
-                
+
               />
             </Box>
           ) : (

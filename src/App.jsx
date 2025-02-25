@@ -43,6 +43,7 @@ const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
 const Bookings = lazy(() => import("./pages/Bookings"));
 const AboutUs = lazy(() => import("./pages/About"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
 
 // PrivateRoute Component
 const PrivateRoute = ({ isAuthenticated, children }) => {
@@ -139,6 +140,14 @@ function App() {
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
                   <SingleService />
+                </PrivateRoute>
+              }
+            />
+                  <Route
+              path="/wishlist"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <Wishlist />
                 </PrivateRoute>
               }
             />

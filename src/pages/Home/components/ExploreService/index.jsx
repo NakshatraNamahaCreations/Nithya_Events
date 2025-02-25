@@ -14,26 +14,27 @@ const ExploreService = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Placeholder for API integration
+    
   }, []);
 
   const services = [
-    { id: 1, name: "Resort", icon: <HomeWorkIcon /> },
-    { id: 2, name: "Rooms", icon: <PeopleAltIcon /> },
-    { id: 3, name: "Hotels", icon: <HotelIcon /> },
-    { id: 4, name: "Freelancer", icon: <PeopleAltIcon /> },
-    { id: 5, name: "Photographers", icon: <VideoLibraryOutlined /> },
-    { id: 6, name: "Stage Designers", icon: <DesignServicesOutlined /> },
+    { id: 1, name: "Resort", icon: <HomeWorkIcon style={ {fontSize:'2.5rem'}} /> },
+    { id: 2, name: "Rooms", icon: <PeopleAltIcon style={ {fontSize:'2.5rem'}}  /> },
+    { id: 3, name: "Hotels", icon: <HotelIcon style={ {fontSize:'2.5rem'}}  /> },
+    { id: 4, name: "Freelancer", icon: <PeopleAltIcon style={ {fontSize:'2.5rem'}}  /> },
+    { id: 5, name: "Photographers", icon: <VideoLibraryOutlined style={ {fontSize:'2.5rem'}}  /> },
+    { id: 6, name: "Stage Designers", icon: <DesignServicesOutlined style={ {fontSize:'2.5rem'}}     /> },
   ];
 
   return (
-    <Box sx={{ padding: "2rem", textAlign: "center", display:"none" }}>
+    <Box sx={{ padding: "2rem", paddingLeft:'8rem' }}>
       <Typography
         sx={{
-          fontSize: "2rem",
+          fontSize: "1.8rem",
           fontWeight: "bold",
-          color: "#6a0dad",
+          color: "#343a40",
           marginBottom: "2rem",
+          textTransform:'uppercase'
         }}
       >
         Services
@@ -48,6 +49,7 @@ const ExploreService = () => {
             md: "repeat(3, 1fr)",
           },
           gap: "1.5rem",
+          // padding:'2rem 8rem'
         }}
       >
         {services.map((service) => (
@@ -57,12 +59,15 @@ const ExploreService = () => {
               // background: "#bee3f8",
               borderRadius: "12px",
               // boxShadow: "0px 5px 15px rgba(160, 32, 240, 0.3)",
-              border: "1px solid #1e1d1d85",
+              // border: "1px solid #1e1d1d85",
               padding: "2rem",
               textAlign: "center",
               cursor: "pointer",
               transition: "transform 0.3s ease, box-shadow 0.3s ease",
+              background:'linear-gradient(rgb(255, 255, 255), rgb(243 213 250));',
               color: "#6a0dad",
+              boxShadow: "rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px",
+              width:'21rem',
               "&:hover": {
                 transform: "scale(1.05)",
                 // boxShadow: "0px 8px 20px rgba(160, 32, 240, 0.5)",
@@ -82,6 +87,7 @@ const ExploreService = () => {
                 margin: "auto",
                 marginBottom: "1rem",
                 border: "1px solid #000000a3",
+                fontSize:'2rem'
                 // boxShadow: "0px 0px 15px rgba(160, 32, 240, 0.4)",
               }}
             >
@@ -99,8 +105,35 @@ const ExploreService = () => {
           </Box>
         ))}
       </Box>
-
-      <Button
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "3rem",
+        }}
+      >
+        <Button
+          variant="outlined"
+          onClick={() => navigate("/services")  }
+          sx={{
+            textTransform: "capitalize",
+            fontWeight: "bold",
+            color: "white",
+            backgroundColor: "#c026d3",
+            width: "8rem",
+            height: "40px",
+            border: "none",
+            "&:hover": {
+              transform: "scale(1.1)",
+              color: "#fff",
+            },
+          }}
+        >
+          View All
+        </Button>
+      </Box>
+ {/* <Box sx={{textAlign:'center'}}>
+ <Button
         variant="contained"
         onClick={() => navigate("/services")}
         sx={{
@@ -118,6 +151,9 @@ const ExploreService = () => {
       >
         View All
       </Button>
+
+ </Box> */}
+
     </Box>
   );
 };

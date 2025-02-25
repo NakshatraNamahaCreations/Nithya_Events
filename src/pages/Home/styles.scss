@@ -3,6 +3,10 @@
 
 .slick-list{
   width: 102% !important;
+  @media (max-width: 800px) {
+    width: 114% !important;
+  }
+
 }
 ::-webkit-scrollbar {
   height: 8px;
@@ -11,24 +15,6 @@
 body {
   margin: 0;
   padding: 0;
-}
-
-
-/* Targeting the scrollbar of a specific container */
-.my-container::-webkit-scrollbar {
-  width: 6px; /* Adjust this value to decrease/increase width */
-}
-
-.my-container::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Optional styling for the track */
-}
-
-.my-container::-webkit-scrollbar-thumb {
-  background: #888; /* Optional styling for the thumb */
-}
-
-.my-container::-webkit-scrollbar-thumb:hover {
-  background: #555;
 }
 
 

@@ -52,32 +52,46 @@
       }
     }
 
-    .social-media {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
 
-      .icon {
-        font-size: 1.5rem;
-        color: #cccccc;
-        cursor: pointer;
 
-        &:hover {
-          color: #17a2b8; // Highlighted color for hover
-        }
-      }
-    }
+  }
+}
 
-    .location {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
+.footer-column-social{
+  display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
 
-      span {
-        color: #cccccc;
-      }
+
+
+.social-media {
+  display: flex;
+  gap: 4rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  justify-content: center;
+
+
+  .icon {
+    font-size: 1.5rem;
+    color: #cccccc;
+    cursor: pointer;
+
+    &:hover {
+      color: #17a2b8; // Highlighted color for hover
     }
   }
+
+}
+
+.location {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  span {
+    color: #cccccc;
+  }
+}
 }

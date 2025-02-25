@@ -18,7 +18,7 @@ const BreadCrumb = ({ paths }) => {
           {index !== 0 && (
             <Typography
               sx={{
-                fontSize: "0.8rem",
+                fontSize: "1.1rem",
                 color: "#888",
               }}
             >
@@ -31,7 +31,7 @@ const BreadCrumb = ({ paths }) => {
               style={{
                 textDecoration: "none",
                 color: "#555",
-                fontSize: "0.8rem",
+                fontSize: "1.1rem",
                 fontWeight: "500",
               }}
             >
@@ -40,7 +40,7 @@ const BreadCrumb = ({ paths }) => {
           ) : (
             <Typography
               sx={{
-                fontSize: "0.8rem",
+                fontSize: "1.1rem",
                 fontWeight: "500",
                 color: "#555",
               }}

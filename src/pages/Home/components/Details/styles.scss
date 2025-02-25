@@ -242,13 +242,18 @@
 .Different-section {
   padding: 4rem 6rem;
   h6 {
-    font-family: "Bebas Neue" !important;
-    font-size: 35px;
-    font-weight: 500;
-    text-transform: uppercase;
-    color: #202226 !important;
-    letter-spacing: 0px;
-    margin: 0;
+    // font-family: "Bebas Neue" !important;
+    // font-size: 35px;
+    // font-weight: 500;
+    // text-transform: uppercase;
+    // color: #202226 !important;
+    // letter-spacing: 0px;
+    // margin: 0;
+    font-family: 'poppins';
+    font-size: 1.8rem;
+    font-weight: 600;
+    padding: 3rem;
+    color: '#343a40';
     @media (max-width: 600px) {
       margin-left: -5rem;
       width: 20rem;

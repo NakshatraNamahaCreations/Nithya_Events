@@ -1,12 +1,14 @@
 .category-container {
   padding: 2rem 10rem;
   text-align: center;
-}
 
-.category-title {
-  color: #1d4ed8;
-  margin-bottom: 20px;
-  font-weight: bold;
+  @media (max-width: 1024px) { 
+    padding: 1.5rem 5rem;
+  }
+  
+  @media (max-width: 768px) { 
+    padding: 1rem 2rem;
+  }
 }
 
 .category-card {
@@ -21,6 +23,10 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
+
+  @media (max-width: 768px) {
+    height: 250px;
+  }
 }
 
 .card-content {
@@ -32,29 +38,45 @@
 }
 
 .category-name {
-  font-size: 2.5rem;
+  font-size: 2.4rem;
   font-weight: 500;
   margin-bottom: 10px;
   color: #1f2937;
-  margin-left: 10px; 
+
+  @media (max-width: 768px) {
+    font-size: 1.8rem;
+  }
 }
 
 .image-container {
   flex-grow: 1;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   margin: 10px 0;
   width: 100%;
   position: absolute;
   top: 8.5rem;
+
+  @media (max-width: 768px) {
+    top: 6rem;
+  }
 }
 
 .category-image {
-  // max-height: 156px; 
   object-fit: contain;
-  margin-right: 10px; 
+  margin-right: 10px;
   position: absolute;
+
+  @media (max-width: 1024px) {
+    width: 12rem;
+    height: 150px;
+  }
+
+  @media (max-width: 768px) {
+    width: 10rem;
+    height: 120px;
+  }
 }
 
 .shop-now-button {
@@ -63,6 +85,11 @@
   position: absolute;
   bottom: 20px;
   left: 20px;
+
+  @media (max-width: 768px) {
+    bottom: 10px;
+    left: 10px;
+  }
 }
 
 .view-all-button {

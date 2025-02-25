@@ -4,6 +4,7 @@ import Slider from "react-slick";
 // Third party library
 import { Box, Card, CardContent, Typography, Button } from "@mui/material";
 
+
 // Custom Components
 import Featured from "../../pages/Home/components/Featured/index";
 import ExploreService from "../../pages/Home/components/ExploreService/index";
@@ -91,7 +92,7 @@ const Home = () => {
                 key={index}
                 sx={{
                   position: "relative",
-                  borderRadius: "1rem",
+                  
                   overflow: "hidden",
                   height: "600px",
                   width: "100%",

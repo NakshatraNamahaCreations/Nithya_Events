@@ -1,12 +1,15 @@
-import { Box, Button, Typography, Card, CardContent } from "@mui/material";
+import { Box, Button, Typography, Card, CardContent, IconButton } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../../../../api/ApiService";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
+
 import "./styles.scss";
-import { Scale } from "@mui/icons-material";
 
 const Featured = () => {
   const [featuredProduct, setFeaturedProduct] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
   const navigate = useNavigate();
 
   const fetchFeaturedProducts = async () => {
@@ -18,27 +21,41 @@ const Featured = () => {
     fetchFeaturedProducts();
   }, []);
 
+  // Navigate to Product Page
   const handleProductClick = (id) => {
     navigate(`/products/${id}`);
   };
 
+  // View All Products
   const handleViewAll = () => {
     window.scrollTo(0, 0);
     navigate(`/Featuredproducts`);
   };
 
+  // Toggle Wishlist Status
+  // const handleWishlistClick = (id) => {
+  //   setWishlist((prevWishlist) =>
+  //     prevWishlist.includes(id)
+  //       ? prevWishlist.filter((itemId) => itemId !== id) // Remove from wishlist
+  //       : [...prevWishlist, id] // Add to wishlist
+  //   );
+  // };
+
+  const handleWishlistClick = (id) => {
+    setWishlist((prev) => prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]);
+  }
   return (
     <Box sx={{ padding: "6rem" }}>
-      {/* Header Section */}
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: "2rem",
+          
         }}
       >
-        <Typography variant="h5" sx={{ fontWeight: "bold", color: "#343a40" }}>
+        <Typography sx={{ fontWeight: "bold", color: "#343a40",  textTransform:'uppercase', fontSize:'1.5rem' }}>
           Featured Products
         </Typography>
       </Box>
@@ -56,7 +73,7 @@ const Featured = () => {
       >
         {featuredProduct.map((item) => (
           <Card
-            key={item.id}
+            key={item._id}
             sx={{
               cursor: "pointer",
               transition: "transform 0.3s ease",
@@ -64,7 +81,6 @@ const Featured = () => {
               boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
               borderRadius: "10px",
             }}
-            onClick={() => handleProductClick(item._id)}
           >
             <Box
               component="img"
@@ -77,19 +93,37 @@ const Featured = () => {
                 borderTopLeftRadius: "10px",
                 borderTopRightRadius: "10px",
               }}
+              onClick={() => handleProductClick(item._id)}
             />
             <CardContent>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: "bold",
-                  fontSize: "1rem",
-                  color: "#343a40",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                {item.product_name}
-              </Typography>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    color: "#343a40",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  {item.product_name}
+                </Typography>
+
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent card click
+                    handleWishlistClick(item._id);
+                  }}
+                  sx={{ color: "#c026d3" }}
+                >
+                  {wishlist.includes(item._id) ? (
+                    <FavoriteOutlinedIcon />
+                  ) : (
+                    <FavoriteBorderIcon />
+                  )}
+                </IconButton>
+              </Box>
+
               <Typography
                 variant="body2"
                 sx={{
@@ -102,19 +136,36 @@ const Featured = () => {
               <Box
                 sx={{
                   display: "flex",
-                  justifyContent: "space-between",
                   alignItems: "center",
+                  gap: "1rem",
                 }}
               >
                 <Typography
                   variant="body1"
                   sx={{
                     fontWeight: "bold",
+                    color: "#000",
+                    fontSize: "1rem",
                   }}
                 >
                   ₹{item.product_price} / day
                 </Typography>
+
+                {item.discount < item.product_price && (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      textDecoration: "line-through",
+                      color: "red",
+                      fontSize: "1.1rem",
+                      marginTop: "4px",
+                    }}
+                  >
+                    ₹{(item.mrp_rate)}
+                  </Typography>
+                )}
               </Box>
+
               <Box
                 sx={{
                   display: "flex",
@@ -146,6 +197,7 @@ const Featured = () => {
           </Card>
         ))}
       </Box>
+
       <Box
         sx={{
           display: "flex",

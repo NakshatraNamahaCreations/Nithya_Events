@@ -14,18 +14,22 @@ import {
   Divider,
   Drawer,
   IconButton,
+  InputBase,
   List,
   ListItem,
   ListItemText,
   Menu,
   MenuItem,
   Modal,
+  Paper,
   TextField,
   Toolbar,
   Typography,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+// import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FmdGoodOutlinedIcon from "@mui/icons-material/FmdGoodOutlined";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import CloseIcon from "@mui/icons-material/Close";
@@ -50,7 +54,9 @@ import Delivery from "../../assets/deliveryHome.png";
 import Calendar from "../../pages/Calender";
 import Settings from "../../assets/Settings.png";
 // import ShoppingCart from "../../assets/shoppingCart.png";
-import ShoppingCart from "../../assets/carts.png";
+// import ShoppingCart from "../../assets/carts.png";
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import DesignServicesOutlinedIcon from '@mui/icons-material/DesignServicesOutlined';
 import Homes from "../../assets/hom.png";
 import Serv from "../../assets/serv.png";
 import Calend from "../../assets/calend.png";
@@ -64,6 +70,7 @@ import EventIcon from "@mui/icons-material/Event";
 import InfoIcon from "@mui/icons-material/Info";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import GavelIcon from "@mui/icons-material/Gavel";
+import SearchIcon from '@mui/icons-material/Search';
 
 // styles
 import "./styles.scss";
@@ -149,7 +156,7 @@ const PageHeader = () => {
           <Toolbar
             sx={{
               display: "flex",
-              gap: "3rem",
+              gap: "2rem",
               justifyContent: "space-between",
             }}
           >
@@ -172,7 +179,7 @@ const PageHeader = () => {
               />
               {/* </Typography> */}
 
-              <Box
+              {/* <Box
                 sx={{
                   display: { xs: "none", md: "flex" },
                   gap: "1.5rem",
@@ -213,8 +220,8 @@ const PageHeader = () => {
                     style={{ width: "17px", marginTop: "1.5px" }}
                   />
                   Products
-                </Link>
-                {/* <Link
+                </Link> */}
+              {/* <Link
                   to={"/booking"}
                   style={{
                     textDecoration: "none",
@@ -231,7 +238,7 @@ const PageHeader = () => {
                   />
                   Setting
                 </Link> */}
-                {/* <Link
+              {/* <Link
                   to={"/services"}
                   style={{
                     textDecoration: "none",
@@ -248,7 +255,7 @@ const PageHeader = () => {
                   />
                   Services
                 </Link> */}
-                <Link
+              {/* <Link
                   to={"/booking"}
                   style={{
                     textDecoration: "none",
@@ -265,65 +272,129 @@ const PageHeader = () => {
                   />
                   Booking
                 </Link>
-              </Box>
+              </Box> */}
             </Box>
-            <Box>
-              <Box sx={{ display: "flex", gap: "1rem" }}>
-                <Box
-                  sx={{ display: "flex", alignItems: "center", gap: "0.2rem" }}
-                >
-                  {/* <FmdGoodOutlinedIcon sx={{ color: "black", fontSize: 24 }} /> */}
-                  <img
-                    src={Locations}
-                    alt="Not found"
+
+            <Box
+              sx={{ display: "flex", alignItems: "center", gap: "0.2rem" }}
+            >
+              {/* <FmdGoodOutlinedIcon sx={{ color: "black", fontSize: 24 }} /> */}
+              <img
+                src={Locations}
+                alt="Not found"
+                style={{
+                  width: "1.5rem",
+                  height: "25px",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              />
+              <Typography
+                variant="p"
+                sx={{ fontWeight: "400", color: "black", fontSize: {xs:'0.575rem', md:"0.9075rem"} }}
+                // sx={{ display: { xs: "none", md: "block" } }}
+              >
+                {currLocation.city
+                  ? `${currLocation.city}, ${currLocation.town}`
+                  : "Fetching location..."}
+              </Typography>
+            </Box>
+
+
+
+            {/* Search Bar.................. */}
+
+            <Paper
+              component="form"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                width: { xs: "100%", md: "40%" },
+                borderRadius: "50px",
+                boxShadow: "none",
+                border: "1px solid #e0e0e0",
+                backgroundColor: "#f4f4f4",
+              }}
+            >
+              <SearchIcon sx={{ color: "#9e9e9e", marginLeft: "8px" }} />
+
+              <InputBase
+                sx={{
+                  flex: 1,
+                  color: "#757575",
+                  height: "50px",
+                  p: "2px 10px",
+                  fontWeight: "500",
+                  fontSize: "18px",
+                  backgroundColor: "transparent",
+                }}
+                placeholder='Search "Products"'
+                inputProps={{ "aria-label": "search products" }}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </Paper>
+
+            {/* Last menu icons ................... */}
+            <Box     sx={{ display: { xs: "none", md: "block" } }}>
+
+              <Box sx={{ display: "flex", gap: "1rem", alignItems: 'center' }}>
+                
+                {/* Wishlist............. */}
+
+                <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center' }} onClick={() => navigate("/wishlist")}>
+
+                  <FavoriteBorderIcon fontSize="medium" sx={{ color: '#e389eb', cursor:'pointer' }} />
+                  <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }} >Wishlist</Typography>
+                </Box>
+
+                {/* Cart .......... */}
+                <Box sx={{ display: "flex", flexDirection: 'column', gap: '0.2rem', alignItems:'center' }}>
+                  <Link
+                    to="/cart"
                     style={{
-                      width: "1.5rem",
-                      height: "25px",
+                      textDecoration: "none",
+                      color: "black",
                       display: "flex",
                       alignItems: "center",
-                    }}
-                  />
-                  <Typography
-                    variant="body2"
-                    sx={{ fontWeight: "bold", color: "black" }}
-                  >
-                    {currLocation.city
-                      ? `${currLocation.city}, ${currLocation.town}`
-                      : "Fetching location..."}
-                  </Typography>
-                </Box>
-                <Link
-                  to={"/cart"}
-                  style={{
-                    textDecoration: "none",
-                    color: "black",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    position: "relative",
-                  }}
-                >
-                  <Badge
-                    badgeContent={totalItems.length}
-                    color="error"
-                    sx={{
-                      "& .MuiBadge-badge": {
-                        fontSize: "10px",
-                        fontWeight: "bold",
-                        minWidth: "16px",
-                        height: "16px",
-                        padding: "4px",
-                      },
+                      gap: "0.5rem",
+                      position: "relative",
                     }}
                   >
-                    <img
-                      src={ShoppingCart}
-                      alt="Not found"
-                      style={{ width: "28px", marginTop: "1.5px" }}
-                    />
-                  </Badge>
-                </Link>
+                    <Badge
+                      badgeContent={totalItems.length}
+                      color="error"
+                      sx={{
+                        "& .MuiBadge-badge": {
+                          fontSize: "10px",
+                          fontWeight: "bold",
+                          minWidth: "16px",
+                          height: "16px",
+                          padding: "4px",
+                        },
+                      }}
+                    >
+                      <ShoppingCartOutlinedIcon
+                      fontSize="medium"
+                        sx={{
 
+                          color: '#e389eb'
+                        }}
+                      />
+                    </Badge>
+                  </Link>
+
+                  <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }}>Cart</Typography>
+
+                </Box>
+
+                {/* Mood Board.............  */}
+
+                <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center' }}>
+
+                  <DesignServicesOutlinedIcon fontSize="medium" sx={{ color: '#e389eb', cursor:'pointer' }} />
+                  <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }}>Mood Board</Typography>
+                </Box>
                 {/* <Link
                   to={"/cart"}
                   style={{
@@ -340,13 +411,19 @@ const PageHeader = () => {
                     style={{ width: "17px", marginTop: "1.5px" }}
                   />
                 </Link> */}
+
+                {/* Account page................................. */}
                 {isAuthenticated ? (
                   <>
                     <IconButton onClick={handleMenuOpen}>
                       {userDetails.profileImage ? (
                         <Avatar src={userDetails.profileImage} />
                       ) : (
-                        <AccountCircleIcon fontSize="large" />
+                        <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center' }}>
+
+                          <AccountCircleOutlinedIcon fontSize="medium" sx={{ color: '#e389eb' }} />
+                          <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }}>Profile</Typography>
+                        </Box>
                       )}
                     </IconButton>
 
@@ -550,7 +627,10 @@ const PageHeader = () => {
                     Signin
                   </Button>
                 )}
+
+
               </Box>
+
             </Box>
 
             <IconButton

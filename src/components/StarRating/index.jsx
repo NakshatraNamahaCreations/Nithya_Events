@@ -4,13 +4,22 @@ import { Box } from "@mui/material";
 
 const StarRating = ({ rating }) => {
   return (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
-      {Array(Math.round(rating))
-        .fill()
-        .map((_, index) => (
-          <Star key={index} sx={{ color: "#FFC107" }} />
-        ))}
-    </Box>
+    <>
+    {
+    
+      rating ? (
+        <Box sx={{ display: "flex", alignItems: "center", marginRight:"0.8rem" }}>
+        {Array(Math.round(rating))
+          .fill()
+          .map((_, index) => (
+            <Star key={index} sx={{ color: "#FFC107" }} />
+          ))}
+      </Box>
+      )
+      :
+      ""
+    }
+    </>
   );
 };
 

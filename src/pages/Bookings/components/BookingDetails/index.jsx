@@ -1,31 +1,33 @@
-// React related imports
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-
-// Third party Library
-import { Box, Typography, Grid, Paper, Divider, Button } from "@mui/material";
-
-// Custom Components
-import authService from "../../../../api/ApiService";
+import {
+  Box,
+  Typography,
+  Grid,
+  Paper,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+
+import authService from "../../../../api/ApiService";
 import { setLoading } from "../../../../redux/slice/LoaderSlice";
 import {
   formatCurrencyIntl,
   getErrorMessage,
   formatDate,
 } from "../../../../utils/helperFunc";
-
-// styles
 import "./styles.scss";
 
 const BookingDetails = () => {
   const { id } = useParams();
-  const [booking, setBooking] = useState(null);
-  const [products, setProducts] = useState([]);
-  const [items, setItems] = useState([]);
   const dispatch = useDispatch();
+
+  const [booking, setBooking] = useState(null);
+  const [items, setItems] = useState([]);
+  const [loading, setLoadingState] = useState(true);
 
   useEffect(() => {
     const getBookingDetails = async () => {
@@ -33,350 +35,308 @@ const BookingDetails = () => {
         dispatch(setLoading(true));
         const res = await authService.getOrder(id);
         const order = res.data.orderId;
+        setBooking(order);
 
-        // Combine all items into a single array
+        // Combine items
         const combinedItems = [
           ...(order.product_data || []).map((item) => ({
             id: item.id || item._id,
             name: item.productName || item.product_name || "N/A",
+            dimension: item.productDimension || "N/A", // or "—" if no dimension
             price: item.productPrice || item.product_price || 0,
             quantity: item.quantity || 1,
-            seller: item.sellerName || item.vendor_name || "Unknown",
-            category: "Product",
           })),
           ...(order.service_data || []).map((item) => ({
             id: item.id || item._id,
-            name: item.serviceName || "N/A",
+            name: item.service_name || "N/A",
+            dimension: "—",
             price: item.service_price || 0,
             quantity: item.quantity || 1,
-            seller: item.sellerName || item.vendor_name || "Unknown",
-            category: "Service",
           })),
           ...(order.tech_data || []).map((item) => ({
             id: item.id || item._id,
             name: item.product_name || "N/A",
+            dimension: "—",
             price: item.product_price || 0,
             quantity: item.quantity || 1,
-            seller: item.vendor_name || "Unknown",
-            category: "Technician",
           })),
         ];
-
         setItems(combinedItems);
-
+        setLoadingState(false);
         dispatch(setLoading(false));
       } catch (error) {
+        setLoadingState(false);
         dispatch(setLoading(false));
         getErrorMessage(error);
       }
     };
-
     getBookingDetails();
-  }, [id]);
+  }, [id, dispatch]);
+
+  // Simple calculations (adjust if your backend already provides these)
   const numberOfDays = booking?.number_of_days || 1;
+
+  // If you have TDS, CGST, SGST, etc. from your backend, use those. 
+  // Otherwise, you can calculate them similarly:
   const subTotal = items.reduce(
     (acc, item) => acc + item.price * item.quantity * numberOfDays,
     0
   );
+  // Suppose half of booking.gst_applied_value is CGST and the other half is SGST:
   const cgst = booking?.gst_applied_value ? booking.gst_applied_value / 2 : 0;
   const sgst = booking?.gst_applied_value ? booking.gst_applied_value / 2 : 0;
   const grandTotal = booking?.paid_amount || subTotal + cgst + sgst;
 
+  // Generate PDF invoice matching the layout from the screenshot
   const downloadInvoice = () => {
     if (!booking) return;
 
+    // Create a new PDF (A4 size)
     const doc = new jsPDF("p", "mm", "a4");
 
-   
-    doc.setDrawColor(0, 0, 0);
-    doc.rect(10, 10, 190, 277); 
-
-    // =========================
-    //  COMPANY INFO (TOP-LEFT)
-    // =========================
-    doc.setFontSize(10);
-    let startX = 15;
-    let currentY = 20;
-
-    doc.setFont(undefined, "bold");
-    doc.text("KADAGAM VENTURES PRIVATE LIMITED", startX, currentY);
-    doc.setFont(undefined, "normal");
-    currentY += 5;
-    doc.text("#345 3rd Vishwapriya Road,", startX, currentY);
-    currentY += 5;
-    doc.text("Bengaluru, Karnataka 560068, India", startX, currentY);
-    currentY += 5;
-    doc.text("GST: 29AABCK9472B1ZW", startX, currentY); // Example GST
-    currentY += 5;
-    doc.text("SACCODE: 998597", startX, currentY);
-    currentY += 7;
-
-    // Add phone & user details
-    doc.setFont(undefined, "bold");
-    doc.text(`Phone: ${booking.receiver_mobilenumber || "N/A"}`, startX, currentY);
-    currentY += 5;
-    doc.setFont(undefined, "normal");
-    doc.text(`GST: ${booking.gst_number || "NA"}`, startX, currentY);
-    currentY += 5;
-    doc.text(
-      booking.event_location
-        ? booking.event_location
-        : "No address provided",
-      startX,
-      currentY
-    );
-    currentY += 5;
-
-    let infoBoxX = 120;
-    let infoBoxY = 20;
-    let infoBoxWidth = 75;
-    let infoBoxHeight = 50;
-    doc.rect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
-
-    let infoTextX = infoBoxX + 6;
-    let infoTextY = infoBoxY + 5;
-  
-
-
-    const invoiceDetails = [
-      { label: "Invoice #", value: "INV77KS19" },
-      { label: "Event Name", value: booking.event_name || "N/A" },
-      { label: "Ordered Date", value: formatDate(booking.ordered_date) || "-" },
-      { label: "Venue Name", value: booking.venue_name || "-" },
-      { label: "Venue Location", value: booking.event_location || "-" },
-      {
-        label: "Venue Available Time",
-        value: booking.venue_open_time || "00:00",
-      },
-      {
-        label: "Event Date/Time",
-        value:
-          formatDate(booking.event_start_date) +
-          " " +
-          (booking.event_start_time || ""),
-      },
-      { label: "No of Days", value: String(numberOfDays) },
-    ];
-
-    doc.setFontSize(9);
-    invoiceDetails.forEach((item, idx) => {
-      doc.setFont(undefined, "bold");
-      doc.text(`${item.label}`, infoTextX, infoTextY);
-      doc.setFont(undefined, "normal");
-      doc.text(item.value, infoTextX + 40, infoTextY);
-      infoTextY += 5;
+    // Title at the top
+    doc.setFontSize(16);
+    doc.setTextColor(40, 40, 40);
+    doc.text("Invoice", doc.internal.pageSize.getWidth() / 2, 15, {
+      align: "center",
     });
 
+    // Left column info (x=10, y starts at 30)
+    let leftY = 30;
+    doc.setFontSize(10);
+    doc.text(`Phone: ${booking.receiver_mobilenumber || ""}`, 10, leftY);
+    leftY += 5;
+    doc.text(`${booking.event_location || "Address not available"}, India`, 10, leftY);
+    leftY += 5;
+    doc.text(`GST: ${booking.gst_number || "NA"}`, 10, leftY);
+    leftY += 10;
 
-    let tableStartY = infoBoxY + infoBoxHeight + 15;
-    const columns = [
-      { header: "Product", dataKey: "name" },
-      { header: "Size", dataKey: "dimension" },
-      { header: "Qty", dataKey: "quantity" },
-      { header: "Price", dataKey: "price" },
-      { header: "Days", dataKey: "days" },
-      { header: "Amount", dataKey: "amount" },
-    ];
+    // Right column info (x=120, y starts at 30)
+    let rightY = 30;
+    doc.text(
+      `Venue Available Time: ${booking.venue_open_time || "00:00"}`,
+      120,
+      rightY
+    );
+    rightY += 5;
+    doc.text(
+      `Event Date/Time: ${formatDate(booking.event_start_date)} ${
+        booking.event_start_time
+      }`,
+      120,
+      rightY
+    );
+    rightY += 5;
+    doc.text(`No of Days: ${numberOfDays}`, 120, rightY);
+    rightY += 10;
+
+    // Table columns
+    const columns = ["Product", "Size", "Qty", "Price", "Days", "Amount"];
+    // Table rows
     const rows = items.map((item) => {
       const amount = item.price * item.quantity * numberOfDays;
-      return {
-        name: item.name,
-        dimension: item.dimension,
-        quantity: item.quantity,
-        price: formatCurrencyIntl(item.price),
-        days: String(numberOfDays),
-        amount: formatCurrencyIntl(amount),
-      };
+      return [
+        item.name,
+        item.dimension,
+        String(item.quantity),
+        formatCurrencyIntl(item.price),
+        String(numberOfDays),
+        formatCurrencyIntl(amount),
+      ];
     });
 
-
+    // Draw the table
+    const startY = Math.max(leftY, rightY);
     doc.autoTable({
-      startY: tableStartY,
+      startY,
+      head: [columns],
+      body: rows,
       theme: "grid",
-      head: [columns.map((col) => col.header)],
-      body: rows.map((r) => columns.map((col) => r[col.dataKey])),
-      headStyles: {
-        fillColor: [255, 255, 0],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-      },
-      styles: {
-        fontSize: 9,
-      },
-      margin: { left: 15 },
-      tableWidth: 180,
+      headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
+      styles: { fontSize: 9 },
+      tableWidth: "auto",
     });
 
+    let finalY = doc.lastAutoTable.finalY + 10;
 
-    let finalY = doc.lastAutoTable.finalY + 5;
-
-
+    // Totals Section
     doc.setFontSize(10);
-    doc.setFont(undefined, "bold");
-    doc.text("Sub Total", 125, finalY);
-    doc.setFont(undefined, "normal");
-    doc.text(formatCurrencyIntl(subTotal), 170, finalY, { align: "right" });
+    doc.text(`Sub Total: ${formatCurrencyIntl(subTotal)}`, 10, finalY);
     finalY += 5;
-
-    doc.setFont(undefined, "bold");
-    doc.text("CGST(9%)", 125, finalY);
-    doc.setFont(undefined, "normal");
-    doc.text(formatCurrencyIntl(cgst), 170, finalY, { align: "right" });
+    doc.text(`CGST: ${formatCurrencyIntl(cgst)}`, 10, finalY);
     finalY += 5;
-
-    doc.setFont(undefined, "bold");
-    doc.text("SGST(9%)", 125, finalY);
-    doc.setFont(undefined, "normal");
-    doc.text(formatCurrencyIntl(sgst), 170, finalY, { align: "right" });
+    doc.text(`SGST: ${formatCurrencyIntl(sgst)}`, 10, finalY);
     finalY += 5;
-
-    doc.setFont(undefined, "bold");
-    doc.text("Grand Total", 125, finalY);
-    doc.setFont(undefined, "normal");
-    doc.text(formatCurrencyIntl(grandTotal), 170, finalY, { align: "right" });
+    doc.setFontSize(10);
+    doc.text(
+      `Grand Total: ${formatCurrencyIntl(grandTotal)}`,
+      10,
+      finalY
+    );
     finalY += 10;
 
+    // Terms & Conditions
     doc.setFontSize(10);
-    doc.setFont(undefined, "bold");
-    doc.text("Terms & Condition", 15, finalY);
+    doc.text("Terms & Conditions:", 10, finalY);
     finalY += 5;
+    doc.text("1. Payment is due upon receipt.", 10, finalY);
+    finalY += 5;
+    doc.text("2. A 100% deposit is required to secure your reservation.", 10, finalY);
+    finalY += 5;
+    doc.text("3. Cancellations must be made at least 2 days in advance.", 10, finalY);
+    // Add more T&Cs as needed
 
-    doc.setFont(undefined, "normal");
-    const terms = [
-      "Payment Terms: Payment is due [e.g., upon receipt].",
-      "Reservation & Deposit: A 100% deposit is required.",
-      "Cancellation Policy: Cancellations must be made at least 2 days in advance.",
-      "Rental Period: The rental period starts from event start time.",
-      "Delivery & Pickup: Additional fee may apply.",
-      "Condition of Equipment: Returned in original condition.",
-      "Liability: The customer agrees to assume all liability.",
-    ];
-
-    terms.forEach((line, index) => {
-      doc.text(`${index + 1}. ${line}`, 15, finalY);
-      finalY += 5;
-    });
-
-  
+    // Save the PDF
     doc.save("invoice.pdf");
   };
 
-
+  if (loading) {
+    return (
+      <Box sx={{ textAlign: "center", mt: 4 }}>
+        <CircularProgress />
+        <Typography variant="body1">Loading booking details...</Typography>
+      </Box>
+    );
+  }
 
   if (!booking) {
     return (
-      <Typography variant="h6" className="loading-message">
-        Loading booking details...
+      <Typography variant="h6" sx={{ textAlign: "center", mt: 4 }}>
+        No booking data found.
       </Typography>
     );
   }
 
   return (
-    <Box className="booking-details-container">
-      <Grid container spacing={2}>
-        {/* Left Section */}
-        <Grid item xs={12} md={8}>
-          <Paper className="booking-box" elevation={3}>
-            <Typography variant="h6" className="section-title">
-              Total: {items.length} items
+    <Box sx={{ p: 2 }}>
+      <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Booking Details
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2">
+              <strong>Phone:</strong> {booking.receiver_mobilenumber || ""}
             </Typography>
-            <Box className="booking-product-container">
-              {items.map((item) => (
-                <Box className="booking-products" key={item.id}>
-                  <Box className="product-details">
-                    <Typography className="product-name">
-                      Product Name: {item.name}
-                    </Typography>
-                    <Typography className="product-seller">
-                      Seller: <strong>{item.seller}</strong>
-                    </Typography>
-                    <Typography className="product-store">
-                      Category: {item.category}
-                    </Typography>
-                  </Box>
-                  <Box className="product-price-quantity">
-                    <Typography className="product-price">
-                      ₹{item.price}
-                    </Typography>
-                    <Typography className="product-quantity">
-                      Quantity: {item.quantity}
-                    </Typography>
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-          </Paper>
+            <Typography variant="body2">
+              <strong>Location:</strong> {booking.event_location || ""}
+            </Typography>
+            <Typography variant="body2">
+              <strong>GST:</strong> {booking.gst_number || "NA"}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="body2">
+              <strong>Venue Available Time:</strong>{" "}
+              {booking.venue_open_time || "00:00"}
+            </Typography>
+            <Typography variant="body2">
+              <strong>Event Date/Time:</strong> {formatDate(booking.event_start_date)}{" "}
+              {booking.event_start_time}
+            </Typography>
+            <Typography variant="body2">
+              <strong>No of Days:</strong> {numberOfDays}
+            </Typography>
+          </Grid>
         </Grid>
+      </Paper>
 
-        <Grid item xs={12} md={4}>
-          <Paper className="payment-details" elevation={3}>
-            <Typography variant="h6" className="section-title">
-              Payment Details
-            </Typography>
-            <Box>
-              <Typography variant="p">
-                Amount Paid: {formatCurrencyIntl(booking.paid_amount)}
-              </Typography>
-              <Typography variant="p">
-                Payment Method: {booking.payment_method}
-              </Typography>
-              <Typography variant="p">
-                Payment Status: {booking.payment_status}
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              color="primary"
-              className="invoice-button"
-              onClick={downloadInvoice}
+      <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+        <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
+          Items
+        </Typography>
+        {items.map((item) => {
+          const amount = item.price * item.quantity * numberOfDays;
+          return (
+            <Box
+              key={item.id}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                borderBottom: "1px solid #ccc",
+                py: 1,
+              }}
             >
-              Download Invoice
-            </Button>
-          </Paper>
-        </Grid>
-        <Grid>
-          <Paper
-            className="booking-box"
-            sx={{ marginLeft: "2rem" }}
-            elevation={3}
-          >
-            <Typography variant="h6" className="section-title">
-              Event Summary
-            </Typography>
-            <Divider className="divider" />
-            <Box className="event-info">
-              <Typography variant="p" className="event-info-details">
-                <strong className="event-info-title">Event Name:</strong> &nbsp;{" "}
-                <span>{booking.event_name}</span>
-              </Typography>
-              <Typography variant="p" className="event-info-details">
-                <strong className="event-info-title">Location:</strong> &nbsp;{" "}
-                {booking.event_location}
-              </Typography>
-              <Typography variant="p" className="event-info-details">
-                <strong className="event-info-title">Date:</strong> &nbsp;{" "}
-                {formatDate(booking.event_start_date)}
-              </Typography>
-              <Typography variant="p" className="event-info-details">
-                <strong className="event-info-title">Start Time:</strong> &nbsp;{" "}
-                {booking.event_start_time}
-              </Typography>
-              <Typography variant="p" className="event-info-details">
-                <strong className="event-info-title">End Time:</strong> &nbsp;{" "}
-                {booking.event_end_time}
-              </Typography>
-              <Typography variant="p" className="event-info-details">
-                <strong className="event-info-title">Venue Name:</strong> &nbsp;{" "}
-                {booking.venue_name}
-              </Typography>
-              <Typography variant="p" className="event-info-details">
-                <strong className="event-info-title">Venue Open At:</strong>{" "}
-                &nbsp; {booking.venue_open_time}
-              </Typography>
+              <Box>
+                <Typography variant="body2">
+                  <strong>Product:</strong> {item.name}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Size:</strong> {item.dimension}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Qty:</strong> {item.quantity}
+                </Typography>
+              </Box>
+              <Box textAlign="right">
+                <Typography variant="body2">
+                  <strong>Price:</strong> {formatCurrencyIntl(item.price)}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Days:</strong> {numberOfDays}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Amount:</strong> {formatCurrencyIntl(amount)}
+                </Typography>
+              </Box>
             </Box>
-          </Paper>
-        </Grid>
-      </Grid>
+          );
+        })}
+      </Paper>
+
+      <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+        <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
+          Payment Summary
+        </Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1, width: "200px" }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Typography variant="body2">Sub Total</Typography>
+            <Typography variant="body2">
+              {formatCurrencyIntl(subTotal)}
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Typography variant="body2">CGST</Typography>
+            <Typography variant="body2">
+              {formatCurrencyIntl(cgst)}
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Typography variant="body2">SGST</Typography>
+            <Typography variant="body2">
+              {formatCurrencyIntl(sgst)}
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+              Grand Total
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+              {formatCurrencyIntl(grandTotal)}
+            </Typography>
+          </Box>
+        </Box>
+      </Paper>
+
+      <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 1 }}>
+          Terms & Conditions
+        </Typography>
+        <Typography variant="body2">
+          1. Payment is due upon receipt.
+        </Typography>
+        <Typography variant="body2">
+          2. A 100% deposit is required to secure your reservation.
+        </Typography>
+        <Typography variant="body2">
+          3. Cancellations must be made at least 2 days in advance.
+        </Typography>
+        {/* ... Add more T&Cs as needed */}
+      </Paper>
+
+      <Button variant="contained" onClick={downloadInvoice}>
+        Download Invoice
+      </Button>
     </Box>
   );
 };

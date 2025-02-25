@@ -83,7 +83,7 @@ const Faq = () => {
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
           alignItems: "center",
-          gap: "20rem",
+          gap: {xs:"1rem", sm:"2rem", md:"20rem"},
           // maxWidth: "1200px",
           margin: "2rem",
           padding: "2rem 5rem",

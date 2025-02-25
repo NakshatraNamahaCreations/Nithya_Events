@@ -30,12 +30,14 @@
     text-overflow: ellipsis;
     max-height: 32px !important;
     white-space: nowrap;
-    color: #2c5282 !important;
-    font-family: "Bebas Neue" !important;
-    font-size: 28px;
-    font-weight: 500;
+    // color: #2c5282 !important;
+    // font-family: "Bebas Neue" !important;
+    font-family: "poppins" !important;
+    font-size: 1.8rem;
+    font-weight: 600;
     line-height: 100%;
     text-transform: uppercase;
+    padding-bottom: 3rem;
   }
   .Vendor-viewAll {
     background-color: white;
