@@ -40,13 +40,13 @@ const Profile = () => {
   useEffect(() => {
     if (userDetails) {
       setAccountDetails({
-        name: userDetails.username || "",
-        email: userDetails.email || "",
-        mobileNumber: userDetails.mobilenumber || "",
-        companyName: otherDetails.company_name || "",
-        companyType: otherDetails.company_type || "",
-        designation: otherDetails.designation || "",
-        panCard: otherDetails.pan_number || "",
+        name: userDetails?.username || "",
+        email: userDetails?.email || "",
+        mobileNumber: userDetails?.mobilenumber || "",
+        companyName: otherDetails?.company_name || "",
+        companyType: otherDetails?.company_type || "",
+        designation: otherDetails?.designation || "",
+        panCard: otherDetails?.pan_number || "",
       });
     }
   }, [userDetails, otherDetails]);

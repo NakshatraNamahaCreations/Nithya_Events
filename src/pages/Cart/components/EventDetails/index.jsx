@@ -61,7 +61,7 @@ const EventDetails = ({
     endTime: null,
     eventName: "",
     eventVenue: "",
-    venueStartTime:"",
+    venueStartTime: "",
     receiverName: "",
     receiverMobile: "",
     address: null,
@@ -148,19 +148,19 @@ const EventDetails = ({
     setEventDetails({ ...eventDetails, [name]: value });
   };
   const techniciansData = technicianItem?.map((item) => ({
-    orderId: Date.now().toString(), 
+    orderId: Date.now().toString(),
     service_id: item.service_id || item._id,
     category: item.category,
     price: item.price || item.product_price,
     service_name: item.service_name || item.product_name,
-    shop_name: item.shop_name, 
-    vendor_id: item.vendor_id, 
-    vendor_name: item.vendor_name, 
-    eventStartDate: startDate, 
+    shop_name: item.shop_name,
+    vendor_id: item.vendor_id,
+    vendor_name: item.vendor_name,
+    eventStartDate: startDate,
     eventEndDate: endDate,
-    quantity: item.quantity || 1, 
-    totalPrice: (item.price || item.product_price || 0) * (item.quantity || 1), 
-    commission_tax: item.commission_tax || 0, 
+    quantity: item.quantity || 1,
+    totalPrice: (item.price || item.product_price || 0) * (item.quantity || 1),
+    commission_tax: item.commission_tax || 0,
     commission_percentage: item.commission_percentage || 0,
   }));
 
@@ -227,10 +227,9 @@ const EventDetails = ({
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files && files[0]) {
-      console.log(`File selected for ${name}:`, files[0]);
       setEventDetails((prevState) => ({
         ...prevState,
-        [name]: files[0],
+        [name]: files[0]
       }));
     }
   };
@@ -457,7 +456,7 @@ const EventDetails = ({
                 viewRenderers={{
                   hours: renderTimeViewClock,
                   minutes: renderTimeViewClock,
-                  seconds: renderTimeViewClock,
+                  seconds: renderTimeVaddLocationiewClock,
                 }}
                 renderInput={(params) => <TextField {...params} fullWidth />}
               />
@@ -525,7 +524,7 @@ const EventDetails = ({
                 variant="outlined"
                 component="label"
                 fullWidth
-                // startIcon={<UploadFileIcon />}
+              // startIcon={<UploadFileIcon />}
               >
                 Upload Invitation
                 <input
@@ -535,13 +534,21 @@ const EventDetails = ({
                   hidden
                 />
               </Button>
+              {eventDetails.upload_invitation.name && (
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#555", marginTop: "5px", textAlign: "center" }}
+                >
+                  {eventDetails.upload_invitation.name}
+                </Typography>
+              )}
             </Grid>
             <Grid item xs={6}>
               <Button
                 variant="outlined"
                 component="label"
                 fullWidth
-                // startIcon={<UploadFileIcon />}
+              // startIcon={<UploadFileIcon />}
               >
                 Upload Gate Pass
                 <input
@@ -551,6 +558,14 @@ const EventDetails = ({
                   onChange={handleFileChange}
                 />
               </Button>
+              {eventDetails.upload_gatepass.name && (
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#555", marginTop: "5px", textAlign: "center" }}
+                >
+                  {eventDetails.upload_gatepass.name}
+                </Typography>
+              )}
             </Grid>
           </Grid>
 
@@ -664,12 +679,14 @@ const EventDetails = ({
               zIndex: 100,
             }}
           >
+        
             <Typography variant="h6" sx={{ mb: 2 }}>
               Select Location
             </Typography>
             <LocationSection
               onContinue={handleLocationContinue}
               setOpenLocation={setOpenLocation}
+
             />
             <Button
               sx={{ mt: 2 }}

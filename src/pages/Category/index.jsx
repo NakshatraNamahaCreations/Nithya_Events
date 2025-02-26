@@ -224,7 +224,6 @@ const Category = () => {
     return filteredItems.slice(startIndex, startIndex + itemsPerPage);
   };
   const calculateAverageRating = (review) => {
-    console.log("The review", review);
     const total = review.reduce((sum, curr) => sum + curr.ratings, 0);
 
     return review.length ? (total / review.length).toFixed(1) : 0;
@@ -518,10 +517,9 @@ const Category = () => {
                             fontWeight: "bold",
                             fontSize: "1rem",
                             color: "#343a40",
-                            marginBottom: "0.5rem",
                           }}
                         >
-                          {item.product_name.length > 15 ? item.product_name.slice(0,15)+"..." : item.product_name}
+                          {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
                         </Typography>
 
                         <IconButton
@@ -529,66 +527,32 @@ const Category = () => {
                             e.stopPropagation();
                             handleWishlistClick(item._id);
                           }}
-                          sx={{ color: "#c026d3" }}
+                          sx={{ color: "#c026d3", position:'relative' }}
                         >
                           {wishlist.includes(item._id) ? (
-                            <FavoriteOutlinedIcon />
+                            <FavoriteOutlinedIcon style={{position:'absolute'}} />
                           ) : (
-                            <FavoriteBorderIcon />
+                            <FavoriteBorderIcon style={{position:'absolute'}}  />
                           )}
                         </IconButton>
                       </Box>
 
                       <Typography
-                        variant="body2"
+                        variant="p"
                         sx={{
                           color: "#6c757d",
-                          marginBottom: "0.5rem",
                         }}
                       >
-                        {item.product_category}
+                        {item.brand}
                       </Typography>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "1rem",
-                        }}
-                      >
-                        <Typography
-                          variant="body1"
-                          sx={{
-                            fontWeight: "bold",
-                            color: "#000",
-                            fontSize: "1rem",
-                          }}
-                        >
-                          ₹{item.product_price} / day
-                        </Typography>
-
-                        {item.discount < item.product_price && (
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              textDecoration: "line-through",
-                              color: "red",
-                              fontSize: "1.1rem",
-                              display:'flex',
-                              alignItems:'center'
-                            }}
-                          >
-                            ₹{(item.mrp_rate) || "2500"}
-                          </Typography>
-                        )}
-                      </Box>
-                      <Box sx={{display:'flex', gap:'1rem'}} mt={1}>
-                      <StarRating
+                      <Box sx={{ display: 'flex', gap: '1rem', marginTop:'0.2rem' }}>
+                        <StarRating
                           rating={parseFloat(
                             calculateAverageRating(item.Reviews)
                           )}
-                          style={{marginRight:'2rem'}}
+                          // style={{ marginRight: '2rem' }}
                         />
-                        <Typography variant="p">
+                        <Typography variant="p" style={{fontSize:"0.8rem"}}>
                           {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
                           Reviews
                           {/* {item.Reviews && item.Reviews.length > 0
@@ -596,7 +560,43 @@ const Category = () => {
                       : "No Ratings"} */}
                         </Typography>
                       </Box>
-                 
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.7rem",
+                          marginTop:'0.3rem'
+                        }}
+                      >
+                        <Typography
+                          variant="p"
+                          sx={{
+                            fontWeight: "bold",
+                            color: "#000",
+                            fontSize: "1rem",
+                          }}
+                        >
+                          ₹{item.product_price}
+                        </Typography>
+
+                        {item.discount < item.product_price && (
+                          <Typography
+                            variant="p"
+                            sx={{
+                              textDecoration: "line-through",
+                              color: "red",
+                              fontSize: "1rem",
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            ₹{(item.mrp_rate) || "2500"}
+                          </Typography>
+                        )}
+                        <Typography sx={{color:'red', marginLeft:'-0.2rem'}} >Per day</Typography>
+                      </Box>
+
+
                       <Box
                         sx={{
                           display: "flex",

@@ -56,6 +56,7 @@ const PublicRoute = ({ isAuthenticated, children }) => {
 };
 
 import "./App.css";
+import FaqPage from "./pages/FaqPage";
 
 function App() {
   const loading = useSelector((state) => state.loader.loading);
@@ -261,6 +262,14 @@ function App() {
                 <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Profile />
                 </PrivateRoute>
+              }
+            />
+                <Route
+              path="/faq"
+              element={
+                // <PublicRoute isAuthenticated={isAuthenticated}>
+                <FaqPage />
+                // </PublicRoute>
               }
             />
             <Route path="/TermsAndCondition" element={<Toc />} />

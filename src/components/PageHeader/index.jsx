@@ -533,7 +533,7 @@ const PageHeader = () => {
                         <ListItem
                           button
                           component={Link}
-                          to="/about"
+                          to="/faq"
                           onClick={handleMenuClose}
                           sx={{
                             "&:hover": { backgroundColor: "#f5f5f5" },
@@ -544,7 +544,7 @@ const PageHeader = () => {
                           <InfoIcon
                             sx={{ marginRight: "12px", color: "#1b4b66" }}
                           />
-                          <ListItemText primary="About Us" />
+                          <ListItemText primary="Faq" />
                         </ListItem>
 
                         <ListItem
@@ -619,13 +619,19 @@ const PageHeader = () => {
                     </Menu>
                   </>
                 ) : (
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    onClick={() => navigate("/login")}
-                  >
-                    Signin
-                  </Button>
+                  // <Button
+                  //   color="primary"
+                  //   variant="contained"
+                  //   onClick={() => navigate("/login")}
+                  // >
+                  //   Signin
+                  // </Button>
+
+                  <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center', cursor:'pointer' }}  onClick={() => navigate("/login")}>
+
+                  <AccountCircleOutlinedIcon fontSize="medium" sx={{ color: '#e389eb' }} />
+                  <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }} >Login</Typography>
+                </Box>
                 )}
 
 
@@ -684,8 +690,8 @@ const PageHeader = () => {
                 <ListItem button component={Link} to="/services">
                   <ListItemText primary="Services" />
                 </ListItem>
-                <ListItem button component={Link} to="/cart">
-                  <ListItemText primary="Cart" />
+                <ListItem button component={Link} to="/faq">
+                  <ListItemText primary="Faq" />
                 </ListItem>
                 <ListItem button component={Link} to="/account">
                   <ListItemText primary="Account" />

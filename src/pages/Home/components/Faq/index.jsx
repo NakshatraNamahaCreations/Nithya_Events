@@ -7,6 +7,7 @@ import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { Box } from "@mui/material";
+import FaqImg from "../../../../assets/faqImg.png";
 
 const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -78,6 +79,7 @@ const Faq = () => {
 
   return (
     <section id="faq">
+      <Typography variant="h6" sx={{textAlign:'center', fontSize:'1.8rem'}}>How It Works</Typography>
       <Box
         sx={{
           display: "flex",
@@ -85,12 +87,14 @@ const Faq = () => {
           alignItems: "center",
           gap: {xs:"1rem", sm:"2rem", md:"20rem"},
           // maxWidth: "1200px",
-          margin: "2rem",
+          margin: "1rem",
           padding: "2rem 5rem",
+          justifyContent:'center'
         }}
       >
+        <img src={FaqImg} alt="Not found" style={{width:'45rem'}}  />
         {/* FAQ Section */}
-        <Box sx={{ flex: 1 }}>
+        {/* <Box sx={{ flex: 1 }}>
           <Typography
             sx={{
               color: "#ed6bfd",
@@ -141,10 +145,10 @@ const Faq = () => {
               </AccordionDetails>
             </Accordion>
           ))}
-        </Box>
+        </Box> */}
 
         {/* Image Section */}
-        <Box
+        {/* <Box
           sx={{
             flex: 1,
             display: "flex",
@@ -162,7 +166,7 @@ const Faq = () => {
               objectFit: "cover",
             }}
           />
-        </Box>
+        </Box> */}
       </Box>
     </section>
   );

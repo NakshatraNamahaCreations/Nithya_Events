@@ -68,8 +68,7 @@ const Sliders = () => {
               key={index}
               sx={{
                 position: "relative",
-                borderRadius: "2rem",
-                overflow: "hidden",
+                   overflow: "hidden",
                 height: "450px",
                 width: "98.5%",
                 "@media(max-width:600px)": {
