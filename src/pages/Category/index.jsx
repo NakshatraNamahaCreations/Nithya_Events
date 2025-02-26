@@ -71,6 +71,8 @@ const Category = () => {
   const [wishlist, setWishlist] = useState([]);
   const { numberOfDays } = useSelector((state) => state.date);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedPriceRange, setSelectedPriceRange] = useState([0, 50000]);
+
   const itemsPerPage = 6;
 
   const breadcrumbPaths = [{ label: "Home", link: "/" }, { label: category }];
@@ -84,8 +86,6 @@ const Category = () => {
       const res = await authService.rentalProduct();
       if (res.data.data && res.data.data.length > 0) {
         setData(res.data.data);
-        // console.log(res.data.data);
-
         setActiveCategory(category);
         dispatch(setLoading(false));
       } else {
@@ -100,6 +100,7 @@ const Category = () => {
 
   const filterProducts = () => {
     let filtered = data;
+
 
     if (activeCategory !== "All") {
       filtered = filtered.filter(
@@ -117,6 +118,16 @@ const Category = () => {
         item.product_name?.toLowerCase().includes(searchQuery?.toLowerCase())
       );
     }
+
+    if (selectedPriceRange && selectedPriceRange.length === 2) {
+      filtered = filtered.filter(
+        (item) =>
+          parseFloat(item.product_price) >= selectedPriceRange[0] &&
+          parseFloat(item.product_price) <= selectedPriceRange[1]
+      );
+    }
+
+
     if (lowStockChecked) {
       filtered = filtered.filter((item) => item.stock_in_hand < 50);
     }
@@ -125,11 +136,12 @@ const Category = () => {
       filtered = filtered.filter((item) => item.stock_in_hand >= 50);
     }
 
-    filtered = filtered.filter(
-      (item) =>
-        item.discount >= selectedDiscount[0] &&
-        item.discount <= selectedDiscount[1]
-    );
+    filtered = filtered.filter((item) => {
+      const discount = item.discount || 0;
+      console.log("Item Discount (Parsed):", discount);
+      console.log("Selected Discount Range:", selectedDiscount);
+      return discount >= selectedDiscount[0] && discount <= selectedDiscount[1];
+  });
 
     setFilteredItems(filtered);
   };
@@ -138,6 +150,7 @@ const Category = () => {
   }, [
     data,
     activeCategory,
+    selectedPriceRange,
     minPrice,
     maxPrice,
     numberOfDays,
@@ -243,7 +256,6 @@ const Category = () => {
     setHighStockChecked(event.target.checked);
   };
 
-  console.log(getPaginatedData());
 
   return (
     <>
@@ -311,50 +323,30 @@ const Category = () => {
               >
                 <Typography variant="subtitle1">Price Range</Typography>
                 <IconButton size="small">
-                  {openSections.priceRange ? (
-                    <ExpandLessIcon />
-                  ) : (
-                    <ExpandMoreIcon />
-                  )}
+                  {openSections.priceRange ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </IconButton>
               </Box>
               <Collapse in={openSections.priceRange}>
-                <Box>
-                  <Typography variant="subtitle1">Price</Typography>
-                  <TextField
-                    type="number"
-                    placeholder="Min"
-                    size="small"
-                    value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value)}
-                    className="price-input"
-                  />
-                  <TextField
-                    type="number"
-                    placeholder="Max"
-                    size="small"
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                    className="price-input"
-                  />
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handlePriceFilter}
-                    sx={{
-                      marginTop: "1rem",
-                      background:
-                        "linear-gradient(90deg, rgb(196, 70, 255) -14.33%, rgb(120, 1, 251) 38.59%, rgb(62, 0, 130) 98.88%)",
-                    }}
-                  >
-                    Apply
-                  </Button>
+                <Box sx={{ marginTop: "0.5rem" }}>
+                  <Box className="p-6 bg-white shadow-lg rounded-lg max-w-md mx-auto">
+                    <Typography variant="subtitle1" gutterBottom>
+                      ₹{selectedPriceRange[0]} - ₹{selectedPriceRange[1]}
+                    </Typography>
+                    <DiscountSlider
+                      min={0}
+                      max={50000}
+                      step={1000}
+                      value={selectedPriceRange}
+                      onChange={setSelectedPriceRange}
+                      label={"Range"}
+                    />
+                  </Box>
                 </Box>
               </Collapse>
             </Box>
 
             {/* Discount Section */}
-            <Box className="filter-group">
+            {/* <Box className="filter-group">
               <Box
                 sx={{
                   display: "flex",
@@ -376,11 +368,11 @@ const Category = () => {
               <Collapse in={openSections.discount}>
                 <Box sx={{ marginTop: "0.5rem" }}>
                   <Box className="p-6 bg-white shadow-lg rounded-lg max-w-md mx-auto">
-                    <DiscountSlider onChange={setSelectedDiscount} />
+                    <DiscountSlider     value={selectedDiscount} onChange={setSelectedDiscount} label={"discount"} />
                   </Box>
                 </Box>
               </Collapse>
-            </Box>
+            </Box> */}
 
             {/* Availability Section */}
             <Box className="filter-group">
@@ -527,12 +519,12 @@ const Category = () => {
                             e.stopPropagation();
                             handleWishlistClick(item._id);
                           }}
-                          sx={{ color: "#c026d3", position:'relative' }}
+                          sx={{ color: "#c026d3", position: 'relative' }}
                         >
                           {wishlist.includes(item._id) ? (
-                            <FavoriteOutlinedIcon style={{position:'absolute'}} />
+                            <FavoriteOutlinedIcon style={{ position: 'absolute' }} />
                           ) : (
-                            <FavoriteBorderIcon style={{position:'absolute'}}  />
+                            <FavoriteBorderIcon style={{ position: 'absolute' }} />
                           )}
                         </IconButton>
                       </Box>
@@ -545,14 +537,14 @@ const Category = () => {
                       >
                         {item.brand}
                       </Typography>
-                      <Box sx={{ display: 'flex', gap: '1rem', marginTop:'0.2rem' }}>
+                      <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
                         <StarRating
                           rating={parseFloat(
                             calculateAverageRating(item.Reviews)
                           )}
-                          // style={{ marginRight: '2rem' }}
+                        // style={{ marginRight: '2rem' }}
                         />
-                        <Typography variant="p" style={{fontSize:"0.8rem"}}>
+                        <Typography variant="p" style={{ fontSize: "0.8rem" }}>
                           {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
                           Reviews
                           {/* {item.Reviews && item.Reviews.length > 0
@@ -565,7 +557,7 @@ const Category = () => {
                           display: "flex",
                           alignItems: "center",
                           gap: "0.7rem",
-                          marginTop:'0.3rem'
+                          marginTop: '0.3rem'
                         }}
                       >
                         <Typography
@@ -593,7 +585,7 @@ const Category = () => {
                             ₹{(item.mrp_rate) || "2500"}
                           </Typography>
                         )}
-                        <Typography sx={{color:'red', marginLeft:'-0.2rem'}} >Per day</Typography>
+                        <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
                       </Box>
 
 

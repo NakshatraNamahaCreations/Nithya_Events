@@ -7,24 +7,26 @@ const DiscountSlider = ({
     max = 100,
     step = 1,
     value = [0, 100],
-    label = "Discount",
-    unit = "%",
-    
+    label,
 }) => {
     const [range, setRange] = useState(value);
 
+    // Only update local state if the prop `value` changes and avoid unnecessary re-renders
     useEffect(() => {
-        setRange(value); // Sync with parent component when value changes
+        if (value[0] !== range[0] || value[1] !== range[1]) {
+            setRange(value);
+        }
     }, [value]);
 
-    const handleChange = (event, newValue) => {
-        setRange(newValue);
-        onChange(newValue);
+    const handleChange = (event, newVal) => {
+        setRange(newVal);
+        onChange(newVal);
     };
 
     const handleReset = () => {
-        setRange([min, max]);
-        onChange([min, max]);
+        const defaultRange = [min, max];
+        setRange(defaultRange);
+        onChange(defaultRange);
     };
 
     return (
@@ -72,18 +74,18 @@ const DiscountSlider = ({
                 <Typography variant="body2" color="text.secondary">
                     Min:{" "}
                     <span style={{ color: "#2E7D32", fontWeight: "bold" }}>
-                        {unit === "%" ? `${range[0]}%` : `₹${range[0]}`}
+                        {label === "discount" ?  `${range[0]}%` :   `₹${range[0]}`}
                     </span>
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                     Max:{" "}
                     <span style={{ color: "#2E7D32", fontWeight: "bold" }}>
-                        {unit === "%" ? `${range[1]}%` : `₹${range[1]}`}
+                    {label === "discount" ?  `${range[1]}%` :   `₹${range[1]}`}
                     </span>
                 </Typography>
             </Box>
 
-            <Typography
+            {/* <Typography
                 variant="body2"
                 sx={{
                     backgroundColor: "#E8F5E9",
@@ -95,10 +97,12 @@ const DiscountSlider = ({
             >
                 Showing products with{" "}
                 <strong style={{ color: "#2E7D32" }}>
-                    {unit === "%" ? `${range[0]}% - ${range[1]}%` : `₹${range[0]} - ₹${range[1]}`}
+                    {unit === "%"
+                        ? `${range[0]}% - ${range[1]}%`
+                        : `₹${range[0]} - ₹${range[1]}`}
                 </strong>{" "}
                 {label.toLowerCase()}.
-            </Typography>
+            </Typography> */}
             <Button
                 variant="outlined"
                 color="error"

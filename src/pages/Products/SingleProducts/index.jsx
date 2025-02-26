@@ -21,15 +21,20 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import ReplayIcon from "@mui/icons-material/Replay";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
+import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 
 // Assests
 import Success from "../../../assets/successGif.gif";
-import Replace from "../../../assets/replace.png";
-import Cod from "../../../assets/cod.png";
-import Shipping from "../../../assets/shipping.png";
-import Badge from "../../../assets/badge.png";
-import Lock from "../../../assets/lock.png";
-import Rupees from "../../../assets/rupee.png";
+import ProfileImg1 from "../../../assets/profileImg1.jpg";
+// import Replace from "../../../assets/replace.png";
+// import Cod from "../../../assets/cod.png";
+// import Shipping from "../../../assets/shipping.png";
+// import Badge from "../../../assets/badge.png";
+// import Lock from "../../../assets/lock.png";
+// import Rupees from "../../../assets/rupee.png";
 
 // Custom Components
 import { addToCart } from "../../../redux/slice/CartSlice";
@@ -43,6 +48,8 @@ import { addTechnician } from "../../../redux/slice/technicianSlice";
 
 // styles
 import "./styles.scss";
+import Coupon from "./components/Coupon";
+import StarRating from "../../../components/StarRating";
 
 const SingleProducts = () => {
   const [cart, setCart] = useState([]);
@@ -66,6 +73,7 @@ const SingleProducts = () => {
   const { startDate, endDate, numberOfDays } = useSelector(
     (state) => state.date
   );
+  const [wishlist, setWishlist] = useState([]);
 
   const fetchSingleProduct = async () => {
     try {
@@ -165,47 +173,47 @@ const SingleProducts = () => {
       dispatch(
         addToCart({
           orderId: Date.now().toString(),
-          id: product._id, 
-          productName: product.product_name, 
-          productPrice: product.product_price, 
-          mrpPrice: product.mrp_rate, 
+          id: product._id,
+          productName: product.product_name,
+          productPrice: product.product_price,
+          mrpPrice: product.mrp_rate,
           store: product.shop_name,
           imageUrl: product.product_image,
-          productDimension: product.product_dimension || "Not Specified", 
-          totalPrice: product.product_price * quantity, 
-          quantity: quantity, 
-          context: "product", 
-          sellerName: product.vendor_name, 
-          sellerId: product.vendor_id, 
-          eventStartDate: startDate, 
-          eventEndDate: endDate, 
-          commissionTax: product.commission_tax || 0, 
-          commissionPercentage: product.commission_percentage || 0, 
+          productDimension: product.product_dimension || "Not Specified",
+          totalPrice: product.product_price * quantity,
+          quantity: quantity,
+          context: "product",
+          sellerName: product.vendor_name,
+          sellerId: product.vendor_id,
+          eventStartDate: startDate,
+          eventEndDate: endDate,
+          commissionTax: product.commission_tax || 0,
+          commissionPercentage: product.commission_percentage || 0,
         })
       );
 
-      
+
     }
 
     if (technicians && technicians.length > 0) {
       technicians.forEach((technician) => {
         dispatch(
           addTechnician({
-            orderId: Date.now().toString(), 
-            service_id: technician._id,
+            orderId: Date.now().toString(),
+            id: technician._id,
             product_image:
               technician.image ||
-              "https://centrechurch.org/wp-content/uploads/2022/03/img-person-placeholder.jpeg",
+            ProfileImg1,
             category: technician.category,
             price: technician.price,
-            service_name: technician.service_name, 
+            service_name: technician.service_name,
             shop_name: technician.shop_name,
-            vendor_id: technician.vendor_id, 
-            vendor_name: technician.vendor_name, 
-            eventStartDate: startDate, 
-            eventEndDate: endDate, 
-            quantity: 1, 
-            totalPrice: technician.price * 1, 
+            vendor_id: technician.vendor_id,
+            vendor_name: technician.vendor_name,
+            eventStartDate: startDate,
+            eventEndDate: endDate,
+            quantity: 1,
+            totalPrice: technician.price * 1,
             commission_tax: technician.commission_tax || 0,
             commission_percentage: technician.commission_percentage || 0,
           })
@@ -224,16 +232,20 @@ const SingleProducts = () => {
     setActiveTab(newValue);
   };
 
-  const handleTechnicianSelect = (selectedTechnician) => {
-    if (technicians.find((tech) => tech._id === selectedTechnician._id)) {
-      setTechnicians(
-        technicians.filter((tech) => tech._id !== selectedTechnician._id)
-      );
-    } else {
-      setTechnicians([...technicians, selectedTechnician]);
-    }
-  };
+  // const handleTechnicianSelect = (selectedTechnician) => {
+  //   if (technicians.find((tech) => tech._id === selectedTechnician._id)) {
+  //     setTechnicians(
+  //       technicians.filter((tech) => tech._id !== selectedTechnician._id)
+  //     );
+  //   } else {
+  //     setTechnicians([...technicians, selectedTechnician]);
+  //   }
+  // };
+  const calculateAverageRating = (review) => {
+    const total = review.reduce((sum, curr) => sum + curr.ratings, 0);
 
+    return review.length ? (total / review.length).toFixed(1) : 0;
+  };
   // const handleCloseTechnicianModal = () => {
   //   setTechnicianModalOpen(false);
   // };
@@ -308,7 +320,10 @@ const SingleProducts = () => {
                   },
                 }}
               >
-                <Typography variant="p" sx={{ fontSize: "2rem" }}>
+                <Box>
+
+                
+                <Typography variant="p" sx={{ fontSize: "1.4rem" }}>
                   {product.product_name}
                 </Typography>
                 <Typography
@@ -316,38 +331,90 @@ const SingleProducts = () => {
                   variant="body2"
                   sx={{ color: "text.secondary" }}
                 >
-                  <Typography variant="p" sx={{ fontSize: "1.2rem" }}>
+                  <Typography variant="p" sx={{ fontSize: "1rem" }}>
                     Brand: {product.brand}
                   </Typography>
                 </Typography>
-                <Box className="Price-point">
-                  <Typography sx={{ fontSize: "1.6rem" }}>
+                </Box>
+                {/* <Box className="Price-point">
+                  <Typography sx={{ fontSize: "1.1rem" }}>
                     <strong>RS {product.product_price} / day</strong>
                   </Typography>
                   <Typography className="Offer">
                     {product.discount}% OFF
                   </Typography>
-                </Box>
-                <Box className="Rating-point">
-                  <Typography variant="p" className="Rating-container">
-                    {product.Reviews?.length > 0
-                      ? (
-                          product.Reviews.reduce(
-                            (acc, review) => acc + review.ratings,
-                            0
-                          ) / product.Reviews.length
-                        ).toFixed(1)
-                      : 0}{" "}
-                    ⭐
+                </Box> */}
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.7rem",
+                    marginTop: '0.3rem'
+                  }}
+                >
+                  <Typography
+                    variant="p"
+                    sx={{
+                      fontWeight: "bold",
+                      color: "#000",
+                      fontSize: "1.4rem",
+                    }}
+                  >
+                    ₹{product.product_price}
                   </Typography>
 
-                  <Typography className="Rating-num">
+                  {product.discount < product.product_price && (
+                    <Typography
+                      variant="p"
+                      sx={{
+                        textDecoration: "line-through",
+                        color: "red",
+                        fontSize: "1.2rem",
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}
+                    >
+                      ₹{(product.mrp_rate) || "2500"}
+                    </Typography>
+                  )}
+                  <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
+                </Box>
+                <Box className="Rating-point">
+                  {/* <Typography variant="p" className="Rating-container">
+                    {product.Reviews?.length > 0
+                      ? (
+                        product.Reviews.reduce(
+                          (acc, review) => acc + review.ratings,
+                          0
+                        ) / product.Reviews.length
+                      ).toFixed(1)
+                      : 0}{" "}
+                    ⭐
+                  </Typography> */}
+
+                  {/* <Typography className="Rating-num">
                     {product.Reviews?.length || 0} Rating
                     {product.Reviews?.length === 1 ? "" : "s"}
-                  </Typography>
+                  </Typography> */}
+                  <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
+                        <StarRating
+                          rating={parseFloat(
+                            calculateAverageRating(product.Reviews)
+                          )}
+                        // style={{ marginRight: '2rem' }}
+                        />
+                        <Typography variant="p" style={{ fontSize: "0.8rem" }}>
+                          {product.Reviews.length > 0 ? product.Reviews.length : 0}{" "}
+                          Reviews
+                          {/* {item.Reviews && item.Reviews.length > 0
+                      ? calculateAverageRating(item.Reviews)
+                      : "No Ratings"} */}
+                        </Typography>
+                      </Box>
                 </Box>
                 {/* <Divider sx={{ width: "50rem", marginBottom: "0.8rem" }} /> */}
-                <Box className="Product-descriptions">
+                {/* <Box className="Product-descriptions">
                   <Box className="Product-desc-header">
                     <CheckCircleIcon
                       sx={{ color: "#4caf50", fontSize: "24px" }}
@@ -368,8 +435,8 @@ const SingleProducts = () => {
                       Units
                     </Typography>
                   </Box>
-                </Box>
-                <Box display="flex" alignItems="center" gap={1} mt={2}>
+                </Box> */}
+                <Box display="flex" alignItems="center" gap={1} mb={2}>
                   <Typography variant="p">Quantity:</Typography>
                   <Box
                     sx={{
@@ -377,7 +444,7 @@ const SingleProducts = () => {
                       alignItems: "center",
                       border: "1px solid #ccc",
                       borderRadius: "5px",
-                      padding: "5px 10px",
+                      padding: "0px 8px",
                     }}
                   >
                     <IconButton
@@ -387,7 +454,7 @@ const SingleProducts = () => {
                     >
                       <RemoveIcon fontSize="small" />
                     </IconButton>
-                    <Typography variant="h6" sx={{ margin: "0 10px" }}>
+                    <Typography variant="h6" sx={{ margin: "0 10px", fontSize: '0.8rem' }}>
                       {quantity}
                     </Typography>
                     <IconButton size="small" onClick={handleIncrease}>
@@ -396,20 +463,20 @@ const SingleProducts = () => {
                   </Box>
                 </Box>
               </Box>
-              <Box className="product-features">
+              {/* <Box className="product-features">
                 {/* <Box className="feature">
                   <img src={Shipping} alt="Free Delivery" />
                   <Typography variant="p" className="feature-contents">
                     Free Delivery
                   </Typography>
                 </Box> */}
-                {/* <Box className="feature">
+              {/* <Box className="feature">
                   <img src={Replace} alt="3 Days Replacement" />
                   <Typography variant="p" className="feature-contents">
                     3 Days Replacement
                   </Typography>
                 </Box> */}
-                <Box className="feature">
+              {/* <Box className="feature">
                   <img src={Shipping} alt="Fast Delivery" />
                   <Typography variant="p" className="feature-contents">
                     Fast Delivery
@@ -432,9 +499,14 @@ const SingleProducts = () => {
                   <Typography variant="p" className="feature-contents">
                     Secure Transaction
                   </Typography>
-                </Box>
-              </Box>
-              <Box
+                </Box> */}
+              {/* </Box> */}
+
+
+              {/* Coupons */}
+
+              <Coupon />
+              {/* <Box
                 sx={{
                   textAlign: "center",
                   padding: "1.2rem",
@@ -480,15 +552,25 @@ const SingleProducts = () => {
                   <strong>smooth, quick, and hassle-free return process</strong>{" "}
                   for your convenience.
                 </Typography>
-              </Box>
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
+              </Box> */}
+              <Box sx={{ display: "flex", justifyContent: "center", gap:'1rem' }}>
                 <Button
-                  variant="outlined"
-                  color="red"
+                color='white'
+                  sx={{backgroundColor:'#c026d3', color:'white'}}
                   className="addToCart"
                   onClick={handleAddToCart}
                 >
+                   <ShoppingBagOutlinedIcon sx={{ marginRight: '8px' }} /> 
                   Add to Cart
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="red"
+                  className="addToWishlist"
+                  onClick={handleAddToCart}
+                >
+                  <FavoriteBorderOutlinedIcon   sx={{ marginRight: '8px' }} />
+                  Add to Wishlist
                 </Button>
               </Box>
             </Box>
@@ -501,21 +583,31 @@ const SingleProducts = () => {
             variant={isMobile ? "scrollable" : "standard"} // Scrollable on mobile
             scrollButtons="auto" // Show scroll buttons when needed
             allowScrollButtonsMobile
-            centered={!isMobile} // Centers tabs on desktop, but not mobile
+            
             sx={{
-              backgroundColor: "#f1f6fc",
-              padding: "0.8rem",
-              "& .MuiTabs-scroller": { overflowX: "auto !important" }, // Ensures smooth scrolling
-            }}
+              background: "linear-gradient(rgb(255, 255, 255), rgb(245 232 247))",
+              padding: "0.8rem 5rem",
+          
+              "& .MuiTabs-indicator": {
+                  backgroundColor: "#c026d3", // Purple indicator
+              },
+              "& .MuiTab-root": {
+                  color: "#9c27b0", // Inactive tab color (light purple)
+                  textTransform: "none",
+                  fontWeight: "bold",
+              },
+              "& .Mui-selected": {
+                  color: "#c026d3", // Active tab color (darker purple)
+              },
+          }}
           >
-            <Tab label="About" />
             <Tab label="Product Details" />
-            <Tab label="Other Details" />
+            {/* <Tab label="About" /> */}
             <Tab label="Reviews" />
           </Tabs>
 
-          <Box className="tab-content" sx={{ padding: "0rem 4rem" }}>
-            {activeTab === 0 && (
+          <Box className="tab-content" sx={{ padding: "0rem 7rem" }}>
+            {/* {activeTab === 0 && (
               <Box className="about-section">
                 <Box className="specification-detail-container">
                   <Typography
@@ -556,23 +648,22 @@ const SingleProducts = () => {
                   </Box>
                 </Box>
               </Box>
-            )}
+            )} */}
 
-            {activeTab === 1 && (
+            {activeTab === 0 && (
+              <Box sx={{display:'flex'}}>
               <Box className="Product-detail-container">
-                <Typography variant="h6" className="Product-detail-heading">
+                <Typography variant="p" sx={{fontWeight:'600'}} className="Product-detail-heading">
                   Product Details
                 </Typography>
                 <Box className="Product-detail">
                   <Box className="tab1-content">
                     <Typography variant="p">Brand:</Typography>
-                    <Typography variant="p">Product Category:</Typography>
+                    <Typography variant="p">Category:</Typography>
                     <Typography variant="p">Model Name:</Typography>
                     <Typography variant="p">Product Dimensions:</Typography>
                     <Typography variant="p">Item Weight:</Typography>
                     <Typography variant="p">Material Type:</Typography>
-                    <Typography variant="p">Color:</Typography>
-                    <Typography variant="p">Warranty Type:</Typography>
                   </Box>
                   <Box className="tab2-content">
                     <Typography variant="p">{product.brand}</Typography>
@@ -587,21 +678,19 @@ const SingleProducts = () => {
                       {product.product_weight}
                     </Typography>
                     <Typography variant="p">{product.material_type}</Typography>
-                    <Typography variant="p">{product.product_color}</Typography>
-                    <Typography variant="p">{product.warranty_type}</Typography>
+             
+              
                   </Box>
                 </Box>
-              </Box>
-            )}
-
-            {activeTab === 2 && (
-              <Box className="Spec-container">
-                <Typography variant="h6" className="Spec-detail-heading">
+                </Box>
+                <Box className="Spec-container">
+                <Typography variant="p" sx={{fontWeight:'600'}} className="Spec-detail-heading">
                   Other Details
                 </Typography>
                 <Box className="Spec-detail">
                   <Box className="tab1-content">
                     <Typography variant="p">Manufacturer:</Typography>
+                    <Typography variant="p">Color:</Typography>
                     <Typography variant="p">Product Type:</Typography>
                     <Typography variant="p">Shop Name:</Typography>
                     <Typography variant="p">vendor Name:</Typography>
@@ -612,6 +701,7 @@ const SingleProducts = () => {
                     <Typography variant="p">
                       {product.manufacturer_name}
                     </Typography>
+                    <Typography variant="p">{product.product_color}</Typography>
                     <Typography variant="p">{product.product_type}</Typography>
                     <Typography variant="p">{product.modelName}</Typography>
                     <Typography variant="p">{product.shop_name}</Typography>
@@ -623,9 +713,13 @@ const SingleProducts = () => {
                   </Box>
                 </Box>
               </Box>
+              </Box>
+
             )}
 
-            {activeTab === 3 && (
+        
+
+            {activeTab === 1 && (
               <Box>
                 <Review onSubmit={handleReviewSubmit} productId={productId} />
               </Box>
@@ -641,7 +735,7 @@ const SingleProducts = () => {
                     src={item.product_image}
                     alt="Not Found"
                   />
-                  <Box className="related-product-content">
+                  {/* <Box className="related-product-content">
                     <Box className="">{item.product_name}</Box>
                     <Box className="">
                       <img
@@ -661,11 +755,11 @@ const SingleProducts = () => {
                         <Typography variant="p" className="Rating-container">
                           {product.Reviews?.length > 0
                             ? (
-                                product.Reviews.reduce(
-                                  (acc, review) => acc + review.ratings,
-                                  0
-                                ) / product.Reviews.length
-                              ).toFixed(1)
+                              product.Reviews.reduce(
+                                (acc, review) => acc + review.ratings,
+                                0
+                              ) / product.Reviews.length
+                            ).toFixed(1)
                             : 0}{" "}
                           ⭐
                         </Typography>
@@ -676,7 +770,120 @@ const SingleProducts = () => {
                         </Typography>
                       </Box>
                     </Typography>
-                  </Box>
+                  </Box> */}                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: "bold",
+                            fontSize: "1rem",
+                            color: "#343a40",
+                          }}
+                        >
+                          {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
+                        </Typography>
+
+                        <IconButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleWishlistClick(item._id);
+                          }}
+                          sx={{ color: "#c026d3", position: 'relative' }}
+                        >
+                          {wishlist.includes(item._id) ? (
+                            <FavoriteOutlinedIcon style={{ position: 'absolute' }} />
+                          ) : (
+                            <FavoriteBorderIcon style={{ position: 'absolute' }} />
+                          )}
+                        </IconButton>
+                      </Box>
+
+                      <Typography
+                        variant="p"
+                        sx={{
+                          color: "#6c757d",
+                        }}
+                      >
+                        {item.brand}
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
+                        <StarRating
+                          rating={parseFloat(
+                            calculateAverageRating(item.Reviews)
+                          )}
+                        // style={{ marginRight: '2rem' }}
+                        />
+                        <Typography variant="p" style={{ fontSize: "0.8rem" }}>
+                          {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
+                          Reviews
+                          {/* {item.Reviews && item.Reviews.length > 0
+                      ? calculateAverageRating(item.Reviews)
+                      : "No Ratings"} */}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.7rem",
+                          marginTop: '0.3rem'
+                        }}
+                      >
+                        <Typography
+                          variant="p"
+                          sx={{
+                            fontWeight: "bold",
+                            color: "#000",
+                            fontSize: "1rem",
+                          }}
+                        >
+                          ₹{item.product_price}
+                        </Typography>
+
+                        {item.discount < item.product_price && (
+                          <Typography
+                            variant="p"
+                            sx={{
+                              textDecoration: "line-through",
+                              color: "red",
+                              fontSize: "1rem",
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            ₹{(item.mrp_rate) || "2500"}
+                          </Typography>
+                        )}
+                        <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
+                      </Box>
+
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          margin: "0 auto",
+                        }}
+                      >
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            width: "15rem",
+                            textTransform: "capitalize",
+                            fontWeight: "bold",
+                            marginTop: "1rem",
+                            backgroundColor: "#c026d3",
+                            color: "white",
+                            border: "none",
+                            "&:hover": {
+                              borderColor: "black",
+                              boxShadow: "none",
+                            },
+                          }}
+                        >
+                          Add to Bag
+                        </Button>
+                      </Box>
                 </Box>
               ))}
             </Box>

@@ -17,10 +17,14 @@ import {
   TableContainer,
   Table,
   TableBody,
+  TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 // Custom Components
 import authService from "../../api/ApiService";
@@ -45,6 +49,7 @@ import { clearServices, removeService } from "../../redux/slice/serviceSlice";
 
 // Assests
 import Check from "../../assets/check.png";
+import TechnicianImg from "../../assets/profileImg1.jpg";
 
 // Styles
 import "./styles.scss";
@@ -54,8 +59,11 @@ const Cart = () => {
   const servicesItem = useSelector((state) => state.services.services);
   const technicianItem = useSelector((state) => state.technicians.technicians);
   const allItems = [...cartItems, ...servicesItem, ...technicianItem];
+  const [wishlist, setWishlist] = useState([]);
+
   const [technicians, setTechnicians] = useState([]);
   const dispatch = useDispatch();
+
   const { startDate, endDate, numberOfDays } = useSelector(
     (state) => state.date
   );
@@ -78,6 +86,11 @@ const Cart = () => {
       getErrorMessage(error);
     }
   };
+
+
+  const handleWishlistClick = (id) => {
+    setWishlist((prev) => prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]);
+  }
 
   const productTotal = cartItems.reduce(
     (total, item) => total + (item.productPrice || 0) * (item.quantity || 1),
@@ -140,7 +153,6 @@ const Cart = () => {
   useEffect(() => {
     getTechnicians();
   }, []);
-  console.log("The cart item", servicesItem);
 
   return (
     <Box sx={{ padding: "2rem" }}>
@@ -148,7 +160,7 @@ const Cart = () => {
 
       <Typography
         variant="h4"
-        sx={{ fontWeight: 600, marginBottom: "1rem", color: "#1a365d" }}
+        sx={{ fontWeight: 600, marginBottom: "1rem", paddingLeft: '1.5rem', color: "#c026d3" }}
       >
         Cart
       </Typography>
@@ -162,22 +174,29 @@ const Cart = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: "bold" }}>Item Name</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Product Image</TableCell>
+                    <TableCell sx={{ fontWeight: "bold" }}>Product Name</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Price</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Qty</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Subtotal</TableCell>
                     <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
-
+{console.log(cartItems)}
                 <TableBody>
                   {cartItems.length > 0 && (
                     <>
                       {cartItems.map((item) => (
                         <TableRow key={item._id}>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+
+                              <img src={item.imageUrl} style={{ width: '70px', padding: '0.5rem 0.5rem', textAlign: 'center', marginRight: '30px' }} alt="Not found" />
+                            </Box>
+                          </TableCell>
                           <TableCell>{item.productName}</TableCell>
                           <TableCell>
-                            ₹{item.productPrice?.toFixed(2)} / day
+                            ₹{item.productPrice?.toFixed(2)}
                           </TableCell>
                           <TableCell>
                             <IconButton
@@ -199,23 +218,50 @@ const Cart = () => {
                           <TableCell>
                             ₹{(item.productPrice * item.quantity).toFixed(2)}
                           </TableCell>
-                          <TableCell>
-                            <IconButton
-                              onClick={() => handleDeleteItem(item._id)}
-                              color="error"
-                            >
-                              <DeleteIcon />
-                            </IconButton>
+                          <TableCell >
+                            <Box sx={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
+                              <IconButton
+                                onClick={() => handleDeleteItem(item._id)}
+                                color="error"
+                                sx={{ cursor: 'pointer' }}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleWishlistClick(item._id);
+                                }}
+                                sx={{ color: "#c026d3", position: 'relative' }}
+                              >
+                                {wishlist.includes(item._id) ? (
+                                  <FavoriteOutlinedIcon color="error" sx={{ cursor: 'pointer' }} />
+                                ) : (
+                                  <FavoriteBorderIcon color="error" sx={{ cursor: 'pointer' }} />
+                                )}
+                              </IconButton>
+                            </Box>
+
+                            {/* <FavoriteBorderIcon  color="error"   sx={{cursor:'pointer'}}   onClick={() => handleWishlistClick(item._id)}/> */}
+
+
                           </TableCell>
                         </TableRow>
                       ))}
                     </>
                   )}
 
+
                   {technicianItem.length > 0 && (
                     <>
                       {technicianItem.map((item) => (
                         <TableRow key={item._id}>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
+                              <img src={TechnicianImg} style={{ width: '70px', padding: '0.5rem 0.5rem', height: '70px', textAlign: 'center', marginRight: '30px' }} alt="Not found" />
+
+                            </Box>
+                          </TableCell>
                           <TableCell>{item.service_name}</TableCell>
                           <TableCell>₹{item.price?.toFixed(2)}</TableCell>
                           <TableCell>
@@ -239,12 +285,27 @@ const Cart = () => {
                             ₹{(item.price * item.quantity).toFixed(2)}
                           </TableCell>
                           <TableCell>
-                            <IconButton
-                              onClick={() => handleDeleteItem(item._id)}
-                              color="error"
-                            >
-                              <DeleteIcon />
-                            </IconButton>
+                            <Box sx={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
+                              <IconButton
+                                onClick={() => handleDeleteItem(item._id)}
+                                color="error"
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleWishlistClick(item._id);
+                                }}
+                                sx={{ color: "#c026d3", position: 'relative' }}
+                              >
+                                {wishlist.includes(item._id) ? (
+                                  <FavoriteOutlinedIcon color="error" sx={{ cursor: 'pointer' }} style={{ position: 'absolute' }} />
+                                ) : (
+                                  <FavoriteBorderIcon color="error" sx={{ cursor: 'pointer' }} style={{ position: 'absolute' }} />
+                                )}
+                              </IconButton>
+                            </Box>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -267,15 +328,30 @@ const Cart = () => {
                             </IconButton>
                           </TableCell>
                           <TableCell>₹{item.totalPrice?.toFixed(2)}</TableCell>
-                          <TableCell>
-                            <IconButton
-                              onClick={() =>
-                                handleDeleteItem(item.orderId, "service")
-                              }
-                              color="error"
-                            >
-                              <DeleteIcon />
-                            </IconButton>
+                          <TableCell >
+                            <Box sx={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
+                              <IconButton
+                                onClick={() =>
+                                  handleDeleteItem(item.orderId, "service")
+                                }
+                                color="error"
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleWishlistClick(item.orderId);
+                                }}
+                                sx={{ color: "#c026d3", position: 'relative' }}
+                              >
+                                {wishlist.includes(item._id) ? (
+                                  <FavoriteOutlinedIcon color="error" sx={{ cursor: 'pointer' }} style={{ position: 'absolute' }} />
+                                ) : (
+                                  <FavoriteBorderIcon color="error" sx={{ cursor: 'pointer' }} style={{ position: 'absolute' }} />
+                                )}
+                              </IconButton>
+                            </Box>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -292,9 +368,10 @@ const Cart = () => {
           {/* </Paper> */}
         </Grid>
 
+     
         <Grid item xs={12} md={4}>
           <Typography
-            variant="h6"
+            variant="p"
             sx={{ fontWeight: 600, marginBottom: "1rem" }}
           >
             Order Summary
@@ -302,10 +379,10 @@ const Cart = () => {
           <Divider sx={{ marginBottom: "1rem" }} />
 
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Typography variant="p" sx={{ color: "#626262" }}>
+            <Typography variant="p" sx={{ color: "#626262", fontSize:'0.9rem', fontWeight:'600' }}>
               Cart Value:
             </Typography>
-            <Typography>₹{totalPrice.toLocaleString()}</Typography>
+            <Typography sx={{ color: "#626262", fontSize:'0.9rem',fontWeight:'600'  }}>₹{totalPrice.toLocaleString()}</Typography>
           </Box>
 
           <Box
@@ -315,57 +392,57 @@ const Cart = () => {
               paddingBottom: "1rem",
             }}
           >
-            <Typography variant="p" sx={{ color: "#626262" }}>
+            <Typography variant="p" sx={{ color: "#626262",fontSize:'0.9rem' }}>
               Events Days
             </Typography>
-            <Typography>{numberOfDays}</Typography>
+            <Typography sx={{ fontSize:'0.9rem' }}>{numberOfDays}</Typography>
           </Box>
 
           <Divider sx={{ marginBottom: "1rem" }} />
 
           {/* Base Amount */}
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Typography variant="p" sx={{ color: "#626262" }}>
+            <Typography variant="p" sx={{ color: "#626262", fontSize:'0.9rem',fontWeight:'600'  }}>
               Base Amount:
             </Typography>
-            <Typography>₹{baseAmount.toLocaleString()}</Typography>
+            <Typography sx={{ fontSize:'0.9rem',fontWeight:'600'  }}>₹{baseAmount.toLocaleString()}</Typography>
           </Box>
 
           {/* TDS Charges */}
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Typography variant="p" sx={{ color: "#626262" }}>
+            <Typography variant="p" sx={{ color: "#626262",fontSize:'0.9rem' }}>
               TDS Charges (2%):
             </Typography>
-            <Typography>-₹{tdsCharges.toLocaleString()}</Typography>
+            <Typography sx={{ fontSize:'0.9rem' }}>-₹{tdsCharges.toLocaleString()}</Typography>
           </Box>
 
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Typography variant="p" sx={{ color: "#626262" }}>
+            <Typography variant="p" sx={{ color: "#626262", fontSize:'0.9rem',fontWeight:'600'  }}>
               Amount After TDS Deduction:
             </Typography>
-            <Typography>₹{baseAmount - tdsCharges}</Typography>
+            <Typography sx={{ fontSize:'0.9rem',fontWeight:'600'  }}>₹{baseAmount - tdsCharges}</Typography>
           </Box>
 
           {/* CGST (9%) */}
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Typography variant="p" sx={{ color: "#626262" }}>
+            <Typography variant="p" sx={{ color: "#626262",fontSize:'0.9rem' }}>
               CGST (9%):
             </Typography>
-            <Typography>₹{cgst.toLocaleString()}</Typography>
+            <Typography sx={{ fontSize:'0.9rem' }}>₹{cgst.toLocaleString()}</Typography>
           </Box>
 
           {/* SGST (9%) */}
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Typography variant="p" sx={{ color: "#626262" }}>
+            <Typography variant="p" sx={{ color: "#626262", fontSize:'0.9rem' }}>
               SGST (9%):
             </Typography>
-            <Typography>₹{sgst.toLocaleString()}</Typography>
+            <Typography sx={{ fontSize:'0.9rem' }}>₹{sgst.toLocaleString()}</Typography>
           </Box>
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Typography variant="p" sx={{ color: "#626262" }}>
+            <Typography variant="p" sx={{ color: "#626262", fontSize:'0.9rem', fontWeight:'600'  }}>
               Total Gst: (CGST + SGST)
             </Typography>
-            <Typography>₹{totalGst.toLocaleString()}</Typography>
+            <Typography sx={{ fontSize:'0.9rem',fontWeight:'600'  }}>₹{totalGst.toLocaleString()}</Typography>
           </Box>
 
           <Divider sx={{ margin: "1rem 0" }} />
@@ -381,10 +458,58 @@ const Cart = () => {
             <Typography variant="p" sx={{ fontWeight: 500 }}>
               Grand Total:
             </Typography>
-            <Typography>₹{grandTotal.toLocaleString()}</Typography>
+            <Typography sx={{fontWeight:'600' }}>₹{grandTotal.toLocaleString()}</Typography>
           </Box>
         </Grid>
       </Grid>
+
+      {/* Coupon Code  */}
+      <Box sx={{ maxWidth: "350px", margin: "2rem 2rem" }}>
+      {/* Title with dropdown icon */}
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+          Apply Coupon Code
+        </Typography>
+        <KeyboardArrowDownIcon sx={{ color: "#000", cursor: "pointer" }} />
+      </Box>
+
+      {/* Divider with custom styling */}
+      <Divider sx={{ borderColor: "#d3d3d3", margin: "0.5rem 0 1rem 0" }} />
+
+      {/* Coupon Code Input Box */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+          padding: "0.5rem",
+          backgroundColor: "#f0c8f5",
+          borderRadius: "5px",
+        }}
+      >
+        <TextField
+          placeholder="Apply Coupon Code"
+          variant="outlined"
+          size="small"
+          fullWidth
+          sx={{
+            backgroundColor: "#ffffff",
+            borderRadius: "5px",
+          }}
+        />
+        <Button
+          variant="text"
+          sx={{
+            color: "black",
+            fontWeight: "bold",
+            textTransform: "uppercase",
+          }}
+        >
+          Check
+        </Button>
+      </Box>
+    </Box>
+ 
 
       {/* Event Details */}
       <EventDetails

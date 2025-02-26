@@ -52,7 +52,7 @@ const Products = () => {
   const [maxPrice, setMaxPrice] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
-
+  const [selectedPriceRange, setSelectedPriceRange] = useState([0, 50000]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { numberOfDays } = useSelector((state) => state.date);
@@ -93,7 +93,9 @@ const Products = () => {
     const search = params.get("search") || "";
     setSearchQuery(search);
   }, [location.search]);
-
+  const handleWishlistClick = (id) => {
+    setWishlist((prev) => prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]);
+  }
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -110,7 +112,13 @@ const Products = () => {
     if (numberOfDays) {
       filtered = filtered.filter((item) => item.stock_in_hand >= numberOfDays);
     }
-
+    if (selectedPriceRange && selectedPriceRange.length === 2) {
+      filtered = filtered.filter(
+        (item) =>
+          parseFloat(item.product_price) >= selectedPriceRange[0] &&
+          parseFloat(item.product_price) <= selectedPriceRange[1]
+      );
+    }
     if (searchQuery) {
       filtered = filtered.filter((item) =>
         item.product_name?.toLowerCase().includes(searchQuery?.toLowerCase())
@@ -140,6 +148,7 @@ const Products = () => {
     activeCategory,
     minPrice,
     maxPrice,
+    selectedPriceRange,
     numberOfDays,
     searchQuery,
     lowStockChecked,
@@ -261,58 +270,38 @@ const Products = () => {
           </Box>
 
           <Box className="filter-group">
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                cursor: "pointer",
-              }}
-              onClick={() => toggleSection("priceRange")}
-            >
-              <Typography variant="p">Price Range</Typography>
-              <IconButton size="small">
-                {openSections.priceRange ? (
-                  <ExpandLessIcon />
-                ) : (
-                  <ExpandMoreIcon />
-                )}
-              </IconButton>
-            </Box>
-            <Collapse in={openSections.priceRange}>
-              <Box>
-                <Typography variant="subtitle1">Price</Typography>
-                <TextField
-                  type="number"
-                  placeholder="Min"
-                  size="small"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                  className="price-input"
-                />
-                <TextField
-                  type="number"
-                  placeholder="Max"
-                  size="small"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  className="price-input"
-                />
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handlePriceFilter}
-                  sx={{
-                    marginTop: "1rem",
-                    background:
-                      "linear-gradient(90deg, rgb(196, 70, 255) -14.33%, rgb(120, 1, 251) 38.59%, rgb(62, 0, 130) 98.88%)",
-                  }}
-                >
-                  Apply
-                </Button>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  cursor: "pointer",
+                }}
+                onClick={() => toggleSection("priceRange")}
+              >
+                <Typography variant="subtitle1">Price Range</Typography>
+                <IconButton size="small">
+                  {openSections.priceRange ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                </IconButton>
               </Box>
-            </Collapse>
-          </Box>
+              <Collapse in={openSections.priceRange}>
+                <Box sx={{ marginTop: "0.5rem" }}>
+                  <Box className="p-6 bg-white shadow-lg rounded-lg max-w-md mx-auto">
+                    <Typography variant="subtitle1" gutterBottom>
+                      ₹{selectedPriceRange[0]} - ₹{selectedPriceRange[1]}
+                    </Typography>
+                    <DiscountSlider
+                      min={0}
+                      max={50000}
+                      step={1000}
+                      value={selectedPriceRange}
+                      onChange={setSelectedPriceRange}
+                      label={"Range"}
+                    />
+                  </Box>
+                </Box>
+              </Collapse>
+            </Box>
 
           <Box className="filter-group">
             <Box
@@ -336,7 +325,9 @@ const Products = () => {
             <Collapse in={openSections.discount}>
               <Box sx={{ marginTop: "0.5rem" }}>
                 <Box className="p-6 bg-white shadow-lg rounded-lg max-w-md mx-auto">
-                  <DiscountSlider onChange={setSelectedDiscount} />
+                <DiscountSlider  value={selectedDiscount} onChange={setSelectedDiscount} min={0}
+                    max={100}
+                    step={100} /> 
                 </Box>
               </Box>
             </Collapse>

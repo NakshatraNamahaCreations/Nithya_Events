@@ -170,6 +170,7 @@ const Summery = ({ open, onClose, eventDetails }) => {
               color: "#6A1B9A",
               textAlign: "center",
             }}
+          
           >
             Event Details
           </Typography>

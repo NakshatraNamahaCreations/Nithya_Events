@@ -410,7 +410,7 @@ const EventDetails = ({
             variant="h5"
             textAlign="center"
             fontWeight="bold"
-            sx={{ mb: 3 }}
+            sx={{ mb: 3, fontSize:'1rem' }}
           >
             Event Details
           </Typography>
@@ -419,7 +419,7 @@ const EventDetails = ({
             <Grid
               item
               xs={10}
-              sx={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}
+              sx={{ display: "flex", gap: "1rem", marginBottom: "1rem", fontSize:'1rem' }}
             >
               <TextField
                 label="Start Date"
@@ -437,7 +437,34 @@ const EventDetails = ({
             </Grid>
             <Grid item xs={6}>
               <TimePicker
-                label={<FieldLabel label="Start Time" />}
+                label={<FieldLabel label="Venue Start Time" />}
+                value={eventDetails.startTime}
+                onChange={(newTime) => handleTimeChange("startTime", newTime)}
+                viewRenderers={{
+                  hours: renderTimeViewClock,
+                  minutes: renderTimeViewClock,
+                  seconds: renderTimeViewClock,
+                }}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+              />
+            </Grid> 
+            <Grid item xs={6}>
+              <TimePicker
+                label={<FieldLabel label="Venue End Time" />}
+                value={eventDetails.endTime}
+                onChange={(newTime) => handleTimeChange("endTime", newTime)}
+                viewRenderers={{
+                  hours: renderTimeViewClock,
+                  minutes: renderTimeViewClock,
+                  seconds: renderTimeViewClock,
+                }}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+              />
+            </Grid>
+
+            <Grid item xs={6}>
+              <TimePicker
+                label={<FieldLabel label="Event Start Time" />}
                 value={eventDetails.startTime}
                 onChange={(newTime) => handleTimeChange("startTime", newTime)}
                 viewRenderers={{
@@ -450,13 +477,13 @@ const EventDetails = ({
             </Grid>
             <Grid item xs={6}>
               <TimePicker
-                label={<FieldLabel label="End Time" />}
+                label={<FieldLabel label="Event End Time" />}
                 value={eventDetails.endTime}
                 onChange={(newTime) => handleTimeChange("endTime", newTime)}
                 viewRenderers={{
                   hours: renderTimeViewClock,
                   minutes: renderTimeViewClock,
-                  seconds: renderTimeVaddLocationiewClock,
+                  seconds: renderTimeViewClock,
                 }}
                 renderInput={(params) => <TextField {...params} fullWidth />}
               />
@@ -472,22 +499,25 @@ const EventDetails = ({
             </Grid>
             <Grid item xs={12}>
               <TextField
-                label={<FieldLabel label="Event Venue" />}
+                label={<FieldLabel label="Event Venue Name" />}
                 name="eventVenue"
                 value={eventDetails.eventVenue}
                 onChange={handleChange}
                 fullWidth
               />
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label={<FieldLabel label="Event Name" />}
-                name="Venue Start Time"
-                value={eventDetails.venueStartTime}
-                onChange={handleChange}
-                fullWidth
-              />
-            </Grid>
+            <Button
+              sx={{
+                width: "39rem",
+                marginTop: "2rem",
+                marginLeft: "2rem",
+                border: "1px solid",
+                color:'#9c27b0'
+              }}
+              onClick={() => setOpenLocation(!openLocation)}
+            >
+              Location
+            </Button>
             <Grid item xs={6}>
               <TextField
                 label={<FieldLabel label="Receiver Name" />}
@@ -507,23 +537,14 @@ const EventDetails = ({
               />
             </Grid>
 
-            <Button
-              sx={{
-                width: "39rem",
-                marginTop: "2rem",
-                marginLeft: "2rem",
-                border: "1px solid",
-              }}
-              onClick={() => setOpenLocation(!openLocation)}
-            >
-              Location
-            </Button>
+           
 
             <Grid item xs={6}>
               <Button
                 variant="outlined"
                 component="label"
                 fullWidth
+                sx={{border:'1px solid #9c27b0', color:'#9c27b0'}}
               // startIcon={<UploadFileIcon />}
               >
                 Upload Invitation
@@ -548,6 +569,7 @@ const EventDetails = ({
                 variant="outlined"
                 component="label"
                 fullWidth
+                sx={{border:'1px solid #9c27b0', color:'#9c27b0'}}
               // startIcon={<UploadFileIcon />}
               >
                 Upload Gate Pass
