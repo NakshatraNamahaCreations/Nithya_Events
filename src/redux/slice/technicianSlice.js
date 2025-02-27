@@ -10,7 +10,7 @@ const technicianSlice = createSlice({
   reducers: {
     addTechnician: (state, action) => {
       const existingItem = state.technicians.find(
-        (i) => i._id === action.payload._id
+        (i) => i.id === action.payload.id
       );
       if (existingItem) {
         existingItem.quantity += action.payload.quantity;
@@ -23,7 +23,9 @@ const technicianSlice = createSlice({
     },
 
     incrementTechnicianQuantity: (state, action) => {
-      const item = state.technicians.find((i) => i._id === action.payload);
+      console.log(action.payload);
+      
+      const item = state.technicians.find((i) => i.id === action.payload);
       if (item) {
         item.quantity += 1;
       }
@@ -31,7 +33,7 @@ const technicianSlice = createSlice({
 
     decrementTechnicianQuantity: (state, action) => {
       state.technicians = state.technicians.map((item) =>
-        item._id === action.payload
+        item.id === action.payload
           ? { ...item, quantity: Math.max(1, item.quantity - 1) }
           : item
       );

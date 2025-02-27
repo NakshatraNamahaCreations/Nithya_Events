@@ -24,7 +24,6 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 // Custom Components
 import authService from "../../api/ApiService";
@@ -89,6 +88,7 @@ const Cart = () => {
 
 
   const handleWishlistClick = (id) => {
+    console.log('Clicked ID:', id);
     setWishlist((prev) => prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]);
   }
 
@@ -119,6 +119,8 @@ const Cart = () => {
 
   const handleQuantityDecrement = (itemId, type) => {
     if (type === "product") {
+      console.log(itemId);
+      
       dispatch(quantityDecrement(itemId));
     } else if (type === "technicians") {
       dispatch(decrementTechnicianQuantity(itemId));
@@ -130,19 +132,28 @@ const Cart = () => {
 
   const handleQuantityIncrement = (itemId, type) => {
     if (type === "product") {
+      console.log(itemId);
       dispatch(quantityIncrement(itemId));
     } else if (type === "technicians") {
+      console.log(itemId);
       dispatch(incrementTechnicianQuantity(itemId));
     }
   };
 
+
   const handleDeleteItem = (itemId) => {
-    if (cartItems.some((cartItems) => cartItems._id === itemId)) {
+
+      if (cartItems.some((item) => item.id === itemId)) {
       dispatch(removeFromCart(itemId));
-    } else if (technicianItem.some((tech) => tech._id === itemId)) {
+      console.log("nothing is executed1", itemId);
+    } else if (technicianItem.some((tech) => tech.id === itemId)) {
       dispatch(removeTechnician(itemId));
-    } else if (servicesItem.some((service) => service._id === itemId)) {
+    } else if (servicesItem.some((service) => service.id === itemId)) {
       dispatch(removeService(itemId));
+    }
+    else{
+      console.log("nothing is executed");
+      
     }
   };
   const handleClearAll = () => {
@@ -160,14 +171,14 @@ const Cart = () => {
 
       <Typography
         variant="h4"
-        sx={{ fontWeight: 600, marginBottom: "1rem", paddingLeft: '1.5rem', color: "#c026d3" }}
+        sx={{ fontWeight: 600, marginBottom: "1rem", paddingLeft: '0.7rem', color: "#c026d3" }}
       >
         Cart
       </Typography>
 
       <Grid container spacing={4}>
         {/* Cart Product Section */}
-        <Grid item xs={12} md={8}>
+        <Grid item xs={12} md={9}>
           {/* <Paper elevation={3} sx={{ padding: "1.5rem" }}> */}
           {allItems.length > 0 ? (
             <TableContainer sx={{ width: "90%", mt: 3 }}>
@@ -182,12 +193,12 @@ const Cart = () => {
                     <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
-{console.log(cartItems)}
+
                 <TableBody>
                   {cartItems.length > 0 && (
                     <>
                       {cartItems.map((item) => (
-                        <TableRow key={item._id}>
+                        <TableRow key={item.id}>
                           <TableCell>
                             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
 
@@ -201,15 +212,16 @@ const Cart = () => {
                           <TableCell>
                             <IconButton
                               onClick={() =>
-                                handleQuantityDecrement(item._id, "product")
+                                handleQuantityDecrement(item.id, "product")
                               }
+                           
                             >
                               <RemoveIcon />
                             </IconButton>
-                            {item.quantity || 1}
+                          <span  style={{fontSize:'0.9rem'}}>  {item.quantity || 1}</span>
                             <IconButton
                               onClick={() =>
-                                handleQuantityIncrement(item._id, "product")
+                                handleQuantityIncrement(item.id, "product")
                               }
                             >
                               <AddIcon />
@@ -221,7 +233,7 @@ const Cart = () => {
                           <TableCell >
                             <Box sx={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
                               <IconButton
-                                onClick={() => handleDeleteItem(item._id)}
+                                onClick={() => handleDeleteItem(item.id)}
                                 color="error"
                                 sx={{ cursor: 'pointer' }}
                               >
@@ -230,11 +242,11 @@ const Cart = () => {
                               <IconButton
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleWishlistClick(item._id);
+                                  handleWishlistClick(item.id);
                                 }}
                                 sx={{ color: "#c026d3", position: 'relative' }}
                               >
-                                {wishlist.includes(item._id) ? (
+                                {wishlist.includes(item.id) ? (
                                   <FavoriteOutlinedIcon color="error" sx={{ cursor: 'pointer' }} />
                                 ) : (
                                   <FavoriteBorderIcon color="error" sx={{ cursor: 'pointer' }} />
@@ -255,7 +267,7 @@ const Cart = () => {
                   {technicianItem.length > 0 && (
                     <>
                       {technicianItem.map((item) => (
-                        <TableRow key={item._id}>
+                        <TableRow key={item.id}>
                           <TableCell>
                             <Box sx={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
                               <img src={TechnicianImg} style={{ width: '70px', padding: '0.5rem 0.5rem', height: '70px', textAlign: 'center', marginRight: '30px' }} alt="Not found" />
@@ -267,7 +279,7 @@ const Cart = () => {
                           <TableCell>
                             <IconButton
                               onClick={() =>
-                                handleQuantityDecrement(item._id, "technicians")
+                                handleQuantityDecrement(item.id, "technicians")
                               }
                             >
                               <RemoveIcon />
@@ -275,7 +287,7 @@ const Cart = () => {
                             {item.quantity || 1}
                             <IconButton
                               onClick={() =>
-                                handleQuantityIncrement(item._id, "technicians")
+                                handleQuantityIncrement(item.id, "technicians")
                               }
                             >
                               <AddIcon />
@@ -287,7 +299,7 @@ const Cart = () => {
                           <TableCell>
                             <Box sx={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
                               <IconButton
-                                onClick={() => handleDeleteItem(item._id)}
+                                onClick={() => handleDeleteItem(item.id)}
                                 color="error"
                               >
                                 <DeleteIcon />
@@ -295,11 +307,11 @@ const Cart = () => {
                               <IconButton
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleWishlistClick(item._id);
+                                  handleWishlistClick(item.id);
                                 }}
                                 sx={{ color: "#c026d3", position: 'relative' }}
                               >
-                                {wishlist.includes(item._id) ? (
+                                {wishlist.includes(item.id) ? (
                                   <FavoriteOutlinedIcon color="error" sx={{ cursor: 'pointer' }} style={{ position: 'absolute' }} />
                                 ) : (
                                   <FavoriteBorderIcon color="error" sx={{ cursor: 'pointer' }} style={{ position: 'absolute' }} />
@@ -345,7 +357,7 @@ const Cart = () => {
                                 }}
                                 sx={{ color: "#c026d3", position: 'relative' }}
                               >
-                                {wishlist.includes(item._id) ? (
+                                {wishlist.includes(item.id) ? (
                                   <FavoriteOutlinedIcon color="error" sx={{ cursor: 'pointer' }} style={{ position: 'absolute' }} />
                                 ) : (
                                   <FavoriteBorderIcon color="error" sx={{ cursor: 'pointer' }} style={{ position: 'absolute' }} />
@@ -369,7 +381,7 @@ const Cart = () => {
         </Grid>
 
      
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <Typography
             variant="p"
             sx={{ fontWeight: 600, marginBottom: "1rem" }}
@@ -470,7 +482,6 @@ const Cart = () => {
         <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
           Apply Coupon Code
         </Typography>
-        <KeyboardArrowDownIcon sx={{ color: "#000", cursor: "pointer" }} />
       </Box>
 
       {/* Divider with custom styling */}

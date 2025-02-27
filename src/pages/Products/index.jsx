@@ -31,6 +31,8 @@ import BreadCrumb from "../../components/BreadCrumb";
 import StarRating from "../../components/StarRating";
 import Pagination from "../../components/Pagination";
 import DiscountSlider from "./components/DiscountSlider";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 
 const Products = () => {
   const { category } = useParams();
@@ -52,9 +54,11 @@ const Products = () => {
   const [maxPrice, setMaxPrice] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
+    const [wishlist, setWishlist] = useState([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState([0, 50000]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  
   const { numberOfDays } = useSelector((state) => state.date);
   const [openSections, setOpenSections] = useState({
     categories: true,
@@ -73,6 +77,7 @@ const Products = () => {
       [section]: !prev[section],
     }));
   };
+
 
   const fetchProducts = async () => {
     dispatch(setLoading(true));
@@ -452,32 +457,122 @@ const Products = () => {
                   alt={item.product_name}
                   className="product-image"
                 />
-                <CardContent>
-                  <Typography variant="h6" className="product-title">
-                    {item.product_name}
-                  </Typography>
+                  <CardContent>
+                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: "bold",
+                            fontSize: "1rem",
+                            color: "#343a40",
+                          }}
+                        >
+                          {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
+                        </Typography>
 
-                  <Box
-                    sx={{ display: "flex", gap: "0.5rem", marginLeft: "-6px" }}
-                  >
-                    <StarRating
-                      rating={parseFloat(calculateAverageRating(item.Reviews))}
-                    />
-                    <Typography>
-                      {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
-                      Reviews
-                      {/* {item.Reviews && item.Reviews.length > 0
+                        <IconButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleWishlistClick(item._id);
+                          }}
+                          sx={{ color: "#c026d3", position: 'relative' }}
+                        >
+                          {wishlist.includes(item._id) ? (
+                            <FavoriteOutlinedIcon style={{ position: 'absolute' }} />
+                          ) : (
+                            <FavoriteBorderIcon style={{ position: 'absolute' }} />
+                          )}
+                        </IconButton>
+                      </Box>
+
+                      <Typography
+                        variant="p"
+                        sx={{
+                          color: "#6c757d",
+                        }}
+                      >
+                        {item.brand}
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
+                        <StarRating
+                          rating={parseFloat(
+                            calculateAverageRating(item.Reviews)
+                          )}
+                        // style={{ marginRight: '2rem' }}
+                        />
+                        <Typography variant="p" style={{ fontSize: "0.8rem" }}>
+                          {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
+                          Reviews
+                          {/* {item.Reviews && item.Reviews.length > 0
                       ? calculateAverageRating(item.Reviews)
                       : "No Ratings"} */}
-                    </Typography>
-                  </Box>
-                  <Typography className="product-price">
-                    ₹{item.product_price} / day
-                  </Typography>
-                  <Typography className="product-discount">
-                    {item.discount}% OFF
-                  </Typography>
-                </CardContent>
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.7rem",
+                          marginTop: '0.3rem'
+                        }}
+                      >
+                        <Typography
+                          variant="p"
+                          sx={{
+                            fontWeight: "bold",
+                            color: "#000",
+                            fontSize: "1rem",
+                          }}
+                        >
+                          ₹{item.product_price}
+                        </Typography>
+
+                        {item.discount < item.product_price && (
+                          <Typography
+                            variant="p"
+                            sx={{
+                              textDecoration: "line-through",
+                              color: "red",
+                              fontSize: "1rem",
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            ₹{(item.mrp_rate) || "2500"}
+                          </Typography>
+                        )}
+                        <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
+                      </Box>
+
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          margin: "0 auto",
+                        }}
+                      >
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            width: "15rem",
+                            textTransform: "capitalize",
+                            fontWeight: "bold",
+                            marginTop: "1rem",
+                            backgroundColor: "#c026d3",
+                            color: "white",
+                            border: "none",
+                            "&:hover": {
+                              borderColor: "black",
+                              boxShadow: "none",
+                            },
+                          }}
+                        >
+                         View More
+                        </Button>
+                      </Box>
+                    </CardContent>
               </Card>
             ))}
           </Box>

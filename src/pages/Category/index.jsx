@@ -613,7 +613,7 @@ const Category = () => {
                             },
                           }}
                         >
-                          Add to Bag
+                          View More
                         </Button>
                       </Box>
                     </CardContent>

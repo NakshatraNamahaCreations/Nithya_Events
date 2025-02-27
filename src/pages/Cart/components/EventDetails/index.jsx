@@ -61,7 +61,8 @@ const EventDetails = ({
     endTime: null,
     eventName: "",
     eventVenue: "",
-    venueStartTime: "",
+    venueStartTime: null,
+    venueEndTime: null,
     receiverName: "",
     receiverMobile: "",
     address: null,
@@ -114,7 +115,7 @@ const EventDetails = ({
 
   const handleAcceptTerms = () => {
     setShowTerms(false);
-    setIsCheckoutAllowed(true);
+    setIsOrderSummaryOpen(true);
   };
   const handleLocationContinue = (locationData) => {
     if (!locationData || !locationData.lat || !locationData.lng) {
@@ -229,7 +230,8 @@ const EventDetails = ({
     if (files && files[0]) {
       setEventDetails((prevState) => ({
         ...prevState,
-        [name]: files[0]
+        [name]: files[0],
+        [`${name}Preview`]: URL.createObjectURL(files[0]),
       }));
     }
   };
@@ -281,6 +283,8 @@ const EventDetails = ({
       eventDetails.startTime?.format("hh:mm A")
     );
     formData.append("event_end_time", eventDetails.endTime?.format("hh:mm A"));
+    formData.append("venue_start_time", eventDetails.venueStartTime?.format("hh:mm A"));
+    formData.append("venue_end_time", eventDetails.venueEndTime?.format("hh:mm A"));
     formData.append(
       "cart_total",
       cartItems.reduce(
@@ -410,7 +414,7 @@ const EventDetails = ({
             variant="h5"
             textAlign="center"
             fontWeight="bold"
-            sx={{ mb: 3, fontSize:'1rem' }}
+            sx={{ mb: 3, fontSize: '1rem' }}
           >
             Event Details
           </Typography>
@@ -419,13 +423,35 @@ const EventDetails = ({
             <Grid
               item
               xs={10}
-              sx={{ display: "flex", gap: "1rem", marginBottom: "1rem", fontSize:'1rem' }}
+
+              sx={{ display: "flex", gap: "1rem", marginBottom: "1rem", fontSize: '1rem' }}
             >
               <TextField
                 label="Start Date"
                 value={formatedStartDate}
                 fullWidth
                 InputProps={{ readOnly: true }}
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    fontSize: '0.8rem',
+                    color: '#c026d3',
+                  },
+                  '& .MuiInputBase-input': {
+                    fontSize: '0.8rem',
+                    padding: '16px 18px',
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#c026d3',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#c026d3',
+                    },
+                    '& input': {
+                      color: 'black',
+                    },
+                  },
+                }}
               />
 
               <TextField
@@ -433,38 +459,110 @@ const EventDetails = ({
                 value={formatedEndDate}
                 fullWidth
                 InputProps={{ readOnly: true }}
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    fontSize: '0.8rem',
+                    color: '#c026d3',
+                  },
+                  '& .MuiInputBase-input': {
+                    fontSize: '0.8rem',
+                    padding: '16px 18px',
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#c026d3',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#c026d3',
+                    },
+                    '& input': {
+                      color: 'black', // Input text color
+                    },
+                  },
+                }}
               />
             </Grid>
             <Grid item xs={6}>
               <TimePicker
-                label={<FieldLabel label="Venue Start Time" />}
-                value={eventDetails.startTime}
-                onChange={(newTime) => handleTimeChange("startTime", newTime)}
+                label={<Typography
+                  component="span"
+                  sx={{ color: '#c026d3', fontSize: '0.8rem' }}
+                >
+                  Venue Start Time <span style={{ color: 'red' }}>*</span>
+                </Typography>}
+                value={eventDetails.venueStartTime}
+                onChange={(newTime) => handleTimeChange("venueStartTime", newTime)}
                 viewRenderers={{
                   hours: renderTimeViewClock,
                   minutes: renderTimeViewClock,
                   seconds: renderTimeViewClock,
                 }}
-                renderInput={(params) => <TextField {...params} fullWidth />}
+                renderInput={(params) => <TextField {...params} fullWidth
+
+                />}
+                InputLabelProps={{
+                  style: { color: '#c026d3' }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#c026d3', // Default border color
+                    },
+
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#c026d3', // Border color when focused
+                    },
+                    '& input': {
+                      color: 'black', // Input text color
+                    },
+                  },
+                }}
               />
-            </Grid> 
+            </Grid>
             <Grid item xs={6}>
               <TimePicker
-                label={<FieldLabel label="Venue End Time" />}
-                value={eventDetails.endTime}
-                onChange={(newTime) => handleTimeChange("endTime", newTime)}
+                label={<Typography
+                  component="span"
+                  sx={{ color: '#c026d3', fontSize: '0.8rem' }}
+                >
+                  Venue End Time <span style={{ color: 'red' }}>*</span>
+                </Typography>}
+                value={eventDetails.venueEndTime}
+                onChange={(newTime) => handleTimeChange("venueEndTime", newTime)}
                 viewRenderers={{
                   hours: renderTimeViewClock,
                   minutes: renderTimeViewClock,
                   seconds: renderTimeViewClock,
                 }}
                 renderInput={(params) => <TextField {...params} fullWidth />}
+                InputLabelProps={{
+                  style: { color: '#c026d3' }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#c026d3', // Default border color
+                    },
+
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#c026d3', // Border color when focused
+                    },
+                    '& input': {
+                      color: 'black', // Input text color
+                    },
+                  },
+                }}
               />
             </Grid>
 
             <Grid item xs={6}>
               <TimePicker
-                label={<FieldLabel label="Event Start Time" />}
+                label={<Typography
+                  component="span"
+                  sx={{ color: '#c026d3', fontSize: '0.8rem' }}
+                >
+                  Event Start Time <span style={{ color: 'red' }}>*</span>
+                </Typography>}
                 value={eventDetails.startTime}
                 onChange={(newTime) => handleTimeChange("startTime", newTime)}
                 viewRenderers={{
@@ -473,11 +571,33 @@ const EventDetails = ({
                   seconds: renderTimeViewClock,
                 }}
                 renderInput={(params) => <TextField {...params} fullWidth />}
+                InputLabelProps={{
+                  style: { color: '#c026d3' }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#c026d3', // Default border color
+                    },
+
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#c026d3', // Border color when focused
+                    },
+                    '& input': {
+                      color: 'black', // Input text color
+                    },
+                  },
+                }}
               />
             </Grid>
             <Grid item xs={6}>
               <TimePicker
-                label={<FieldLabel label="Event End Time" />}
+                label={<Typography
+                  component="span"
+                  sx={{ color: '#c026d3', fontSize: '0.8rem' }}
+                >
+                  Event End Time <span style={{ color: 'red' }}>*</span>
+                </Typography>}
                 value={eventDetails.endTime}
                 onChange={(newTime) => handleTimeChange("endTime", newTime)}
                 viewRenderers={{
@@ -486,65 +606,200 @@ const EventDetails = ({
                   seconds: renderTimeViewClock,
                 }}
                 renderInput={(params) => <TextField {...params} fullWidth />}
+                InputLabelProps={{
+                  style: { color: '#c026d3' }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#c026d3', // Default border color
+                    },
+
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#c026d3', // Border color when focused
+                    },
+                    '& input': {
+                      color: 'black', // Input text color
+                    },
+                  },
+                }}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
-                label={<FieldLabel label="Event Name" />}
+                label={<Typography
+                  component="span"
+                  sx={{ color: '#c026d3', fontSize: '0.8rem' }}
+                >
+                  Event Name <span style={{ color: 'red' }}>*</span>
+                </Typography>}
                 name="eventName"
                 value={eventDetails.eventName}
                 onChange={handleChange}
                 fullWidth
+                InputLabelProps={{
+                  style: { color: '#c026d3' }
+                }}
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    fontSize: '0.8rem',
+                    color: '#c026d3',
+                  },
+                  '& .MuiInputBase-input': {
+                    fontSize: '0.8rem',
+                    padding: '16px 18px',
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#c026d3',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#c026d3',
+                    },
+                    '& input': {
+                      color: 'black', // Input text color
+                    },
+                  },
+                }}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
-                label={<FieldLabel label="Event Venue Name" />}
+                label={<Typography
+                  component="span"
+                  sx={{ color: '#c026d3', fontSize: '0.8rem' }}
+                >
+                  Event Venue Name <span style={{ color: 'red' }}>*</span>
+                </Typography>}
                 name="eventVenue"
                 value={eventDetails.eventVenue}
                 onChange={handleChange}
                 fullWidth
+                InputLabelProps={{
+                  style: { color: '#c026d3' }, // Red label color
+
+                }}
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    fontSize: '0.8rem',
+                    color: '#c026d3',
+                  },
+                  '& .MuiInputBase-input': {
+                    fontSize: '0.8rem',
+                    padding: '16px 18px',
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#c026d3',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#c026d3',
+                    },
+                    '& input': {
+                      color: 'black', // Input text color
+                    },
+                  },
+                }}
+
               />
             </Grid>
             <Button
               sx={{
-                width: "39rem",
+                width: "40rem",
                 marginTop: "2rem",
-                marginLeft: "2rem",
-                border: "1px solid",
-                color:'#9c27b0'
+                marginLeft: "1rem",
+                border: "1px solid #9c27b0",
+                color: 'green'
               }}
               onClick={() => setOpenLocation(!openLocation)}
             >
-              Location
+              Select Address
+              <Typography
+                variant="button"
+                sx={{ color: 'red', marginLeft: '0.5rem', fontWeight: 'bold', fontSize: '1.2rem' }}
+              >
+                *
+              </Typography>
             </Button>
             <Grid item xs={6}>
               <TextField
-                label={<FieldLabel label="Receiver Name" />}
+                label={<Typography
+                  component="span"
+                  sx={{ color: '#c026d3', fontSize: '0.8rem' }}
+                >
+                  Receiver Name <span style={{ color: 'red' }}>*</span>
+                </Typography>}
                 name="receiverName"
-                value={eventDetails.receiverName}
+                value={eventDetails?.receiverName}
                 onChange={handleChange}
                 fullWidth
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    fontSize: '0.8rem',
+                    color: '#c026d3',
+                  },
+                  '& .MuiInputBase-input': {
+                    fontSize: '0.8rem',
+                    padding: '16px 18px',
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#c026d3',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#c026d3',
+                    },
+                    '& input': {
+                      color: 'black', // Input text color
+                    },
+                  },
+                }}
               />
             </Grid>
             <Grid item xs={6}>
               <TextField
-                label={<FieldLabel label="Receiver Mobile" />}
+                label={<Typography
+                  component="span"
+                  sx={{ color: '#c026d3', fontSize: '0.8rem' }}
+                >
+                  Receiver Mobile <span style={{ color: 'red' }}>*</span>
+                </Typography>}
                 name="receiverMobile"
-                value={eventDetails.receiverMobile}
+                value={eventDetails?.receiverMobile}
                 onChange={handleChange}
                 fullWidth
+                sx={{
+                  '& .MuiInputLabel-root': {
+                    fontSize: '0.8rem',
+                    color: '#c026d3',
+                  },
+                  '& .MuiInputBase-input': {
+                    fontSize: '0.8rem',
+                    padding: '16px 18px',
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#c026d3',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#c026d3',
+                    },
+                    '& input': {
+                      color: 'black', // Input text color
+                    },
+                  },
+                }}
               />
             </Grid>
 
-           
+
 
             <Grid item xs={6}>
               <Button
                 variant="outlined"
                 component="label"
                 fullWidth
-                sx={{border:'1px solid #9c27b0', color:'#9c27b0'}}
+                sx={{ border: '1px solid #9c27b0', color: '#9c27b0' }}
               // startIcon={<UploadFileIcon />}
               >
                 Upload Invitation
@@ -569,7 +824,7 @@ const EventDetails = ({
                 variant="outlined"
                 component="label"
                 fullWidth
-                sx={{border:'1px solid #9c27b0', color:'#9c27b0'}}
+                sx={{ border: '1px solid #9c27b0', color: '#9c27b0' }}
               // startIcon={<UploadFileIcon />}
               >
                 Upload Gate Pass
@@ -614,10 +869,14 @@ const EventDetails = ({
                     fontWeight: "bold",
                   }}
                 >
-                  ⚠️ Before proceeding to place your order, you need to accept
-                  the Terms & Conditions.
+                  {/* ⚠️ Before proceeding to place your order, you need to accept
+                  the Terms & Conditions. */}
+
+                  {/* TERMS AND CONDITIONS  */}
+
+                  <Terms onContinue={handleAcceptTerms} />
                 </Typography>
-                <Button
+                {/* <Button
                   variant="contained"
                   color="secondary"
                   size="large"
@@ -625,7 +884,7 @@ const EventDetails = ({
                   sx={{ width: "100%", py: 1.5 }}
                 >
                   Accept Terms
-                </Button>
+                </Button> */}
               </Box>
             )}
           </Box>
@@ -638,33 +897,7 @@ const EventDetails = ({
         >
           <Alert severity="error">Please fill in all mandatory fields!</Alert>
         </Snackbar>
-        <Modal
-          open={showTerms}
-          onClose={() => setShowTerms(false)}
-          aria-labelledby="terms-modal-title"
-          aria-describedby="terms-modal-description"
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: "80%",
-              maxWidth: 600,
-              bgcolor: "background.paper",
-              border: "1px solid #000",
-              boxShadow: 24,
-              p: 4,
-              borderRadius: 2,
-              height: "80vh",
-              maxHeight: "80vh",
-              overflowY: "auto",
-            }}
-          >
-            <Terms onContinue={handleAcceptTerms} />
-          </Box>
-        </Modal>
+
 
         <Modal
           open={isOrderSummaryOpen}
@@ -677,9 +910,25 @@ const EventDetails = ({
             technicianItems={technicianItems}
             servicesItem={servicesItem}
             billingDetails={billingDetails}
+            startDate={formatedStartDate}
+            endDate={formatedEndDate}
+            eventName={eventDetails?.eventName}
+            venueName={eventDetails?.eventVenue}
+            startTime={eventDetails.startTime ? eventDetails.startTime.format('HH:mm') : ''}
+            endTime={eventDetails.endTime ? eventDetails.endTime.format('HH:mm') : ''}
+            location={addLocation.address}
+            receiverName={eventDetails?.receiverName}
+            receiverMobile={eventDetails?.receiverMobile}
+            uploadedFiles={{
+              invitation: eventDetails.upload_invitation,
+              invitationPreview: eventDetails.upload_invitationPreview,
+              gatePass: eventDetails.upload_gatepass,
+              gatePassPreview: eventDetails.upload_gatepassPreview,
+          }}
             handleConfirmOrder={handleConfirmOrder}
             handleModalClose={handleModalClose}
           />
+
         </Modal>
         <Modal
           open={openLocation}
@@ -701,7 +950,7 @@ const EventDetails = ({
               zIndex: 100,
             }}
           >
-        
+
             <Typography variant="h6" sx={{ mb: 2 }}>
               Select Location
             </Typography>

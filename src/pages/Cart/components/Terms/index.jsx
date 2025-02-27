@@ -3,21 +3,40 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
+  Modal,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
 
 const Terms = ({ open, onClose, onContinue }) => {
   const [isAccepted, setIsAccepted] = useState(false);
-
+  const [showTerms, setShowTerms] = useState(false);
   const handleAcceptTerms = (event) => {
     setIsAccepted(event.target.checked);
   };
-
+  const handleProceedToTerms = () => {
+    //   if (
+    //     !eventDetails.startTime ||
+    //     !eventDetails.endTime ||
+    //     !eventDetails.eventName.trim() ||
+    //     !eventDetails.eventVenue.trim() ||
+    //     !eventDetails.receiverName.trim() ||
+    //     !eventDetails.receiverMobile.trim()
+    //   ) {
+    //     setSnackbarOpen(true);
+    //     return;
+    //   } else {
+    setShowTerms(true);
+    //   }
+  };
+  const closeTerms = () => {
+    setShowTerms(false);
+    setIsCheckoutAllowed(true);
+  };
   const handleContinue = () => {
     if (isAccepted) {
       onContinue();
-      onClose();
+      // onClose();
     } else {
       alert("Please accept the terms and conditions to proceed.");
     }
@@ -25,7 +44,31 @@ const Terms = ({ open, onClose, onContinue }) => {
 
   return (
     <Box>
-      <Typography
+       <Modal
+          open={showTerms}
+          onClose={() => setShowTerms(false)}
+          aria-labelledby="terms-modal-title"
+          aria-describedby="terms-modal-description"
+        >
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "80%",
+              maxWidth: 600,
+              bgcolor: "background.paper",
+              border: "1px solid #000",
+              boxShadow: 24,
+              p: 4,
+              borderRadius: 2,
+              height: "80vh",
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+          >
+         <Typography
         variant="h6"
         gutterBottom
         sx={{ textAlign: "center", fontWeight: "bold" }}
@@ -441,6 +484,9 @@ const Terms = ({ open, onClose, onContinue }) => {
           <br />
         </Typography>
       </Box>
+          </Box>
+        </Modal>
+    
       <FormControlLabel
         control={
           <Checkbox
@@ -451,11 +497,15 @@ const Terms = ({ open, onClose, onContinue }) => {
         }
         label="I accept the terms and conditions."
       />
+            <Typography onClick={() => setShowTerms(true) } sx={{color:'blue', cursor:'pointer'}} >Terms and conditions</Typography>
+
       <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
         <Button
           variant="contained"
-          color="primary"
+          color="secondary"
+          size="large"
           onClick={handleContinue}
+          sx={{ width: "100%", py: 1.5 }}
           disabled={!isAccepted}
         >
           Continue to Checkout

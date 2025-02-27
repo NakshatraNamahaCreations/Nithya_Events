@@ -35,8 +35,7 @@ const LocationSection = ({ onContinue, setOpenLocation }) => {
   });
 
   const handlePlaceSelect = async (place) => {
-    console.log("Place selected:", place);
-
+    
     if (!place) return;
 
     const geocoder = new window.google.maps.Geocoder();

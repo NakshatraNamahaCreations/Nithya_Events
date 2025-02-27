@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch } from "react-redux";
 import { setDates } from "../../redux/slice/dateSlice";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./styles.scss";
 import { Box, Button } from "@mui/material";
 import CustomModal from "../../components/CustomModal";
@@ -15,6 +15,7 @@ const Calendar = ({ calendarClose }) => {
   const [modalType, setModalType] = useState("success");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleDateChange = (dates) => {
     setSelectedDates(dates);
@@ -29,8 +30,9 @@ const Calendar = ({ calendarClose }) => {
       setOpenModal(true);
       setModalMessage("Thank you! Your event dates are confirmed.");
       setModalType("success");
-      navigate("/");
       calendarClose();
+      navigate("/products");
+     
     } else {
       alert("Please select a date range first.");
     }

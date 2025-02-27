@@ -62,7 +62,7 @@ const ExploreCategory = () => {
               <CardContent className="card-content">
                 <Typography
                   variant="h5"
-                  style={{ fontSize: '2.4rem', fontWeight: '600', color: '#858585' }}
+                  style={{ fontSize: '2.3rem', fontWeight: '600', color: '#858585' }}
                   className="category-name"
                 >
                   {category.title}

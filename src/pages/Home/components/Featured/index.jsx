@@ -6,6 +6,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 
 import "./styles.scss";
+import StarRating from "../../../../components/StarRating";
 
 const Featured = () => {
   const [featuredProduct, setFeaturedProduct] = useState([]);
@@ -31,6 +32,13 @@ const Featured = () => {
     window.scrollTo(0, 0);
     navigate(`/Featuredproducts`);
   };
+  
+  const calculateAverageRating = (review) => {
+    const total = review.reduce((sum, curr) => sum + curr.ratings, 0);
+
+    return review.length ? (total / review.length).toFixed(1) : 0;
+  };
+
 
   // Toggle Wishlist Status
   // const handleWishlistClick = (id) => {
@@ -95,105 +103,122 @@ const Featured = () => {
               }}
               onClick={() => handleProductClick(item._id)}
             />
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "1rem",
-                    color: "#343a40",
-                    marginBottom: "0.5rem",
-                  }}
-                >
-                  {item.product_name}
-                </Typography>
+              <CardContent>
+                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            fontWeight: "bold",
+                            fontSize: "1rem",
+                            color: "#343a40",
+                          }}
+                        >
+                          {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
+                        </Typography>
 
-                <IconButton
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent card click
-                    handleWishlistClick(item._id);
-                  }}
-                  sx={{ color: "#c026d3" }}
-                >
-                  {wishlist.includes(item._id) ? (
-                    <FavoriteOutlinedIcon />
-                  ) : (
-                    <FavoriteBorderIcon />
-                  )}
-                </IconButton>
-              </Box>
+                        <IconButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleWishlistClick(item._id);
+                          }}
+                          sx={{ color: "#c026d3", position: 'relative' }}
+                        >
+                          {wishlist.includes(item._id) ? (
+                            <FavoriteOutlinedIcon style={{ position: 'absolute' }} />
+                          ) : (
+                            <FavoriteBorderIcon style={{ position: 'absolute' }} />
+                          )}
+                        </IconButton>
+                      </Box>
 
-              <Typography
-                variant="body2"
-                sx={{
-                  color: "#6c757d",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                {item.product_category}
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                }}
-              >
-                <Typography
-                  variant="body1"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "#000",
-                    fontSize: "1rem",
-                  }}
-                >
-                  ₹{item.product_price} / day
-                </Typography>
+                      <Typography
+                        variant="p"
+                        sx={{
+                          color: "#6c757d",
+                        }}
+                      >
+                        {item.brand}
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
+                        <StarRating
+                          rating={parseFloat(
+                            calculateAverageRating(item.Reviews)
+                          )}
+                        // style={{ marginRight: '2rem' }}
+                        />
+                        <Typography variant="p" style={{ fontSize: "0.8rem" }}>
+                          {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
+                          Reviews
+                          {/* {item.Reviews && item.Reviews.length > 0
+                      ? calculateAverageRating(item.Reviews)
+                      : "No Ratings"} */}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.7rem",
+                          marginTop: '0.3rem'
+                        }}
+                      >
+                        <Typography
+                          variant="p"
+                          sx={{
+                            fontWeight: "bold",
+                            color: "#000",
+                            fontSize: "1rem",
+                          }}
+                        >
+                          ₹{item.product_price}
+                        </Typography>
 
-                {item.discount < item.product_price && (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      textDecoration: "line-through",
-                      color: "red",
-                      fontSize: "1.1rem",
-                      marginTop: "4px",
-                    }}
-                  >
-                    ₹{(item.mrp_rate)}
-                  </Typography>
-                )}
-              </Box>
+                        {item.discount < item.product_price && (
+                          <Typography
+                            variant="p"
+                            sx={{
+                              textDecoration: "line-through",
+                              color: "red",
+                              fontSize: "1rem",
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}
+                          >
+                            ₹{(item.mrp_rate) || "2500"}
+                          </Typography>
+                        )}
+                        <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
+                      </Box>
 
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  margin: "0 auto",
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    width: "15rem",
-                    textTransform: "capitalize",
-                    fontWeight: "bold",
-                    marginTop: "1rem",
-                    backgroundColor: "#c026d3",
-                    color: "white",
-                    border: "none",
-                    "&:hover": {
-                      borderColor: "black",
-                      boxShadow: "none",
-                    },
-                  }}
-                >
-                  Add to Bag
-                </Button>
-              </Box>
-            </CardContent>
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          margin: "0 auto",
+                        }}
+                      >
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          sx={{
+                            width: "15rem",
+                            textTransform: "capitalize",
+                            fontWeight: "bold",
+                            marginTop: "1rem",
+                            backgroundColor: "#c026d3",
+                            color: "white",
+                            border: "none",
+                            "&:hover": {
+                              borderColor: "black",
+                              boxShadow: "none",
+                            },
+                          }}
+                        >
+                          View More
+                        </Button>
+                      </Box>
+                    </CardContent>
           </Card>
         ))}
       </Box>

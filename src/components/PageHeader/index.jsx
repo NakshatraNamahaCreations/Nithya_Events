@@ -30,6 +30,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 // import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import EditCalendarOutlinedIcon from '@mui/icons-material/EditCalendarOutlined';
 import FmdGoodOutlinedIcon from "@mui/icons-material/FmdGoodOutlined";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import CloseIcon from "@mui/icons-material/Close";
@@ -512,6 +513,23 @@ const PageHeader = () => {
                             sx={{ marginRight: "12px", color: "#1b4b66" }}
                           />
                           <ListItemText primary="Accounts" />
+                        </ListItem>
+
+                        <ListItem
+                          button
+                          component={Link}
+                          to="/Booking"
+                          onClick={handleMenuClose}
+                          sx={{
+                            "&:hover": { backgroundColor: "#f5f5f5" },
+                            padding: "10px 15px",
+                            borderRadius: "8px",
+                          }}
+                        >
+                          <EditCalendarOutlinedIcon
+                            sx={{ marginRight: "12px", color: "#1b4b66" }}
+                          />
+                          <ListItemText primary="Bookings" />
                         </ListItem>
                         <ListItem
                           button
