@@ -231,11 +231,11 @@ const Cart = () => {
                             ₹{(item.productPrice * item.quantity).toFixed(2)}
                           </TableCell>
                           <TableCell >
-                            <Box sx={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
+                            <Box sx={{ display: 'flex', gap: '0.3rem' }}>
                               <IconButton
                                 onClick={() => handleDeleteItem(item.id)}
                                 color="error"
-                                sx={{ cursor: 'pointer' }}
+                                sx={{ cursor: 'pointer', }}
                               >
                                 <DeleteIcon />
                               </IconButton>
@@ -244,7 +244,7 @@ const Cart = () => {
                                   e.stopPropagation();
                                   handleWishlistClick(item.id);
                                 }}
-                                sx={{ color: "#c026d3", position: 'relative' }}
+                                sx={{ color: "#c026d3",position: 'relative' }}
                               >
                                 {wishlist.includes(item.id) ? (
                                   <FavoriteOutlinedIcon color="error" sx={{ cursor: 'pointer' }} />
@@ -314,7 +314,7 @@ const Cart = () => {
                                 {wishlist.includes(item.id) ? (
                                   <FavoriteOutlinedIcon color="error" sx={{ cursor: 'pointer' }} style={{ position: 'absolute' }} />
                                 ) : (
-                                  <FavoriteBorderIcon color="error" sx={{ cursor: 'pointer' }} style={{ position: 'absolute' }} />
+                                  <FavoriteBorderIcon color="error" sx={{ cursor: 'pointer' }}  />
                                 )}
                               </IconButton>
                             </Box>

@@ -148,6 +148,8 @@ const EventDetails = ({
     const { name, value } = e.target;
     setEventDetails({ ...eventDetails, [name]: value });
   };
+  console.log("The prodcut data",cartItems);
+  
   const techniciansData = technicianItem?.map((item) => ({
     orderId: Date.now().toString(),
     service_id: item.service_id || item._id,
@@ -187,7 +189,7 @@ const EventDetails = ({
     mrpPrice: item.mrpPrice || 0,
     // store: item.shop_name || "Unknown",
     imageUrl:
-      item.product_image ||
+      item.imageUrl ||
       "https://centrechurch.org/wp-content/uploads/2022/03/img-person-placeholder.jpeg",
     productDimension: item.productDimension || "Not Specified",
     totalPrice: (item.productPrice || 0) * (item.quantity || 1),

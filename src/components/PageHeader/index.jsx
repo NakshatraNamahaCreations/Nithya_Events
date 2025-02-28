@@ -93,9 +93,31 @@ const PageHeader = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState(null);
-
+  const isActive = (path) => location.pathname === path;
   const dispatch = useDispatch();
   const totalItems = [...cartItems, ...techniciansItems, ...serviceItems];
+
+  const menuItems = [
+    { label: "My Profile", icon: <AccountCircleOutlinedIcon />, path: "/profile" },
+    // { label: "My Bookings", icon: <AccountCircleOutlinedIcon />, path: "/account" },
+    { label: "My Bookings", icon: <EditCalendarOutlinedIcon />, path: "/Booking" },
+    { label: "My Tickets", icon: <EventIcon />, path: "/my-tickets" },
+    { label: "Faq", icon: <InfoIcon />, path: "/faq" },
+    { label: "Privacy Policy", icon: <HelpOutlineIcon />, path: "/privacyPolicy" },
+    { label: "Terms & Conditions", icon: <GavelIcon />, path: "/TermsAndCondition" },
+  ];
+  const [activePath, setActivePath] = useState(location.pathname);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setActivePath(location.pathname);
+  }, [location.pathname]);
+
+  const closeMenuAndNavigate = (path) => {
+    setActivePath(path);
+    setMenuOpen(false);
+    navigate(path);
+  };
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
@@ -292,8 +314,8 @@ const PageHeader = () => {
               />
               <Typography
                 variant="p"
-                sx={{ fontWeight: "400", color: "black", fontSize: {xs:'0.575rem', md:"0.9075rem"} }}
-                // sx={{ display: { xs: "none", md: "block" } }}
+                sx={{ fontWeight: "400", color: "black", fontSize: { xs: '0.575rem', md: "0.9075rem" } }}
+              // sx={{ display: { xs: "none", md: "block" } }}
               >
                 {currLocation.city
                   ? `${currLocation.city}, ${currLocation.town}`
@@ -337,20 +359,20 @@ const PageHeader = () => {
             </Paper>
 
             {/* Last menu icons ................... */}
-            <Box     sx={{ display: { xs: "none", md: "block" } }}>
+            <Box sx={{ display: { xs: "none", md: "block" } }}>
 
               <Box sx={{ display: "flex", gap: "1rem", alignItems: 'center' }}>
-                
+
                 {/* Wishlist............. */}
 
                 <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center' }} onClick={() => navigate("/wishlist")}>
 
-                  <FavoriteBorderIcon fontSize="medium" sx={{ color: '#e389eb', cursor:'pointer' }} />
+                  <FavoriteBorderIcon fontSize="medium" sx={{ color: '#e389eb', cursor: 'pointer' }} />
                   <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }} >Wishlist</Typography>
                 </Box>
 
                 {/* Cart .......... */}
-                <Box sx={{ display: "flex", flexDirection: 'column', gap: '0.2rem', alignItems:'center' }}>
+                <Box sx={{ display: "flex", flexDirection: 'column', gap: '0.2rem', alignItems: 'center' }}>
                   <Link
                     to="/cart"
                     style={{
@@ -376,7 +398,7 @@ const PageHeader = () => {
                       }}
                     >
                       <ShoppingCartOutlinedIcon
-                      fontSize="medium"
+                        fontSize="medium"
                         sx={{
 
                           color: '#e389eb'
@@ -393,7 +415,7 @@ const PageHeader = () => {
 
                 <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center' }}>
 
-                  <DesignServicesOutlinedIcon fontSize="medium" sx={{ color: '#e389eb', cursor:'pointer' }} />
+                  <DesignServicesOutlinedIcon fontSize="medium" sx={{ color: '#e389eb', cursor: 'pointer' }} />
                   <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }}>Mood Board</Typography>
                 </Box>
                 {/* <Link
@@ -454,7 +476,7 @@ const PageHeader = () => {
                               mb: 1,
                             }}
                           />
-                          <Typography variant="h6" fontWeight="bold">
+                          <Typography variant="h6" fontWeight="bold" sx={{textTransform:'capitalize'}}>
                             {userDetails.username}
                           </Typography>
                           <Typography variant="body2" color="textSecondary">
@@ -482,122 +504,44 @@ const PageHeader = () => {
                       <Divider sx={{ mb: 1 }} />
 
                       <List>
-                        <ListItem
-                          button
-                          component={Link}
-                          to="/profile"
-                          onClick={handleMenuClose}
-                          sx={{
-                            "&:hover": { backgroundColor: "#f5f5f5" },
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <SupervisorAccountIcon
-                            sx={{ marginRight: "12px", color: "#1b4b66" }}
-                          />
-                          <ListItemText primary="My Profile" />
-                        </ListItem>
-                        <ListItem
-                          button
-                          component={Link}
-                          to="/account"
-                          onClick={handleMenuClose}
-                          sx={{
-                            "&:hover": { backgroundColor: "#f5f5f5" },
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <PersonIcon
-                            sx={{ marginRight: "12px", color: "#1b4b66" }}
-                          />
-                          <ListItemText primary="Accounts" />
-                        </ListItem>
-
-                        <ListItem
-                          button
-                          component={Link}
-                          to="/Booking"
-                          onClick={handleMenuClose}
-                          sx={{
-                            "&:hover": { backgroundColor: "#f5f5f5" },
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <EditCalendarOutlinedIcon
-                            sx={{ marginRight: "12px", color: "#1b4b66" }}
-                          />
-                          <ListItemText primary="Bookings" />
-                        </ListItem>
-                        <ListItem
-                          button
-                          component={Link}
-                          to="/my-tickets"
-                          onClick={handleMenuClose}
-                          sx={{
-                            "&:hover": { backgroundColor: "#f5f5f5" },
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <EventIcon
-                            sx={{ marginRight: "12px", color: "#1b4b66" }}
-                          />
-                          <ListItemText primary="My Tickets" />
-                        </ListItem>
-
-                        <ListItem
-                          button
-                          component={Link}
-                          to="/faq"
-                          onClick={handleMenuClose}
-                          sx={{
-                            "&:hover": { backgroundColor: "#f5f5f5" },
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <InfoIcon
-                            sx={{ marginRight: "12px", color: "#1b4b66" }}
-                          />
-                          <ListItemText primary="Faq" />
-                        </ListItem>
-
-                        <ListItem
-                          button
-                          component={Link}
-                          to="/privacyPolicy"
-                          onClick={handleMenuClose}
-                          sx={{
-                            "&:hover": { backgroundColor: "#f5f5f5" },
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <HelpOutlineIcon
-                            sx={{ marginRight: "12px", color: "#1b4b66" }}
-                          />
-                          <ListItemText primary="Privacy Policy" />
-                        </ListItem>
-
-                        <ListItem
-                          button
-                          component={Link}
-                          to="/TermsAndCondition"
-                          onClick={handleMenuClose}
-                          sx={{
-                            "&:hover": { backgroundColor: "#f5f5f5" },
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <GavelIcon
-                            sx={{ marginRight: "12px", color: "#1b4b66" }}
-                          />
-                          <ListItemText primary="Terms & Conditions" />
-                        </ListItem>
+                        {menuItems.map((item) => {
+                          const isActive = activePath === item.path;
+                          return (
+                            <ListItem
+                              key={item.path}
+                              button
+                              onClick={() => closeMenuAndNavigate(item.path)}
+                              sx={{
+                                backgroundColor: isActive ? "#f3e5f5" : "transparent",
+                                "&:hover": { backgroundColor: "#f1f1f7" },
+                                padding: "10px 15px",
+                                borderRadius: "8px",
+                                color: isActive ? "#9c27b0" : "black",
+                               cursor:'pointer'
+                              }}
+                            >
+                              {React.cloneElement(item.icon, {
+                                sx: {
+                                  marginRight: "12px",
+                                  color: isActive ? "#9c27b0" : "black",
+                                },
+                              })}
+                              <ListItemText
+                                primary={
+                                  <Typography variant="p"
+                                    sx={{
+                                      fontWeight: isActive ? "bold" : "normal",
+                                      color: isActive ? "#9c27b0" : "black", 
+                                      fontSize:'0.9rem'
+                                    }}
+                                  >
+                                    {item.label}
+                                  </Typography>
+                                }
+                              />
+                            </ListItem>
+                          );
+                        })}
                       </List>
 
                       <Divider sx={{ my: 1 }} />
@@ -610,7 +554,7 @@ const PageHeader = () => {
                             handleMenuClose();
                           }}
                           sx={{
-                            "&:hover": { backgroundColor: "#ffebee" },
+                            "&:hover": { backgroundColor: "#f1f1f7" },
                             padding: "12px 15px",
                             borderRadius: "8px",
                           }}
@@ -645,11 +589,11 @@ const PageHeader = () => {
                   //   Signin
                   // </Button>
 
-                  <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center', cursor:'pointer' }}  onClick={() => navigate("/login")}>
+                  <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate("/login")}>
 
-                  <AccountCircleOutlinedIcon fontSize="medium" sx={{ color: '#e389eb' }} />
-                  <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }} >Login</Typography>
-                </Box>
+                    <AccountCircleOutlinedIcon fontSize="medium" sx={{ color: '#e389eb' }} />
+                    <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }} >Login</Typography>
+                  </Box>
                 )}
 
 

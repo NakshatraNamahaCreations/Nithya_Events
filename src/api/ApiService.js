@@ -20,12 +20,13 @@ const authService = {
   // Order Management
   createOrder: (data) => api.post(config.CREATE_ORDER, data),
   getOrder: (orderId) => api.get(`${config.GET_ORDER_BY_ORDER_ID}${orderId}`),
-  cancelOrder: (orderId) => api.put(`${config.CANCEL_ORDER}${orderId}`),
+  cancelOrder: (orderId, payload) => api.put(`${config.CANCEL_ORDER}${orderId}`, payload),
   rescheduleOrder: (orderId, data) =>
     api.put(`${config.RESCHEDULE_ORDER}${orderId}`, data),
 
   // My booking Section
   getUserOrder: (userId) => api.get(`${config.USER_ORDER}${userId}`),
+  // cancelOrder:(orderId) => api.put(`${config.CANCEL_ORDER}${orderId}`),
 
   // Services
   getAllServices: () => api.get(config.GET_ALL_SERVICE),

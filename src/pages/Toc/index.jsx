@@ -25,7 +25,7 @@ const Toc = () => {
   }, []);
 
   return (
-    <>
+    <Box pl={8} pr={8} pt={5}>
       <Typography
         variant="h6"
         gutterBottom
@@ -441,7 +441,7 @@ const Toc = () => {
           <br />
         </Typography>
       </Box>
-    </>
+    </Box>
   );
 };
 

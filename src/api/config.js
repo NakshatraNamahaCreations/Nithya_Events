@@ -41,6 +41,9 @@ export const config = {
   GET_SERVICE_REVIEW: "/vendor/get-service-review/",
   WRITE_VENDORS_REVIEW: "/vendor/write-review/",
 
+  // BOOKING
+  CANCEL_ORDER: "/api/user-order/cancel-order/",
+
   // ORDER
   CREATE_ORDER: "/user-order/create-order",
   RESCHEDULE_ORDER: "/user-order/reschedule-order/",

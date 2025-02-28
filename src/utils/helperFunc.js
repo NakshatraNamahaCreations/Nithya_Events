@@ -103,3 +103,12 @@ export const formatDate = (dateString, formatType = "YYYY-MM-DD HH:mm A") => {
   const options = formatOptions[formatType] || formatOptions["YYYY-MM-DD"];
   return new Intl.DateTimeFormat("en-US", options).format(date);
 };
+
+export const formatProperDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+

@@ -21,7 +21,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 // Custom Components 
 import authService from "../../api/ApiService";
 import { setLoading } from "../../redux/slice/LoaderSlice";
-import { formatDate, getErrorMessage } from "../../utils/helperFunc";
+import { formatDate, formatProperDate, getErrorMessage } from "../../utils/helperFunc";
 
 // Assests 
 import EventImg from "../../assets/bookingImg.jpg";
@@ -48,7 +48,7 @@ const Bookings = () => {
         const res = await authService.getUserOrder(userData._id);
         setBookings(res.data.userOrder);
 
-        
+
         dispatch(setLoading(false));
       } catch (error) {
         setLoading(false);
@@ -65,13 +65,14 @@ const Bookings = () => {
   const filteredBookings = bookings.filter((booking) => {
     console.log(bookings);
     if (selectedTab === 0) return true; // All
-    if (selectedTab === 1) return booking.payment_status === "pending";
-    if (selectedTab === 2) return booking.payment_status === "on progress"; 
-    if (selectedTab === 3) return booking.payment_status === "success"; 
-    if (selectedTab === 4) return booking.payment_status === "cancelled"; 
+    // if (selectedTab === 1) return booking.payment_status === "pending";
+    if (selectedTab === 1) return booking.payment_status === "on progress";
+    if (selectedTab === 2) return booking.payment_status === "success";
+    if (selectedTab === 3) return booking.payment_status === "cancelled";
     return false;
   });
-  
+console.log("the bookings", bookings);
+
   return (
     <Box className="my-bookings-page" sx={{ padding: "2rem" }}>
       {/* <Sliders /> */}
@@ -82,7 +83,7 @@ const Bookings = () => {
         My Bookings
       </Typography> */}
 
-<Box sx={{ borderBottom: 1, borderColor: "divider", marginBottom: "1.5rem" }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", marginBottom: "1.5rem" }}>
         <Tabs
           value={selectedTab}
           onChange={handleTabChange}
@@ -91,15 +92,15 @@ const Bookings = () => {
           indicatorColor="primary"
           sx={{
             "& .MuiTabs-indicator": {
-                backgroundColor: "#c026d3",
+              backgroundColor: "#c026d3",
             },
             "& .Mui-selected": {
-                color: "#c026d3 !important",
+              color: "#c026d3 !important",
             },
-        }}
+          }}
         >
           <Tab label="All" />
-          <Tab label="Pending" />
+          {/* <Tab label="Pending" /> */}
           <Tab label="On Progress" />
           <Tab label="Completed" />
           <Tab label="Cancelled" />
@@ -130,12 +131,12 @@ const Bookings = () => {
                   }}
                 >
                   <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    ORDER PLACED: {formatDate(booking.event_start_date)}
+                    ORDER PLACED: {formatProperDate(booking.createdAt)}
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                     TOTAL: ₹{booking.paid_amount || "N/A"}
                   </Typography>
-                 
+
                 </Box>
               </Grid>
 
@@ -183,12 +184,12 @@ const Bookings = () => {
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  alignItems:'center',
-                  justifyContent:'center',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   gap: "0.5rem",
                 }}
               >
-                    <Button variant="contained" sx={{backgroundColor:'#c026d3'}} onClick={() => navigate(`/booking/${booking._id}`)} color="primary" fullWidth>
+                <Button variant="contained" sx={{ backgroundColor: '#c026d3' }} onClick={() => navigate(`/booking/${booking._id}`)} color="primary" fullWidth>
                   View More
                 </Button>
                 {/* <Button variant="outlined" color="secondary" fullWidth>
