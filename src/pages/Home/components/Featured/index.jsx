@@ -7,11 +7,16 @@ import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 
 import "./styles.scss";
 import StarRating from "../../../../components/StarRating";
+import axios from "axios";
 
 const Featured = () => {
   const [featuredProduct, setFeaturedProduct] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const navigate = useNavigate();
+  const userDetail =  sessionStorage.getItem('userDetails');
+  const userDetails = JSON.parse(userDetail);
+  const userId = userDetails._id;
+  console.log(userId);
 
   const fetchFeaturedProducts = async () => {
     const res = await authService.featuredProducts();
@@ -52,6 +57,40 @@ const Featured = () => {
   const handleWishlistClick = (id) => {
     setWishlist((prev) => prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]);
   }
+  const handleClick  = async (product) => {
+    
+    const payload = {
+      product_name: product.product_name,
+    product_id: product.product_id,
+    product_image: product.product_image[0],
+    product_price: product.product_price,
+    mrp_price: product.mrp_price,
+    discount: product.discount,
+    user_id: userId
+
+
+    }
+
+  
+    try {
+      const res = await axios.post(
+        "https://api.nithyaevent.com/api/wishlist/add-wishlist",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      console.log("Wishlist API Response:", res.data);
+      alert("Product successfully added!");
+    } catch (error) {
+      console.error("Wishlist API Error:", error);
+      alert("Error in wishlist");
+    }
+  };
+  
   return (
     <Box sx={{ padding: "6rem" }}>
       <Box
@@ -124,7 +163,10 @@ const Featured = () => {
                           sx={{ color: "#c026d3", position: 'relative' }}
                         >
                           {wishlist.includes(item._id) ? (
-                            <FavoriteOutlinedIcon style={{ position: 'absolute' }} />
+                            <Button onClick={() => handleClick(item)}>
+
+                              <FavoriteOutlinedIcon  style={{ position: 'absolute' }} />
+                            </Button>
                           ) : (
                             <FavoriteBorderIcon style={{ position: 'absolute' }} />
                           )}

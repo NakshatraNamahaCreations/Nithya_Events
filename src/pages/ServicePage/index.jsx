@@ -125,19 +125,6 @@ const ServicePage = () => {
             </Box>
             <h3>{service.service_name}</h3>
             <p>
-              <strong>Requirements:</strong>{" "}
-              {service.requirement_fields.length > 0
-                ? service.requirement_fields.slice(0, 3).map((req, index) => (
-                    <span key={req.unique_id}>
-                      {req.parameter}
-                      {index < service.requirement_fields.slice(0, 3).length - 1
-                        ? ", "
-                        : ""}
-                    </span>
-                  ))
-                : "None"}
-            </p>
-            <p>
               <strong>Status:</strong>{" "}
               {service.isActive ? "Active" : "Inactive"}
             </p>

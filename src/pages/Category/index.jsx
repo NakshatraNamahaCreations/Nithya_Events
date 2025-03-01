@@ -522,7 +522,10 @@ const Category = () => {
                           sx={{ color: "#c026d3", position: 'relative' }}
                         >
                           {wishlist.includes(item._id) ? (
-                            <FavoriteOutlinedIcon style={{ position: 'absolute' }} />
+                            <Button onClick={handleClick}>
+                              <FavoriteOutlinedIcon  style={{ position: 'absolute' }} />
+
+                            </Button>
                           ) : (
                             <FavoriteBorderIcon style={{ position: 'absolute' }} />
                           )}

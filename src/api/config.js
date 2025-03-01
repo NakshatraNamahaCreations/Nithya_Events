@@ -44,6 +44,9 @@ export const config = {
   // BOOKING
   CANCEL_ORDER: "/api/user-order/cancel-order/",
 
+  //Wishlist
+  ADD_WISHLIST: "/api/wishlist/add-wishlist/",
+
   // ORDER
   CREATE_ORDER: "/user-order/create-order",
   RESCHEDULE_ORDER: "/user-order/reschedule-order/",

@@ -33,6 +33,9 @@ const authService = {
   getService: (service) =>
     api.get(`${config.GET_SERVICES_BY_SERVICE_NAME}/${service}`),
 
+  // Wishlist
+  addWishlist: (payload) => api.post(`${config.ADD_WISHLIST}`,payload),
+
   // Product Section
   rentalProduct: () => api.get(`${config.GET_RENTAL_PRODUCTS}`),
   relatedRentalProduct: (category) =>

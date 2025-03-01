@@ -2,6 +2,8 @@ import { Box, Card, CardContent, Typography, Button, Grid, IconButton } from "@m
 import { useNavigate } from "react-router-dom";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { useEffect } from "react";
+import axios from "axios";
 
 const wishlistItems = [
   {
@@ -28,11 +30,31 @@ const Wishlist = () => {
   const handleRemoveFromWishlist = (id) => {
     alert("Removed from wishlist");
   };
+  const userDetail =  sessionStorage.getItem('userDetails');
+const userDetails = JSON.parse(userDetail);
+const userId = userDetails._id;
+console.log(userId);
 
-  const handleAddToCart = (id) => {
-    alert("Added to cart");
-  };
+ 
+const getWishlist = async () => {
+  console.log("Fetching Wishlist...");
+  console.log("User ID:", userId);
 
+  try {
+      const res = await axios.get(`http://192.168.1.103:9000/api/wishlist/get-my-wishlist/${userId}`, {
+          headers: { "Content-Type": "application/json" }
+      });
+
+      console.log("Wishlist Response:", res.data);
+  } catch (error) {
+      console.error("API Error:", error.response ? error.response.data : error.message);
+      alert("Error in fetching wishlist");
+  }
+};
+
+useEffect(() => {
+  getWishlist();
+},[])
   return (
     <Box sx={{ padding: "8rem", backgroundColor: "#f5f5f5" }}>
       <Typography variant="h4" sx={{ fontWeight: "bold", marginBottom: "2rem" }}>

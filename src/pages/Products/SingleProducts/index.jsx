@@ -50,6 +50,7 @@ import { addTechnician } from "../../../redux/slice/technicianSlice";
 import "./styles.scss";
 import Coupon from "./components/Coupon";
 import StarRating from "../../../components/StarRating";
+import axios from "axios";
 
 const SingleProducts = () => {
   const [cart, setCart] = useState([]);
@@ -74,6 +75,11 @@ const SingleProducts = () => {
     (state) => state.date
   );
   const [wishlist, setWishlist] = useState([]);
+
+  const userDetail =  sessionStorage.getItem('userDetails');
+  const userDetails = JSON.parse(userDetail);
+  const userId = userDetails._id;
+  console.log(userId);
 
   const fetchSingleProduct = async () => {
     try {
@@ -260,6 +266,33 @@ const SingleProducts = () => {
     console.log(id);
   };
 
+  const handleClick  = async() => {
+    const payload = {
+      product_name: product.product_name,
+    product_id: product.product_id,
+    product_image: product.product_image[0],
+    product_price: product.product_price,
+    mrp_price: product.mrp_price,
+    discount: product.discount,
+    user_id: userId
+
+
+    }
+
+
+    try{
+      const res = await axios.post("https://api.nithyaevent.com/api/wishlist/add-wishlist", payload, {
+        headers:{
+          "Content-Type":"application/json"
+        }
+      });
+      alert("Product successfully added!"); 
+    }
+    catch(error){
+      getErrorMessage(error);
+      alert("Error in wishlist")
+    }
+  }
   return (
     <>
       {showProduct && (
@@ -567,7 +600,7 @@ const SingleProducts = () => {
                   variant="outlined"
                   color="red"
                   className="addToWishlist"
-                  onClick={handleAddToCart}
+                  onClick={handleClick}
                 >
                   <FavoriteBorderOutlinedIcon   sx={{ marginRight: '8px' }} />
                   Add to Wishlist
@@ -790,7 +823,7 @@ const SingleProducts = () => {
                           sx={{ color: "#c026d3", position: 'relative' }}
                         >
                           {wishlist.includes(item._id) ? (
-                            <FavoriteOutlinedIcon style={{ position: 'absolute' }} />
+                            <FavoriteOutlinedIcon onClick={handleWishlist} style={{ position: 'absolute' }} />
                           ) : (
                             <FavoriteBorderIcon style={{ position: 'absolute' }} />
                           )}
