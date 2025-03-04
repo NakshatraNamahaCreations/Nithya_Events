@@ -28,9 +28,9 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 // import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import EditCalendarOutlinedIcon from '@mui/icons-material/EditCalendarOutlined';
+import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import EditCalendarOutlinedIcon from "@mui/icons-material/EditCalendarOutlined";
 import FmdGoodOutlinedIcon from "@mui/icons-material/FmdGoodOutlined";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import CloseIcon from "@mui/icons-material/Close";
@@ -56,8 +56,9 @@ import Calendar from "../../pages/Calender";
 import Settings from "../../assets/Settings.png";
 // import ShoppingCart from "../../assets/shoppingCart.png";
 // import ShoppingCart from "../../assets/carts.png";
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-import DesignServicesOutlinedIcon from '@mui/icons-material/DesignServicesOutlined';
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import DesignServicesOutlinedIcon from "@mui/icons-material/DesignServicesOutlined";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Homes from "../../assets/hom.png";
 import Serv from "../../assets/serv.png";
 import Calend from "../../assets/calend.png";
@@ -71,7 +72,7 @@ import EventIcon from "@mui/icons-material/Event";
 import InfoIcon from "@mui/icons-material/Info";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import GavelIcon from "@mui/icons-material/Gavel";
-import SearchIcon from '@mui/icons-material/Search';
+import SearchIcon from "@mui/icons-material/Search";
 
 // styles
 import "./styles.scss";
@@ -98,13 +99,30 @@ const PageHeader = () => {
   const totalItems = [...cartItems, ...techniciansItems, ...serviceItems];
 
   const menuItems = [
-    { label: "My Profile", icon: <AccountCircleOutlinedIcon />, path: "/profile" },
+    {
+      label: "My Profile",
+      icon: <AccountCircleOutlinedIcon />,
+      path: "/profile",
+    },
     // { label: "My Bookings", icon: <AccountCircleOutlinedIcon />, path: "/account" },
-    { label: "My Bookings", icon: <EditCalendarOutlinedIcon />, path: "/Booking" },
+    {
+      label: "My Bookings",
+      icon: <EditCalendarOutlinedIcon />,
+      path: "/Booking",
+    },
     { label: "My Tickets", icon: <EventIcon />, path: "/my-tickets" },
     { label: "Faq", icon: <InfoIcon />, path: "/faq" },
-    { label: "Privacy Policy", icon: <HelpOutlineIcon />, path: "/privacyPolicy" },
-    { label: "Terms & Conditions", icon: <GavelIcon />, path: "/TermsAndCondition" },
+    { label: "Help Center", icon: <InfoIcon />, path: "/help-center" },
+    {
+      label: "Privacy Policy",
+      icon: <HelpOutlineIcon />,
+      path: "/privacyPolicy",
+    },
+    {
+      label: "Terms & Conditions",
+      icon: <GavelIcon />,
+      path: "/TermsAndCondition",
+    },
   ];
   const [activePath, setActivePath] = useState(location.pathname);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -298,9 +316,7 @@ const PageHeader = () => {
               </Box> */}
             </Box>
 
-            <Box
-              sx={{ display: "flex", alignItems: "center", gap: "0.2rem" }}
-            >
+            <Box sx={{ display: "flex", alignItems: "center", gap: "0.2rem" }}>
               {/* <FmdGoodOutlinedIcon sx={{ color: "black", fontSize: 24 }} /> */}
               <img
                 src={Locations}
@@ -312,18 +328,26 @@ const PageHeader = () => {
                   alignItems: "center",
                 }}
               />
+              {/* height: 51px;
+    display: flex
+;
+    justify-content: center;
+    align-items: center; */}
               <Typography
                 variant="p"
-                sx={{ fontWeight: "400", color: "black", fontSize: { xs: '0.575rem', md: "0.9075rem" } }}
-              // sx={{ display: { xs: "none", md: "block" } }}
+                sx={{
+                  fontWeight: "400",
+                  color: "black",
+                  fontSize: { xs: "0.575rem", md: "0.9075rem" },
+                  justifyContent: "center",
+                }}
+                // sx={{ display: { xs: "none", md: "block" } }}
               >
                 {currLocation.city
                   ? `${currLocation.city}, ${currLocation.town}`
                   : "Fetching location..."}
               </Typography>
             </Box>
-
-
 
             {/* Search Bar.................. */}
 
@@ -332,7 +356,7 @@ const PageHeader = () => {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                width: { xs: "100%", md: "40%" },
+                width: { xs: "100%", md: "32%" },
                 borderRadius: "50px",
                 boxShadow: "none",
                 border: "1px solid #e0e0e0",
@@ -360,19 +384,41 @@ const PageHeader = () => {
 
             {/* Last menu icons ................... */}
             <Box sx={{ display: { xs: "none", md: "block" } }}>
-
-              <Box sx={{ display: "flex", gap: "1rem", alignItems: 'center' }}>
-
+              <Box sx={{ display: "flex", gap: "1rem", alignItems: "center" }}>
                 {/* Wishlist............. */}
 
-                <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center' }} onClick={() => navigate("/wishlist")}>
-
-                  <FavoriteBorderIcon fontSize="medium" sx={{ color: '#e389eb', cursor: 'pointer' }} />
-                  <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }} >Wishlist</Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                  onClick={() => navigate("/wishlist")}
+                >
+                  <FavoriteBorderIcon
+                    fontSize="medium"
+                    sx={{ color: "#e389eb", cursor: "pointer" }}
+                  />
+                  <Typography
+                    sx={{
+                      color: "#6f6a6a",
+                      fontFamily: "poppins",
+                      fontSize: "0.8rem",
+                    }}
+                  >
+                    Wishlist
+                  </Typography>
                 </Box>
 
                 {/* Cart .......... */}
-                <Box sx={{ display: "flex", flexDirection: 'column', gap: '0.2rem', alignItems: 'center' }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.2rem",
+                    alignItems: "center",
+                  }}
+                >
                   <Link
                     to="/cart"
                     style={{
@@ -400,23 +446,45 @@ const PageHeader = () => {
                       <ShoppingCartOutlinedIcon
                         fontSize="medium"
                         sx={{
-
-                          color: '#e389eb'
+                          color: "#e389eb",
                         }}
                       />
                     </Badge>
                   </Link>
 
-                  <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }}>Cart</Typography>
-
+                  <Typography
+                    sx={{
+                      color: "#6f6a6a",
+                      fontFamily: "poppins",
+                      fontSize: "0.8rem",
+                    }}
+                  >
+                    Cart
+                  </Typography>
                 </Box>
 
                 {/* Mood Board.............  */}
 
-                <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center' }}>
-
-                  <DesignServicesOutlinedIcon fontSize="medium" sx={{ color: '#e389eb', cursor: 'pointer' }} />
-                  <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }}>Mood Board</Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <DesignServicesOutlinedIcon
+                    fontSize="medium"
+                    sx={{ color: "#e389eb", cursor: "pointer" }}
+                  />
+                  <Typography
+                    sx={{
+                      color: "#6f6a6a",
+                      fontFamily: "poppins",
+                      fontSize: "0.8rem",
+                    }}
+                  >
+                    Mood Board
+                  </Typography>
                 </Box>
                 {/* <Link
                   to={"/cart"}
@@ -434,7 +502,30 @@ const PageHeader = () => {
                     style={{ width: "17px", marginTop: "1.5px" }}
                   />
                 </Link> */}
-
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                  onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+                >
+                  
+                  <CalendarMonthIcon
+                    fontSize="small"
+                    sx={{ color: "#e389eb", cursor: "pointer" }}
+                  />
+                  <Typography
+                    sx={{
+                      color: "#6f6a6a",
+                      fontFamily: "poppins",
+                      fontSize: "0.8rem",
+                    }}
+                  >
+                    Calender
+                  </Typography>
+                    
+                </Box>
                 {/* Account page................................. */}
                 {isAuthenticated ? (
                   <>
@@ -442,10 +533,26 @@ const PageHeader = () => {
                       {userDetails.profileImage ? (
                         <Avatar src={userDetails.profileImage} />
                       ) : (
-                        <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center' }}>
-
-                          <AccountCircleOutlinedIcon fontSize="medium" sx={{ color: '#e389eb' }} />
-                          <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }}>Profile</Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <AccountCircleOutlinedIcon
+                            fontSize="medium"
+                            sx={{ color: "#e389eb" }}
+                          />
+                          <Typography
+                            sx={{
+                              color: "#6f6a6a",
+                              fontFamily: "poppins",
+                              fontSize: "0.8rem",
+                            }}
+                          >
+                            Profile
+                          </Typography>
                         </Box>
                       )}
                     </IconButton>
@@ -476,7 +583,11 @@ const PageHeader = () => {
                               mb: 1,
                             }}
                           />
-                          <Typography variant="h6" fontWeight="bold" sx={{textTransform:'capitalize'}}>
+                          <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            sx={{ textTransform: "capitalize" }}
+                          >
                             {userDetails.username}
                           </Typography>
                           <Typography variant="body2" color="textSecondary">
@@ -512,12 +623,14 @@ const PageHeader = () => {
                               button
                               onClick={() => closeMenuAndNavigate(item.path)}
                               sx={{
-                                backgroundColor: isActive ? "#f3e5f5" : "transparent",
+                                backgroundColor: isActive
+                                  ? "#f3e5f5"
+                                  : "transparent",
                                 "&:hover": { backgroundColor: "#f1f1f7" },
                                 padding: "10px 15px",
                                 borderRadius: "8px",
                                 color: isActive ? "#9c27b0" : "black",
-                               cursor:'pointer'
+                                cursor: "pointer",
                               }}
                             >
                               {React.cloneElement(item.icon, {
@@ -528,11 +641,12 @@ const PageHeader = () => {
                               })}
                               <ListItemText
                                 primary={
-                                  <Typography variant="p"
+                                  <Typography
+                                    variant="p"
                                     sx={{
                                       fontWeight: isActive ? "bold" : "normal",
-                                      color: isActive ? "#9c27b0" : "black", 
-                                      fontSize:'0.9rem'
+                                      color: isActive ? "#9c27b0" : "black",
+                                      fontSize: "0.9rem",
                                     }}
                                   >
                                     {item.label}
@@ -589,16 +703,31 @@ const PageHeader = () => {
                   //   Signin
                   // </Button>
 
-                  <Box sx={{ display: "flex", flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }} onClick={() => navigate("/login")}>
-
-                    <AccountCircleOutlinedIcon fontSize="medium" sx={{ color: '#e389eb' }} />
-                    <Typography sx={{ color: '#6f6a6a', fontFamily: 'poppins' }} >Login</Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => navigate("/login")}
+                  >
+                    <AccountCircleOutlinedIcon
+                      fontSize="medium"
+                      sx={{ color: "#e389eb" }}
+                    />
+                    <Typography
+                      sx={{
+                        color: "#6f6a6a",
+                        fontFamily: "poppins",
+                        fontSize: "0.8rem",
+                      }}
+                    >
+                      Login
+                    </Typography>
                   </Box>
                 )}
-
-
               </Box>
-
             </Box>
 
             <IconButton
@@ -700,8 +829,7 @@ const PageHeader = () => {
               gap: "10px",
               marginTop: "20px",
             }}
-          >
-          </Box>
+          ></Box>
         </Box>
       </Modal>
     </>

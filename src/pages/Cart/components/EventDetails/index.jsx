@@ -53,6 +53,7 @@ const EventDetails = ({
   technicianItems,
   billingDetails,
   handleClearAll,
+ 
 }) => {
   const [eventDetails, setEventDetails] = useState({
     eventDate: null,
@@ -300,13 +301,10 @@ const EventDetails = ({
     formData.append("event_end_time", eventDetails.endTime?.format("hh:mm A"));
     formData.append("venue_start_time", eventDetails.venueStartTime?.format("hh:mm A"));
     formData.append("venue_end_time", eventDetails.venueEndTime?.format("hh:mm A"));
+  
     formData.append(
       "cart_total",
-      cartItems.reduce(
-        (total, item) =>
-          total + (item.product_price || 0) * (item.quantity || 1),
-        0
-      )
+      billingDetails.totalPrice
     );
     formData.append("base_amount", billingDetails?.baseAmount);
     formData.append("gst_applied_value", "15120");
@@ -513,7 +511,7 @@ const EventDetails = ({
                   component="span"
                   sx={{ color: '#c026d3', fontSize: '0.8rem' }}
                 >
-                  Venue Start Time <span style={{ color: 'red' }}>*</span>
+                  Event Setup Start Time <span style={{ color: 'red' }}>*</span>
                 </Typography>}
                 value={eventDetails.venueStartTime}
                 onChange={(newTime) => handleTimeChange("venueStartTime", newTime)}
@@ -550,7 +548,7 @@ const EventDetails = ({
                   component="span"
                   sx={{ color: '#c026d3', fontSize: '0.8rem' }}
                 >
-                  Venue End Time <span style={{ color: 'red' }}>*</span>
+                  Event Setup End Time <span style={{ color: 'red' }}>*</span>
                 </Typography>}
                 value={eventDetails.venueEndTime}
                 onChange={(newTime) => handleTimeChange("venueEndTime", newTime)}

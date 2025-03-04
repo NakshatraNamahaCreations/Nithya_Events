@@ -36,6 +36,8 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 import axios from "axios";
 import ModalItem from "./SingleProducts/components/Modal";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Products = () => {
   const { category } = useParams();
@@ -153,7 +155,7 @@ const Products = () => {
     const isInWishlist = wishlist.includes(item._id);
     const wishlistId = productList.find((w) => w.product_id === item._id);
     try {
-      if (!isInWishlist) {
+      // if (!isInWishlist) {
 
         await axios.post(
           "https://api.nithyaevent.com/api/wishlist/add-wishlist",
@@ -171,42 +173,82 @@ const Products = () => {
 
 
         setWishlist((prev) => [...prev, item._id]);
-        setModalType("success");
-        setModalMessage("The product has been successfully added to your wishlist.");
-        setOpen(true);
-        setTimeout(() => {
-          setOpen(false);
-        }, 1800);
-      } else {
+                 toast.success("Item added to cart!", {
+                    position: "top-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                  });
+        // setModalType("success");
+        // setModalMessage("The product has been successfully added to your wishlist.");
+        // setOpen(true);
+        // setTimeout(() => {
+        //   setOpen(false);
+        // }, 1800);
+      // }
+      // else {
 
-        await axios.delete(
-          `https://api.nithyaevent.com/api/wishlist/remove-wishlist-list/${wishlistId._id}`
-        );
+      //   await axios.delete(
+      //     `https://api.nithyaevent.com/api/wishlist/remove-wishlist-list/${wishlistId._id}`
+      //   );
 
 
-        setWishlist((prev) => prev.filter((id) => id !== item._id));
-        setModalType("success");
-        setModalMessage("The product has been successfully deleted from your wishlist.");
-        setOpen(true);
-        setTimeout(() => {
-          setOpen(false);
-        }, 1800);
-      }
+      //   setWishlist((prev) => prev.filter((id) => id !== item._id));
+
+      //      toast.error("Failed to add item to cart. Try again!", {
+      //           position: "top-right",
+      //           autoClose: 2000,
+      //           hideProgressBar: false,
+      //           closeOnClick: true,
+      //           pauseOnHover: true,
+      //           draggable: true,
+      //           progress: undefined,
+      //         });
+      //   // setModalType("success");
+      //   // setModalMessage("The product has been successfully deleted from your wishlist.");
+      //   // setOpen(true);
+      //   // setTimeout(() => {
+      //   //   setOpen(false);
+      //   // }, 1800);
+      // }
     }
 
     catch (error) {
       let errorMessage = "Something went wrong. Please try again.";
-
+    
       if (error.response && error.response.data?.message) {
         errorMessage = error.response.data.message.includes("Product already exists")
           ? "This product is already in your wishlist!"
           : `Error: ${error.response.data.message}`;
+    
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+    
+        return; 
       }
-
-      setModalType("error");
-      setModalMessage(errorMessage);
-      setOpen(true);
+    
+      
+      toast.error("Failed to add item to cart. Try again!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
+    
   };
   useEffect(() => {
     fetchProducts();
@@ -344,6 +386,7 @@ const Products = () => {
   return (
     <>
       <Slider />
+      <ToastContainer/>
       <BreadCrumb paths={breadcrumbPaths} />
 
       <Box className="products-page">

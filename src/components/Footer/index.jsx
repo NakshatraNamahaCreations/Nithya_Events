@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Facebook,
   Instagram,
@@ -8,14 +8,36 @@ import {
 } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import "./styles.scss";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import get1 from "../../assets/getgp.png";
 import appPng from "../../assets/download1.jpg";
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 // import temp from "../../assets/temp.png";
 
 const Footer = () => {
   const navigate = useNavigate();
+  const [showButton, setShowButton] = useState(false);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 200) {
+        setShowButton(true);
+      } else {
+        setShowButton(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
   return (
     <footer className="footer-main">
       <Box className="footer-container">
@@ -74,52 +96,74 @@ const Footer = () => {
 
 
         <Box className="footer-map-container">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62207.564887681794!2d77.51997442373327!3d12.973591159377882!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae17005b0a5e31%3A0xb6796593445e2823!2sKadagam%20Ventures!5e0!3m2!1sen!2sin!4v1739967980569!5m2!1sen!2sin"
-            width="90%"
-            height="220"
-            style={{ border: 0, borderRadius: "10px", marginTop: "20px" }}
-            allowFullScreen=""
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          ></iframe>
+          <Box>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62207.564887681794!2d77.51997442373327!3d12.973591159377882!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae17005b0a5e31%3A0xb6796593445e2823!2sKadagam%20Ventures!5e0!3m2!1sen!2sin!4v1739967980569!5m2!1sen!2sin"
+              width="90%"
+              height="220"
+              style={{ border: 0, borderRadius: "10px", marginTop: "20px" }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </Box>
+
+
         </Box>
+
       </Box>
 
       {/*  Google Maps Integration */}
       <Box className="footer-column-social">
-        <Box sx={{display:'flex', justifyContent:'center', gap:'3rem', flexDirection:'column'}}>
-        <Box>
-        <Typography sx={{color:'white', display:'flex', alignItems:'center', justifyContent:'center', height:'8px',  gap:'2rem'}}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: '3rem', flexDirection: 'column' }}>
+          <Box>
+            <Typography sx={{ color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '8px', gap: '2rem' }}>
 
-            Download 
-            <img style={{width:'135px'}} src={get1} alt="Not Found" />
-            <img style={{width:'135px'}} src={appPng} alt="Not Found" /></Typography>
-        </Box>
-        <Box className="social-media" sx={{display:'flex', justifyContent:'center'}}>
-          <a href="https://www.facebook.com/people/Nithya-event/61571314384247/" target="_blank" rel="noopener noreferrer">
-            <Facebook className="icon" />
-          </a>
-          <a href="https://www.instagram.com/nithya_event/" target="_blank" rel="noopener noreferrer">
-            <Instagram className="icon" />
-          </a>
-          <a href="https://x.com/Nithya_Event" target="_blank" rel="noopener noreferrer">
-            <Twitter className="icon" />
-          </a>
-          <a href="https://www.youtube.com/@nithyaevent" target="_blank" rel="noopener noreferrer">
-            <YouTube className="icon" />
-          </a>
+              Download
+              <img style={{ width: '135px' }} src={get1} alt="Not Found" />
+              <img style={{ width: '135px' }} src={appPng} alt="Not Found" /></Typography>
+          </Box>
+          <Box className="social-media" sx={{ display: 'flex', justifyContent: 'center' }}>
+            <a href="https://www.facebook.com/people/Nithya-event/61571314384247/" target="_blank" rel="noopener noreferrer">
+              <Facebook className="icon" />
+            </a>
+            <a href="https://www.instagram.com/nithya_event/" target="_blank" rel="noopener noreferrer">
+              <Instagram className="icon" />
+            </a>
+            <a href="https://x.com/Nithya_Event" target="_blank" rel="noopener noreferrer">
+              <Twitter className="icon" />
+            </a>
+            <a href="https://www.youtube.com/@nithyaevent" target="_blank" rel="noopener noreferrer">
+              <YouTube className="icon" />
+            </a>
+          </Box>
+
+
         </Box>
 
-   
-        </Box>
-    
         <Box className="location">
           <LocationOn />
           <span>Bengaluru, India</span>
         </Box>
         <p>© 2025 | copyrights its Kadagam Ventures Private Limited</p>
       </Box>
+
+
+
+      <Box sx={{ display: 'flex', justifyContent:'flex-end', alignItems: 'center', marginTop: '2rem' }}>
+
+            
+{showButton && (
+  <Button
+    onClick={scrollToTop}
+
+  >
+    <ArrowUpwardIcon sx={{ color: 'white' }} />
+  </Button>
+)}
+
+
+</Box>
     </footer>
   );
 };

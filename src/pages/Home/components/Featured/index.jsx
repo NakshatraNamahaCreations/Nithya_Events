@@ -11,6 +11,8 @@ import axios from "axios";
 import ModalItem from "../../../Products/SingleProducts/components/Modal";
 import { setLoading } from "../../../../redux/slice/LoaderSlice";
 import { useDispatch } from "react-redux";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Featured = () => {
   const [featuredProduct, setFeaturedProduct] = useState([]);
@@ -125,12 +127,21 @@ const Featured = () => {
 
 
         setWishlist((prev) => [...prev, item._id]);
-        setModalType("success");
-        setModalMessage("The product has been successfully added to your wishlist.");
-        setOpen(true);
-        setTimeout(() => {
-          setOpen(false);
-        }, 1800);
+                  toast.success("Item added to cart!", {
+                    position: "top-right",
+                    autoClose: 2000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                  });
+        // setModalType("success");
+        // setModalMessage("The product has been successfully added to your wishlist.");
+        // setOpen(true);
+        // setTimeout(() => {
+        //   setOpen(false);
+        // }, 1800);
       // } 
       // else {
 
@@ -147,27 +158,45 @@ const Featured = () => {
       //     setOpen(false);
       //   }, 1800);
       // }
-    } catch (error) {
+    } 
+    catch (error) {
       let errorMessage = "Something went wrong. Please try again.";
-
+    
       if (error.response && error.response.data?.message) {
         errorMessage = error.response.data.message.includes("Product already exists")
           ? "This product is already in your wishlist!"
           : `Error: ${error.response.data.message}`;
+    
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+    
+        return;  
       }
+    
 
-      setModalType("error");
-      setModalMessage(errorMessage);
-      setOpen(true);
-      setTimeout(() => {
-        setOpen(false);
-      }, 1800);
+      toast.error("Failed to add item to cart. Try again!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
 
 
   return (
     <Box sx={{ padding: "6rem" }}>
+      <ToastContainer />
       <Box
         sx={{
           display: "flex",

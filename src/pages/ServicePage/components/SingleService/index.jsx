@@ -55,11 +55,6 @@ const SingleService = () => {
   const [modalMainImage, setModalMainImage] = useState("");
 
 
-  const dummyImages = [
-    "https://images.pexels.com/photos/1669799/pexels-photo-1669799.jpeg",
-    "https://images.pexels.com/photos/1669799/pexels-photo-1669799.jpeg",
-    "https://images.pexels.com/photos/1669799/pexels-photo-1669799.jpeg",
-  ];
   const [services, setServices] = useState([]);
   const fetchService = async () => {
     try {

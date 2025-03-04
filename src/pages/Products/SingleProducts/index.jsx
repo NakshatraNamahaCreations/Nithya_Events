@@ -21,11 +21,11 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import ReplayIcon from "@mui/icons-material/Replay";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
-import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
+import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
-import { ToastContainer, toast } from "react-toastify";
+
 
 // Assests
 import ProfileImg1 from "../../../assets/profileImg1.jpg";
@@ -54,6 +54,8 @@ import Coupon from "./components/Coupon";
 import StarRating from "../../../components/StarRating";
 import axios from "axios";
 import ModalItem from "./components/Modal";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const SingleProducts = () => {
   const [cart, setCart] = useState([]);
@@ -196,6 +198,22 @@ const SingleProducts = () => {
   };
 
   const handleContinue = () => {
+    if (!userId) {
+      toast.error("You need to log in to add items to the cart!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+
+      // Redirect user to login page
+      navigate("/login", { state: { from: location.pathname } });
+      return;
+    }
+
     if (product) {
       dispatch(
         addToCart({
@@ -218,8 +236,6 @@ const SingleProducts = () => {
           commissionPercentage: product.commission_percentage || 0,
         })
       );
-
-
     }
 
     if (technicians && technicians.length > 0) {
@@ -228,9 +244,7 @@ const SingleProducts = () => {
           addTechnician({
             orderId: Date.now().toString(),
             id: technician._id,
-            product_image:
-              technician.image ||
-              ProfileImg1,
+            product_image: technician.image || ProfileImg1,
             category: technician.category,
             price: technician.price,
             service_name: technician.service_name,
@@ -256,10 +270,9 @@ const SingleProducts = () => {
       draggable: true,
       progress: undefined,
     });
-    setBottomDrawerOpen(false);
-    
+
     // setOpen(true);
-    // setBottomDrawerOpen(false);
+    setBottomDrawerOpen(false);
     // setTimeout(() => {
     //   setOpen(false);
     // }, 1500);
@@ -305,45 +318,71 @@ const SingleProducts = () => {
       product_price: product?.product_price,
       mrp_price: product?.mrp_price,
       discount: product?.discount,
-      user_id: userId
-
-
-    }
-
+      user_id: userId,
+    };
 
     try {
-      const res = await axios.post("https://api.nithyaevent.com/api/wishlist/add-wishlist", payload, {
-        headers: {
-          "Content-Type": "application/json"
+      const res = await axios.post(
+        "https://api.nithyaevent.com/api/wishlist/add-wishlist",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
+      );
+      // setModalType("success");
+      // setModalMessage("The product has been successfully added to your wishlist.");
+      // setOpen(true);
+      // setTimeout(() => {
+      //   setOpen(false);
+      // }, 1800);
+      toast.success("Item has been added to the wishlist!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
       });
-      setModalType("success");
-      setModalMessage("The product has been successfully added to your wishlist.");
-      setOpen(true);
-      setTimeout(() => {
-        setOpen(false);
-      }, 1800);
-    }
-    catch (error) {
+    } catch (error) {
       let errorMessage = "Something went wrong. Please try again.";
 
       if (error.response && error.response.data?.message) {
-        errorMessage = error.response.data.message.includes("Product already exists")
+        errorMessage = error.response.data.message.includes(
+          "Product already exists"
+        )
           ? "This product is already in your wishlist!"
           : `Error: ${error.response.data.message}`;
+
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+
+        return;
       }
 
-      setModalType("error");
-      setModalMessage(errorMessage);
-      setOpen(true);
-      setTimeout(() => {
-        setOpen(false);
-      }, 1800);
+      toast.error("Failed to add item to cart. Try again!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
-  }
+  };
   return (
     <>
-    <ToastContainer/>
+      <ToastContainer />
       {showProduct && (
         <Box className="product-container">
           <Box
@@ -403,8 +442,6 @@ const SingleProducts = () => {
                 }}
               >
                 <Box>
-
-
                   <Typography variant="p" sx={{ fontSize: "1.4rem" }}>
                     {product.product_name}
                   </Typography>
@@ -432,7 +469,7 @@ const SingleProducts = () => {
                     display: "flex",
                     alignItems: "center",
                     gap: "0.7rem",
-                    marginTop: '0.3rem'
+                    marginTop: "0.3rem",
                   }}
                 >
                   <Typography
@@ -453,14 +490,16 @@ const SingleProducts = () => {
                         textDecoration: "line-through",
                         color: "red",
                         fontSize: "1.2rem",
-                        display: 'flex',
-                        alignItems: 'center'
+                        display: "flex",
+                        alignItems: "center",
                       }}
                     >
-                      ₹{(product.mrp_rate) || "2500"}
+                      ₹{product.mrp_rate || "2500"}
                     </Typography>
                   )}
-                  <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
+                  <Typography sx={{ color: "red", marginLeft: "-0.2rem" }}>
+                    Per day
+                  </Typography>
                 </Box>
                 <Box className="Rating-point">
                   {/* <Typography variant="p" className="Rating-container">
@@ -479,12 +518,14 @@ const SingleProducts = () => {
                     {product.Reviews?.length || 0} Rating
                     {product.Reviews?.length === 1 ? "" : "s"}
                   </Typography> */}
-                  <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
+                  <Box
+                    sx={{ display: "flex", gap: "1rem", marginTop: "0.2rem" }}
+                  >
                     <StarRating
                       rating={parseFloat(
                         calculateAverageRating(product.Reviews)
                       )}
-                    // style={{ marginRight: '2rem' }}
+                      // style={{ marginRight: '2rem' }}
                     />
                     <Typography variant="p" style={{ fontSize: "0.8rem" }}>
                       {product.Reviews.length > 0 ? product.Reviews.length : 0}{" "}
@@ -536,7 +577,10 @@ const SingleProducts = () => {
                     >
                       <RemoveIcon fontSize="small" />
                     </IconButton>
-                    <Typography variant="h6" sx={{ margin: "0 10px", fontSize: '0.8rem' }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ margin: "0 10px", fontSize: "0.8rem" }}
+                    >
                       {quantity}
                     </Typography>
                     <IconButton size="small" onClick={handleIncrease}>
@@ -583,7 +627,6 @@ const SingleProducts = () => {
                   </Typography>
                 </Box> */}
               {/* </Box> */}
-
 
               {/* Coupons */}
 
@@ -635,25 +678,26 @@ const SingleProducts = () => {
                   for your convenience.
                 </Typography>
               </Box> */}
-              <Box sx={{ display: "flex", justifyContent: "center", gap: '1rem' }}>
+              <Box
+                sx={{ display: "flex", justifyContent: "center", gap: "1rem" }}
+              >
                 <Button
-                  color='white'
-                  sx={{ backgroundColor: '#c026d3', color: 'white' }}
+                  color="white"
+                  sx={{ backgroundColor: "#c026d3", color: "white" }}
                   className="addToCart"
                   onClick={handleAddToCart}
                 >
-                  <ShoppingBagOutlinedIcon sx={{ marginRight: '8px' }} />
+                  <ShoppingBagOutlinedIcon sx={{ marginRight: "8px" }} />
                   Add to Cart
                 </Button>
-                {console.log("Teh dataaa", product)
-                }
+                {console.log("Teh dataaa", product)}
                 <Button
                   variant="outlined"
                   color="red"
                   className="addToWishlist"
                   onClick={() => handleClick(product._id)}
                 >
-                  <FavoriteBorderOutlinedIcon sx={{ marginRight: '8px' }} />
+                  <FavoriteBorderOutlinedIcon sx={{ marginRight: "8px" }} />
                   Add to Wishlist
                 </Button>
               </Box>
@@ -667,9 +711,9 @@ const SingleProducts = () => {
             variant={isMobile ? "scrollable" : "standard"}
             scrollButtons="auto"
             allowScrollButtonsMobile
-
             sx={{
-              background: "linear-gradient(rgb(255, 255, 255), rgb(245 232 247))",
+              background:
+                "linear-gradient(rgb(255, 255, 255), rgb(245 232 247))",
               padding: "0.8rem 5rem",
 
               "& .MuiTabs-indicator": {
@@ -735,9 +779,13 @@ const SingleProducts = () => {
             )} */}
 
             {activeTab === 0 && (
-              <Box sx={{ display: 'flex' }}>
+              <Box sx={{ display: "flex" }}>
                 <Box className="Product-detail-container">
-                  <Typography variant="p" sx={{ fontWeight: '600' }} className="Product-detail-heading">
+                  <Typography
+                    variant="p"
+                    sx={{ fontWeight: "600" }}
+                    className="Product-detail-heading"
+                  >
                     Product Details
                   </Typography>
                   <Box className="Product-detail">
@@ -761,14 +809,18 @@ const SingleProducts = () => {
                       <Typography variant="p">
                         {product.product_weight}
                       </Typography>
-                      <Typography variant="p">{product.material_type}</Typography>
-
-
+                      <Typography variant="p">
+                        {product.material_type}
+                      </Typography>
                     </Box>
                   </Box>
                 </Box>
                 <Box className="Spec-container">
-                  <Typography variant="p" sx={{ fontWeight: '600' }} className="Spec-detail-heading">
+                  <Typography
+                    variant="p"
+                    sx={{ fontWeight: "600" }}
+                    className="Spec-detail-heading"
+                  >
                     Other Details
                   </Typography>
                   <Box className="Spec-detail">
@@ -785,12 +837,18 @@ const SingleProducts = () => {
                       <Typography variant="p">
                         {product.manufacturer_name}
                       </Typography>
-                      <Typography variant="p">{product.product_color}</Typography>
-                      <Typography variant="p">{product.product_type}</Typography>
+                      <Typography variant="p">
+                        {product.product_color}
+                      </Typography>
+                      <Typography variant="p">
+                        {product.product_type}
+                      </Typography>
                       <Typography variant="p">{product.modelName}</Typography>
                       <Typography variant="p">{product.shop_name}</Typography>
                       <Typography variant="p">{product.vendor_name}</Typography>
-                      <Typography variant="p">{product.stock_in_hand}</Typography>
+                      <Typography variant="p">
+                        {product.stock_in_hand}
+                      </Typography>
                       <Typography variant="p">
                         {product.country_of_orgin}
                       </Typography>
@@ -798,10 +856,7 @@ const SingleProducts = () => {
                   </Box>
                 </Box>
               </Box>
-
             )}
-
-
 
             {activeTab === 1 && (
               <Box>
@@ -854,7 +909,10 @@ const SingleProducts = () => {
                         </Typography>
                       </Box>
                     </Typography>
-                  </Box> */}                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  </Box> */}{" "}
+                  <Box
+                    sx={{ display: "flex", justifyContent: "space-between" }}
+                  >
                     <Typography
                       variant="h6"
                       sx={{
@@ -863,7 +921,9 @@ const SingleProducts = () => {
                         color: "#343a40",
                       }}
                     >
-                      {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
+                      {item.product_name.length > 15
+                        ? item.product_name.slice(0, 15) + "..."
+                        : item.product_name}
                     </Typography>
 
                     <IconButton
@@ -871,16 +931,18 @@ const SingleProducts = () => {
                         e.stopPropagation();
                         handleWishlistClick(item._id);
                       }}
-                      sx={{ color: "#c026d3", position: 'relative' }}
+                      sx={{ color: "#c026d3", position: "relative" }}
                     >
                       {wishlist.includes(item._id) ? (
-                        <FavoriteOutlinedIcon onClick={handleWishlist} style={{ position: 'absolute' }} />
+                        <FavoriteOutlinedIcon
+                          onClick={handleWishlist}
+                          style={{ position: "absolute" }}
+                        />
                       ) : (
-                        <FavoriteBorderIcon style={{ position: 'absolute' }} />
+                        <FavoriteBorderIcon style={{ position: "absolute" }} />
                       )}
                     </IconButton>
                   </Box>
-
                   <Typography
                     variant="p"
                     sx={{
@@ -889,12 +951,12 @@ const SingleProducts = () => {
                   >
                     {item.brand}
                   </Typography>
-                  <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
+                  <Box
+                    sx={{ display: "flex", gap: "1rem", marginTop: "0.2rem" }}
+                  >
                     <StarRating
-                      rating={parseFloat(
-                        calculateAverageRating(item.Reviews)
-                      )}
-                    // style={{ marginRight: '2rem' }}
+                      rating={parseFloat(calculateAverageRating(item.Reviews))}
+                      // style={{ marginRight: '2rem' }}
                     />
                     <Typography variant="p" style={{ fontSize: "0.8rem" }}>
                       {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
@@ -909,7 +971,7 @@ const SingleProducts = () => {
                       display: "flex",
                       alignItems: "center",
                       gap: "0.7rem",
-                      marginTop: '0.3rem'
+                      marginTop: "0.3rem",
                     }}
                   >
                     <Typography
@@ -930,17 +992,17 @@ const SingleProducts = () => {
                           textDecoration: "line-through",
                           color: "red",
                           fontSize: "1rem",
-                          display: 'flex',
-                          alignItems: 'center'
+                          display: "flex",
+                          alignItems: "center",
                         }}
                       >
-                        ₹{(item.mrp_rate) || "2500"}
+                        ₹{item.mrp_rate || "2500"}
                       </Typography>
                     )}
-                    <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
+                    <Typography sx={{ color: "red", marginLeft: "-0.2rem" }}>
+                      Per day
+                    </Typography>
                   </Box>
-
-
                   <Box
                     sx={{
                       display: "flex",
@@ -972,7 +1034,6 @@ const SingleProducts = () => {
               ))}
             </Box>
           </Box>
-
 
           <Drawer
             anchor="bottom"
@@ -1029,9 +1090,8 @@ const SingleProducts = () => {
             aria-labelledby="modal-title"
             aria-describedby="modal-description"
           >
-     <ModalItem modalMessage={modalMessage} modalType={modalType}/>
+            <ModalItem modalMessage={modalMessage} modalType={modalType} />
           </Modal>
-
         </Box>
       )}
     </>

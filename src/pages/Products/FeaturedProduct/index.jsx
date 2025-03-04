@@ -30,6 +30,8 @@ import StarRating from "../../../components/StarRating";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const FeaturedProduct = () => {
@@ -172,12 +174,21 @@ const FeaturedProduct = () => {
 
 
       setWishlist((prev) => [...prev, item._id]);
-      setModalType("success");
-      setModalMessage("The product has been successfully added to your wishlist.");
-      setOpen(true);
-      setTimeout(() => {
-        setOpen(false);
-      }, 1800);
+          toast.success("Item added to cart!", {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+      // setModalType("success");
+      // setModalMessage("The product has been successfully added to your wishlist.");
+      // setOpen(true);
+      // setTimeout(() => {
+      //   setOpen(false);
+      // }, 1800);
       // } 
       // else {
 
@@ -194,22 +205,40 @@ const FeaturedProduct = () => {
       //     setOpen(false);
       //   }, 1800);
       // }
-    } catch (error) {
+    }
+    catch (error) {
       let errorMessage = "Something went wrong. Please try again.";
-
+    
       if (error.response && error.response.data?.message) {
         errorMessage = error.response.data.message.includes("Product already exists")
           ? "This product is already in your wishlist!"
           : `Error: ${error.response.data.message}`;
+    
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+    
+        return;  // ✅ This stops the second toast from executing
       }
-
-      setModalType("error");
-      setModalMessage(errorMessage);
-      setOpen(true);
-      setTimeout(() => {
-        setOpen(false);
-      }, 1800);
+    
+      // This will only run if the first condition is not met
+      toast.error("Failed to add item to cart. Try again!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
+    
   };
 
   const filterProducts = () => {
@@ -340,6 +369,7 @@ const FeaturedProduct = () => {
 
   return (
     <>
+    <ToastContainer />
       <Slider />
       <BreadCrumb paths={breadcrumbPaths} />
 

@@ -63,7 +63,6 @@ const Bookings = () => {
     setSelectedTab(newValue);
   };
   const filteredBookings = bookings.filter((booking) => {
-    console.log(bookings);
     if (selectedTab === 0) return true; // All
     // if (selectedTab === 1) return booking.payment_status === "pending";
     if (selectedTab === 1) return booking.payment_status === "on progress";

@@ -107,81 +107,81 @@ function App() {
             <Route
               path="/category/:category"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Category />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route
               path="/calenders"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Calendar />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route
               path="/services"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <ServicePage />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route
               path="/service/:serviceName"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <ServiceDetails />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route
               path="/service/:serviceName/:id"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <SingleService />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
                   <Route
               path="/wishlist"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Wishlist />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
                   <Route
               path="/help-center"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <HelpCentre />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route
               path="/company"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <CompanyDetails />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route
               path="/category/:category/:id"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <SingleCategory />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route
               path="/categories"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <AllCategory />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route
@@ -189,7 +189,7 @@ function App() {
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Bookings />
-                </PrivateRoute>
+                 </PrivateRoute>
               }
             />
             <Route
@@ -203,33 +203,33 @@ function App() {
             <Route
               path="/products"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Products />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route
               path="/Featuredproducts"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <FeaturedProduct />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route
               path="/products/:id"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <SingleProduct />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route
               path="/vendors"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Vendors />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route
@@ -243,9 +243,9 @@ function App() {
             <Route
               path="/vendors/:id"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <SingleVendor />
-                </PrivateRoute>
+                // </PrivateRoute>
               }
             />
             <Route

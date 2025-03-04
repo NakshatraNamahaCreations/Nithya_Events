@@ -38,7 +38,8 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 import axios from "axios";
 import ModalItem from "../Products/SingleProducts/components/Modal";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 
@@ -128,7 +129,6 @@ const Category = () => {
 
   const handleWishlistClick = async (item) => {
     const isInWishlist = wishlist.includes(item._id);
-    console.log(userId);
 
     const payload = {
       product_name: item.product_name,
@@ -147,24 +147,50 @@ const Category = () => {
         { headers: { "Content-Type": "application/json" } }
       );
 
-      setModalType("success");
-      setModalMessage("The product has been successfully added to your wishlist.");
-      setOpen(true);
+      toast.success("Item added to cart!", {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
       setWishlist((prev) =>
         isInWishlist ? prev.filter((id) => id !== item._id) : [...prev, item._id]
       );
-    } catch (error) {
+    } 
+  catch (error) {
       let errorMessage = "Something went wrong. Please try again.";
-
+    
       if (error.response && error.response.data?.message) {
         errorMessage = error.response.data.message.includes("Product already exists")
           ? "This product is already in your wishlist!"
           : `Error: ${error.response.data.message}`;
+    
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+    
+        return;  
       }
-
-      setModalType("error");
-      setModalMessage(errorMessage);
-      setOpen(true);
+    
+  
+      toast.error("Failed to add item to cart. Try again!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
   const fetchCategories = async () => {
@@ -351,6 +377,7 @@ const Category = () => {
   return (
     <>
       <Sliders />
+      <ToastContainer/>
       <BreadCrumb paths={breadcrumbPaths} />
       <Box sx={{ paddingLeft: '2rem', fontSize: '2rem' }}>
         <Typography sx={{ fontSize: '2.5rem', fontWeight: '600' }} variant="h6">{category.toUpperCase() + " " + "CATEGORY"}</Typography>

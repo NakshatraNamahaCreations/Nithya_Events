@@ -24,6 +24,7 @@ const Login = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+console.log("redirection",location.state);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,7 +32,8 @@ const Login = () => {
       dispatch(setLoading(true));
       const res = await authService.loginUser(data);
       dispatch(login(res.data.user));
-      navigate("/");
+      const redirectTo = location.state?.from || "/";
+      navigate(redirectTo);
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
       alert("Failed to login. Please try again.");

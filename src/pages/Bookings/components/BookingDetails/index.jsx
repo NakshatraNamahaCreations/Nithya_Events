@@ -1,9 +1,9 @@
-// React related imports 
+// React related imports
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
-// Third Party Library 
+// Third Party Library
 import {
   Box,
   Typography,
@@ -19,14 +19,15 @@ import {
   Checkbox,
   Modal,
   TextField,
+  IconButton,
 } from "@mui/material";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
-// assests 
+// assests
 import TechnicianImg from "../../../../assets/profileImg1.jpg";
 
-// Custom Components 
+// Custom Components
 import authService from "../../../../api/ApiService";
 import { setLoading } from "../../../../redux/slice/LoaderSlice";
 import {
@@ -36,8 +37,10 @@ import {
   formatProperDate,
 } from "../../../../utils/helperFunc";
 import Banner from "./component/Banner";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import PhoneIcon from "@mui/icons-material/Phone";
 
-// styles 
+// styles
 import "./styles.scss";
 import Invoice from "./component/Invoice";
 
@@ -95,7 +98,9 @@ const BookingDetails = () => {
         const combinedItems = [
           ...(order?.product_data || [])?.map((item) => ({
             id: item?.id || item._id,
-            image: item?.imageUrl || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEbmNxhl6aFUDwBtyelBzun4EnBJLblVb56w&s",
+            image:
+              item?.imageUrl ||
+              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEbmNxhl6aFUDwBtyelBzun4EnBJLblVb56w&s",
             name: item?.productName || item.product_name || "N/A",
             dimension: item?.productDimension || "N/A",
             price: item?.productPrice || item.product_price || 0,
@@ -139,7 +144,6 @@ const BookingDetails = () => {
     if (booking) {
       calculateEventStatus(booking.event_date, booking.event_start_time);
 
-
       setFormData({
         receiver_mobilenumber: booking.receiver_mobilenumber || "",
         receiver_name: booking.receiver_name || "",
@@ -158,7 +162,6 @@ const BookingDetails = () => {
         order_status: booking.order_status || "",
         rescheduled_date: booking.rescheduled_date || "",
       });
-
     }
   }, [booking]);
   const numberOfDays = booking?.number_of_days || 1;
@@ -191,18 +194,26 @@ const BookingDetails = () => {
     const [startDateStr, endDateStr] = eventDateRange.split(" to ");
 
     // Check if an explicit event start time is given; otherwise, default to 12:00 PM
-    const eventStartTimeFormatted = eventStartTime ? eventStartTime : "12:00:00";
+    const eventStartTimeFormatted = eventStartTime
+      ? eventStartTime
+      : "12:00:00";
 
     // Construct start and end dates correctly
-    const eventStartDate = new Date(`${startDateStr.trim()}T${eventStartTimeFormatted}`);
+    const eventStartDate = new Date(
+      `${startDateStr.trim()}T${eventStartTimeFormatted}`
+    );
     const eventEndDate = new Date(`${endDateStr.trim()}T23:59:59`);
 
     console.log("The Start Date (Parsed):", eventStartDate);
     console.log("The End Date (Parsed):", eventEndDate);
 
     // Calculate time difference in **HOURS**
-    const diffToStart = Math.round((eventStartDate - currentDate) / (1000 * 60 * 60));
-    const diffToEnd = Math.round((eventEndDate - currentDate) / (1000 * 60 * 60));
+    const diffToStart = Math.round(
+      (eventStartDate - currentDate) / (1000 * 60 * 60)
+    );
+    const diffToEnd = Math.round(
+      (eventEndDate - currentDate) / (1000 * 60 * 60)
+    );
 
     console.log(`Difference to Event Start: ${diffToStart} hours`);
     console.log(`Difference to Event End: ${diffToEnd} hours`);
@@ -210,7 +221,7 @@ const BookingDetails = () => {
     // Determine the event status
     if (diffToEnd < 0) {
       setEventStatus("Event Completed");
-    } else if (diffToStart > 24)  {
+    } else if (diffToStart > 24) {
       setEventStatus("Cancel Event");
     } else if (diffToStart > 0 && diffToStart <= 24) {
       setEventStatus("Reschedule");
@@ -220,9 +231,6 @@ const BookingDetails = () => {
       setEventStatus("Event Started");
     }
   };
-
-
-
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
@@ -246,9 +254,7 @@ const BookingDetails = () => {
     return new Date().toLocaleString("en-US", options);
   };
 
-
   const handleStatus = async (eventStatus) => {
-    
     try {
       const payload = {
         cancel_reason: reason,
@@ -256,41 +262,36 @@ const BookingDetails = () => {
       };
 
       const res = await authService.cancelOrder(booking._id, payload);
-
-    }
-    catch (error) {
+    } catch (error) {
       getErrorMessage(error);
     }
-
   };
-
-
 
   const handleRescheduleOrder = async () => {
     const formDataToSend = new FormData();
 
-    Object.keys(formData).forEach(key => {
+    Object.keys(formData).forEach((key) => {
       if (formData[key]) {
         formDataToSend.append(key, formData[key]);
       }
-    })
-
-
-
+    });
 
     try {
-      const res = await authService.rescheduleOrder(booking._id, formDataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await authService.rescheduleOrder(
+        booking._id,
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       console.log("Reschedule API Response:", res.data);
       handleClose();
     } catch (error) {
       console.error("Error in rescheduling the event:", error);
     }
   };
-
 
   const downloadInvoice = () => {
     const doc = new jsPDF();
@@ -313,18 +314,19 @@ const BookingDetails = () => {
 
     // Add phone & user details
     doc.setFont(undefined, "bold");
-    doc.text(`Phone: ${booking.receiver_mobilenumber || "N/A"}`, startX, currentY);
+    doc.text(
+      `Phone: ${booking.receiver_mobilenumber || "N/A"}`,
+      startX,
+      currentY
+    );
     currentY += 5;
     doc.setFont(undefined, "normal");
     doc.text(`GST: ${booking.gst_number || "NA"}`, startX, currentY);
     currentY += 5;
     doc.text(
-      booking.event_location
-        ? booking.event_location
-        : "No address provided",
+      booking.event_location ? booking.event_location : "No address provided",
       startX,
       currentY
-
     );
     currentY += 5;
 
@@ -336,8 +338,6 @@ const BookingDetails = () => {
 
     let infoTextX = infoBoxX + 6;
     let infoTextY = infoBoxY + 5;
-
-
 
     const invoiceDetails = [
       { label: "Invoice #", value: "INV77KS19" },
@@ -368,7 +368,6 @@ const BookingDetails = () => {
       infoTextY += 5;
     });
 
-
     let tableStartY = infoBoxY + infoBoxHeight + 15;
     const columns = [
       { header: "Product", dataKey: "name" },
@@ -390,7 +389,6 @@ const BookingDetails = () => {
       };
     });
 
-
     doc.autoTable({
       startY: tableStartY,
       theme: "grid",
@@ -408,9 +406,7 @@ const BookingDetails = () => {
       tableWidth: 180,
     });
 
-
     let finalY = doc.lastAutoTable.finalY + 5;
-
 
     doc.setFontSize(10);
     doc.setFont(undefined, "bold");
@@ -458,11 +454,8 @@ const BookingDetails = () => {
       finalY += 5;
     });
 
-
     doc.save("invoice.pdf");
-
   };
-
 
   if (!booking) {
     return (
@@ -485,47 +478,84 @@ const BookingDetails = () => {
       default:
         return "#9e9e9e";
     }
-
-  }
+  };
   console.log("The item", items);
 
   return (
     <Box sx={{ p: 2, maxWidth: "1200px", margin: "auto" }}>
-
       <Grid container spacing={2}>
         <Grid item xs={8}>
           <Paper variant="outlined" sx={{ p: 3 }}>
-            {["Cancel Event", "Reschedule"].includes(eventStatus) && !(booking.order_status === "Order Cancelled" || booking.order_status === "Order Rescheduled")  ? (
-              <Button
-                variant="contained"
-                onClick={handleOpen}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Box>
+                {["Cancel Event", "Reschedule"].includes(eventStatus) &&
+                !(
+                  booking.order_status === "Order Cancelled" ||
+                  booking.order_status === "Order Rescheduled"
+                ) ? (
+                  <Button
+                    variant="contained"
+                    onClick={handleOpen}
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "14px",
+                      mb: 2,
+                      color: "#fff",
+                      backgroundColor: getChipColor(eventStatus),
+                      "&:hover": {
+                        backgroundColor: getChipColor(eventStatus),
+                        opacity: 0.9,
+                      },
+                    }}
+                  >
+                    {eventStatus}
+                  </Button>
+                ) : (
+                  <Chip
+                    label={
+                      booking.order_status === "Order Cancelled"
+                        ? "Order Cancelled"
+                        : booking.order_status === "Order Rescheduled"
+                        ? "Order Rescheduled"
+                        : eventStatus
+                    }
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "14px",
+                      mb: 2,
+                      color: "#fff",
+                      backgroundColor: getChipColor(eventStatus),
+                    }}
+                  />
+                )}
+              </Box>
+              <Box
                 sx={{
-                  fontWeight: "bold",
-                  fontSize: "14px",
-                  mb: 2,
-                  color: "#fff",
-                  backgroundColor: getChipColor(eventStatus),
-                  "&:hover": {
-                    backgroundColor: getChipColor(eventStatus),
-                    opacity: 0.9,
-                  },
+                  display: "flex",
+                  gap: "0.5rem",
+                  marginTop: "1.5rem",
                 }}
               >
-                {eventStatus}
-              </Button>
-            ) : (
-              <Chip
-              label={booking.order_status === "Order Cancelled" ? "Order Cancelled" : 
-                booking.order_status === "Order Rescheduled" ? "Order Rescheduled" : eventStatus}
-                sx={{
-                  fontWeight: "bold",
-                  fontSize: "14px",
-                  mb: 2,
-                  color: "#fff",
-                  backgroundColor: getChipColor(eventStatus),
-                }}
-              />
-            )}
+                <IconButton
+                  href={`https://wa.me/${9773828339}`}
+                  target="_blank"
+                  sx={{display:'flex', justifyContent:'center', flexDirection:'column'}}
+                >
+                  <WhatsAppIcon sx={{ color: "#25D366", fontSize: "1.5rem" }} />
+                  <Typography variant="p" sx={{fontSize:'0.7rem'}}>Whatsapp</Typography>
+                </IconButton>
+                <IconButton href={`tel:${87328228}`} target="_blank"     sx={{display:'flex', justifyContent:'center', flexDirection:'column'}}>
+                  <PhoneIcon sx={{ color: "#c026d3", fontSize: "1.5rem" }} />
+                  <Typography variant="p" sx={{fontSize:'0.7rem'}}>Call Now</Typography>
+                </IconButton>
+              </Box>
+            </Box>
             <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
               Items
             </Typography>
@@ -541,10 +571,13 @@ const BookingDetails = () => {
                     py: 1,
                   }}
                 >
-                  <Box sx={{ display: 'flex', gap: "1.4rem" }}>
+                  <Box sx={{ display: "flex", gap: "1.4rem" }}>
                     <Box>
-
-                      <img src={item.image} style={{ width: "60px", borderRadius: "10px" }} alt="Not found" />
+                      <img
+                        src={item.image}
+                        style={{ width: "60px", borderRadius: "10px" }}
+                        alt="Not found"
+                      />
                     </Box>
                     <Box>
                       <Typography variant="body2">
@@ -557,18 +590,21 @@ const BookingDetails = () => {
                         <strong>Qty:</strong> {item.quantity}
                       </Typography>
                     </Box>
-
                   </Box>
-                  <Box textAlign="right">
-                    <Typography variant="body2">
-                      <strong>Price:</strong> {formatCurrencyIntl(item.price)}
-                    </Typography>
-                    <Typography variant="body2">
-                      <strong>Days:</strong> {numberOfDays}
-                    </Typography>
-                    <Typography variant="body2">
-                      <strong>Amount:</strong> {formatCurrencyIntl(amount)}
-                    </Typography>
+                  <Box>
+                    <Box textAlign="right">
+                      <Typography variant="body2">
+                        <strong>Price:</strong> {formatCurrencyIntl(item.price)}
+                      </Typography>
+                      <Typography variant="body2">
+                        <strong>Days:</strong> {numberOfDays}
+                      </Typography>
+                      <Typography variant="body2">
+                        <strong>Amount:</strong> {formatCurrencyIntl(amount)}
+                      </Typography>
+                    </Box>
+
+                    <Box></Box>
                   </Box>
                 </Box>
               );
@@ -600,21 +636,22 @@ const BookingDetails = () => {
               Payment Summary
             </Typography>
 
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1, width: "200px" }}>
-
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 1,
+                width: "200px",
+              }}
+            >
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="body2">Total</Typography>
-                <Typography variant="body2">
-                  {booking?.cart_total}
-                </Typography>
+                <Typography variant="body2">{booking?.cart_total}</Typography>
               </Box>
-
 
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="body2">Event Days</Typography>
-                <Typography variant="body2">
-                  {numberOfDays}
-                </Typography>
+                <Typography variant="body2">{numberOfDays}</Typography>
               </Box>
 
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -626,16 +663,12 @@ const BookingDetails = () => {
 
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="body2">TDS Charges (2%)</Typography>
-                <Typography variant="body2">
-                  {tdsCharges}
-                </Typography>
+                <Typography variant="body2">{tdsCharges}</Typography>
               </Box>
 
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="body2">Amount After Deductions</Typography>
-                <Typography variant="body2">
-                  {amountAfterDeduction}
-                </Typography>
+                <Typography variant="body2">{amountAfterDeduction}</Typography>
               </Box>
 
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -660,49 +693,79 @@ const BookingDetails = () => {
               </Box>
             </Box>
           </Paper>
-
         </Grid>
       </Grid>
       <Banner />
-      <Paper variant="outlined" sx={{ p: 2, mb: 2, display: 'flex', flexDirection: 'column' }}>
-
+      <Paper
+        variant="outlined"
+        sx={{ p: 2, mb: 2, display: "flex", flexDirection: "column" }}
+      >
         <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>
           Order Details
         </Typography>
-        <Typography variant="p" sx={{ mb: 1, fontSize: '0.9rem' }}>
-          <strong >Order Id:</strong> {`INV${booking._id.slice(-6)}`}
+        <Typography variant="p" sx={{ mb: 1, fontSize: "0.9rem" }}>
+          <strong>Order Id:</strong> {`INV${booking._id.slice(-6)}`}
         </Typography>
-        <Typography variant="p" sx={{ mb: 1, fontSize: '0.9rem' }}>
+        <Typography variant="p" sx={{ mb: 1, fontSize: "0.9rem" }}>
           <strong>Event Name</strong> {booking.event_name || "N/A"}
         </Typography>
-        <Typography variant="p" sx={{ mb: 1, fontSize: '0.9rem' }}>
+        <Typography variant="p" sx={{ mb: 1, fontSize: "0.9rem" }}>
           <strong>Payment:</strong> {booking.payment_method || "N/A"}
         </Typography>
-        <Typography variant="p" sx={{ mb: 1, fontSize: '0.9rem' }}>
+        <Typography variant="p" sx={{ mb: 1, fontSize: "0.9rem" }}>
           <strong>Event Location:</strong> {booking.event_location || "N/A"}
         </Typography>
-        <Typography variant="p" sx={{ mb: 1, fontSize: '0.9rem' }}>
-          <strong>Event Start Date:</strong> {formatProperDate(booking.event_start_date)}{" "}
+        <Typography variant="p" sx={{ mb: 1, fontSize: "0.9rem" }}>
+          <strong>Event Start Date:</strong>{" "}
+          {formatProperDate(booking.event_start_date)}{" "}
         </Typography>
-        <Typography variant="p" sx={{ mb: 1, fontSize: '0.9rem' }}>
-          <strong>Event End Date:</strong> {formatProperDate(booking.event_end_date)}{" "}
+        <Typography variant="p" sx={{ mb: 1, fontSize: "0.9rem" }}>
+          <strong>Event End Date:</strong>{" "}
+          {formatProperDate(booking.event_end_date)}{" "}
         </Typography>
-        <Typography variant="p" sx={{ mb: 1, fontSize: '0.9rem' }}>
+        <Typography variant="p" sx={{ mb: 1, fontSize: "0.9rem" }}>
           <strong>Event Time:</strong>
           {booking.event_start_time} - {booking.event_end_time}
         </Typography>
-        <Typography variant="p" sx={{ mb: 1, fontSize: '0.9rem' }}>
+        <Typography variant="p" sx={{ mb: 1, fontSize: "0.9rem" }}>
           <strong>Contact:</strong> {booking.receiver_mobilenumber || "N/A"}
         </Typography>
-        <Typography variant="p" sx={{ mb: 1, fontSize: '0.9rem', display: 'flex', alignItems: "center" }}>
+        <Typography
+          variant="p"
+          sx={{
+            mb: 1,
+            fontSize: "0.9rem",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <strong>Invitation Pass:</strong>
-          {booking.upload_gatepass ? <img src={booking.upload_gatepass} style={{ width: "160px" }} alt="Not found" /> : "N/A"}
-        </Typography>      <Typography variant="p" sx={{ mb: 1, fontSize: '0.9rem' }}>
-          <strong>Gate Pass:</strong> {booking.upload_inivitaion ? <img src={booking.upload_inivitaion} alt="Not found" /> : "N/A"}
+          {booking.upload_gatepass ? (
+            <img
+              src={booking.upload_gatepass}
+              style={{ width: "160px" }}
+              alt="Not found"
+            />
+          ) : (
+            "N/A"
+          )}
+        </Typography>{" "}
+        <Typography variant="p" sx={{ mb: 1, fontSize: "0.9rem" }}>
+          <strong>Gate Pass:</strong>{" "}
+          {booking.upload_inivitaion ? (
+            <img src={booking.upload_inivitaion} alt="Not found" />
+          ) : (
+            "N/A"
+          )}
         </Typography>
         <Button
           variant="contained"
-          sx={{ backgroundColor: "#c026d3", color: "#fff", mt: 2, width: '22rem' }}
+          sx={{
+            backgroundColor: "#c026d3",
+            color: "#fff",
+            mt: 2,
+            width: "22rem",
+          }}
           onClick={downloadInvoice}
         >
           Download Invoice
@@ -729,7 +792,11 @@ const BookingDetails = () => {
             borderRadius: "8px",
           }}
         >
-          <Typography id="cancellation-policy-title" variant="h6" sx={{ mb: 2 }}>
+          <Typography
+            id="cancellation-policy-title"
+            variant="h6"
+            sx={{ mb: 2 }}
+          >
             Cancellation & Reschedule Policy
           </Typography>
 
@@ -789,7 +856,6 @@ const BookingDetails = () => {
           )}
         </Box>
       </Modal>
-
     </Box>
   );
 };
