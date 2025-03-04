@@ -1,4 +1,4 @@
-import { Box, Button, Typography, Card, CardContent, IconButton } from "@mui/material";
+import { Box, Button, Typography, Card, CardContent, IconButton, Modal } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../../../../api/ApiService";
@@ -8,15 +8,31 @@ import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 import "./styles.scss";
 import StarRating from "../../../../components/StarRating";
 import axios from "axios";
+import ModalItem from "../../../Products/SingleProducts/components/Modal";
+import { setLoading } from "../../../../redux/slice/LoaderSlice";
+import { useDispatch } from "react-redux";
 
 const Featured = () => {
   const [featuredProduct, setFeaturedProduct] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+  const [productList, setProductList] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [successType, setSuccessType] = useState("");
+  const [modalType, setModalType] = useState("success");
+  const [modalMessage, setModalMessage] = useState("");
   const navigate = useNavigate();
-  const userDetail =  sessionStorage.getItem('userDetails');
-  const userDetails = JSON.parse(userDetail);
-  const userId = userDetails._id;
-  console.log(userId);
+  const dispatch = useDispatch();
+  const userDetail = sessionStorage.getItem("userDetails");
+  let userId = null;
+
+  if (userDetail) {
+    try {
+      const userDetails = JSON.parse(userDetail);
+      userId = userDetails?._id || null;
+    } catch (error) {
+      console.error("Error parsing userDetails from sessionStorage:", error);
+    }
+  }
 
   const fetchFeaturedProducts = async () => {
     const res = await authService.featuredProducts();
@@ -25,6 +41,7 @@ const Featured = () => {
 
   useEffect(() => {
     fetchFeaturedProducts();
+    fetchWishlist();
   }, []);
 
   // Navigate to Product Page
@@ -37,7 +54,7 @@ const Featured = () => {
     window.scrollTo(0, 0);
     navigate(`/Featuredproducts`);
   };
-  
+
   const calculateAverageRating = (review) => {
     const total = review.reduce((sum, curr) => sum + curr.ratings, 0);
 
@@ -53,44 +70,102 @@ const Featured = () => {
   //       : [...prevWishlist, id] // Add to wishlist
   //   );
   // };
+  const fetchWishlist = async () => {
+    dispatch(setLoading(true));
 
-  const handleWishlistClick = (id) => {
-    setWishlist((prev) => prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]);
-  }
-  const handleClick  = async (product) => {
-    
-    const payload = {
-      product_name: product.product_name,
-    product_id: product.product_id,
-    product_image: product.product_image[0],
-    product_price: product.product_price,
-    mrp_price: product.mrp_price,
-    discount: product.discount,
-    user_id: userId
-
-
-    }
-
-  
     try {
-      const res = await axios.post(
-        "https://api.nithyaevent.com/api/wishlist/add-wishlist",
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const res = await axios.get(
+        `https://api.nithyaevent.com/api/wishlist/get-my-wishlist/${userId}`,
+        { headers: { "Content-Type": "application/json" } }
       );
-  
-      console.log("Wishlist API Response:", res.data);
-      alert("Product successfully added!");
+      if (res.data?.wishlist && Array.isArray(res.data.wishlist)) {
+        const wishlistItems = res.data.wishlist.map((item) => item.product_id);
+        setWishlist(wishlistItems);
+      } else {
+        setWishlist([]); 
+      }
+
+      setProductList(res.data.wishlist);
+
+      dispatch(setLoading(false));
+
     } catch (error) {
-      console.error("Wishlist API Error:", error);
-      alert("Error in wishlist");
+      dispatch(setLoading(false));
+      if (error.response && error.response.status === 404) {
+     
+        setWishlist([]);
+      } else {
+
+        alert("Error fetching wishlist. Please try again.");
+      }
+      console.error("API Error:", error.response ? error.response.data : error.message);
     }
   };
-  
+  const handleWishlistClick = async (item) => {
+    const isInWishlist = wishlist.includes(item._id)
+
+    const wishlistId = productList.find((w) => w.product_id === item._id);
+
+    try {
+      // if (!isInWishlist) {
+
+        await axios.post(
+          "https://api.nithyaevent.com/api/wishlist/add-wishlist",
+          {
+            product_name: item.product_name,
+            product_id: item._id,
+            product_image: item.product_image[0],
+            product_price: item.product_price,
+            mrp_price: item.mrp_price,
+            discount: item.discount,
+            user_id: userId
+          },
+          { headers: { "Content-Type": "application/json" } }
+        );
+
+
+        setWishlist((prev) => [...prev, item._id]);
+        setModalType("success");
+        setModalMessage("The product has been successfully added to your wishlist.");
+        setOpen(true);
+        setTimeout(() => {
+          setOpen(false);
+        }, 1800);
+      // } 
+      // else {
+
+      //   await axios.delete(
+      //     `https://api.nithyaevent.com/api/wishlist/remove-wishlist-list/${wishlistId._id}`
+      //   );
+
+
+      //   setWishlist((prev) => prev.filter((id) => id !== item._id));
+      //   setModalType("success");
+      //   setModalMessage("The product has been successfully deleted from your wishlist.");
+      //   setOpen(true);
+      //   setTimeout(() => {
+      //     setOpen(false);
+      //   }, 1800);
+      // }
+    } catch (error) {
+      let errorMessage = "Something went wrong. Please try again.";
+
+      if (error.response && error.response.data?.message) {
+        errorMessage = error.response.data.message.includes("Product already exists")
+          ? "This product is already in your wishlist!"
+          : `Error: ${error.response.data.message}`;
+      }
+
+      setModalType("error");
+      setModalMessage(errorMessage);
+      setOpen(true);
+      setTimeout(() => {
+        setOpen(false);
+      }, 1800);
+    }
+  };
+
+
   return (
     <Box sx={{ padding: "6rem" }}>
       <Box
@@ -99,10 +174,10 @@ const Featured = () => {
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: "2rem",
-          
+
         }}
       >
-        <Typography sx={{ fontWeight: "bold", color: "#343a40",  textTransform:'uppercase', fontSize:'1.5rem' }}>
+        <Typography sx={{ fontWeight: "bold", color: "#343a40", textTransform: 'uppercase', fontSize: '1.5rem' }}>
           Featured Products
         </Typography>
       </Box>
@@ -142,125 +217,125 @@ const Featured = () => {
               }}
               onClick={() => handleProductClick(item._id)}
             />
-              <CardContent>
-                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontWeight: "bold",
-                            fontSize: "1rem",
-                            color: "#343a40",
-                          }}
-                        >
-                          {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
-                        </Typography>
+            <CardContent>
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    color: "#343a40",
+                  }}
+                >
+                  {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
+                </Typography>
+                <Button
+                  onClick={(e) => {
+                    // e.stopPropagation();
+                    handleWishlistClick(item);
+                  }}
+                  sx={{ color: "#c026d3", position: 'relative' }}
+                >
+                  {wishlist.includes(item._id) ? (
 
-                        <IconButton
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleWishlistClick(item._id);
-                          }}
-                          sx={{ color: "#c026d3", position: 'relative' }}
-                        >
-                          {wishlist.includes(item._id) ? (
-                            <Button onClick={() => handleClick(item)}>
 
-                              <FavoriteOutlinedIcon  style={{ position: 'absolute' }} />
-                            </Button>
-                          ) : (
-                            <FavoriteBorderIcon style={{ position: 'absolute' }} />
-                          )}
-                        </IconButton>
-                      </Box>
 
-                      <Typography
-                        variant="p"
-                        sx={{
-                          color: "#6c757d",
-                        }}
-                      >
-                        {item.brand}
-                      </Typography>
-                      <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
-                        <StarRating
-                          rating={parseFloat(
-                            calculateAverageRating(item.Reviews)
-                          )}
-                        // style={{ marginRight: '2rem' }}
-                        />
-                        <Typography variant="p" style={{ fontSize: "0.8rem" }}>
-                          {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
-                          Reviews
-                          {/* {item.Reviews && item.Reviews.length > 0
+                    <FavoriteOutlinedIcon style={{ position: 'absolute' }} />
+
+                  ) : (
+                    <FavoriteBorderIcon style={{ position: 'absolute' }} />
+                  )}
+                </Button>
+              </Box>
+
+              <Typography
+                variant="p"
+                sx={{
+                  color: "#6c757d",
+                }}
+              >
+                {item.brand}
+              </Typography>
+              <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
+                <StarRating
+                  rating={parseFloat(
+                    calculateAverageRating(item.Reviews)
+                  )}
+                // style={{ marginRight: '2rem' }}
+                />
+                <Typography variant="p" style={{ fontSize: "0.8rem" }}>
+                  {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
+                  Reviews
+                  {/* {item.Reviews && item.Reviews.length > 0
                       ? calculateAverageRating(item.Reviews)
                       : "No Ratings"} */}
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.7rem",
-                          marginTop: '0.3rem'
-                        }}
-                      >
-                        <Typography
-                          variant="p"
-                          sx={{
-                            fontWeight: "bold",
-                            color: "#000",
-                            fontSize: "1rem",
-                          }}
-                        >
-                          ₹{item.product_price}
-                        </Typography>
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.7rem",
+                  marginTop: '0.3rem'
+                }}
+              >
+                <Typography
+                  variant="p"
+                  sx={{
+                    fontWeight: "bold",
+                    color: "#000",
+                    fontSize: "1rem",
+                  }}
+                >
+                  ₹{item.product_price}
+                </Typography>
 
-                        {item.discount < item.product_price && (
-                          <Typography
-                            variant="p"
-                            sx={{
-                              textDecoration: "line-through",
-                              color: "red",
-                              fontSize: "1rem",
-                              display: 'flex',
-                              alignItems: 'center'
-                            }}
-                          >
-                            ₹{(item.mrp_rate) || "2500"}
-                          </Typography>
-                        )}
-                        <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
-                      </Box>
+                {item.discount < item.product_price && (
+                  <Typography
+                    variant="p"
+                    sx={{
+                      textDecoration: "line-through",
+                      color: "red",
+                      fontSize: "1rem",
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    ₹{(item.mrp_rate) || "2500"}
+                  </Typography>
+                )}
+                <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
+              </Box>
 
 
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          margin: "0 auto",
-                        }}
-                      >
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          sx={{
-                            width: "15rem",
-                            textTransform: "capitalize",
-                            fontWeight: "bold",
-                            marginTop: "1rem",
-                            backgroundColor: "#c026d3",
-                            color: "white",
-                            border: "none",
-                            "&:hover": {
-                              borderColor: "black",
-                              boxShadow: "none",
-                            },
-                          }}
-                        >
-                          View More
-                        </Button>
-                      </Box>
-                    </CardContent>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  margin: "0 auto",
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    width: "15rem",
+                    textTransform: "capitalize",
+                    fontWeight: "bold",
+                    marginTop: "1rem",
+                    backgroundColor: "#c026d3",
+                    color: "white",
+                    border: "none",
+                    "&:hover": {
+                      borderColor: "black",
+                      boxShadow: "none",
+                    },
+                  }}
+                >
+                  View More
+                </Button>
+              </Box>
+            </CardContent>
           </Card>
         ))}
       </Box>
@@ -292,6 +367,14 @@ const Featured = () => {
           View All
         </Button>
       </Box>
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <ModalItem modalMessage={modalMessage} modalType={modalType} />
+      </Modal>
     </Box>
   );
 };

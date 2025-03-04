@@ -104,7 +104,7 @@ const [isCalenderOpen, setIsCalenderOpen] = useState(false);
     >
       <Typography
         variant="h6"
-        sx={{ textAlign: "center", color: "#6c63ff", fontWeight: "bold", color: '#c026d3' }}
+        sx={{ textAlign: "center", fontWeight: "bold", color: '#c026d3' }}
       >
         Order Summary
       </Typography>
@@ -258,7 +258,7 @@ const [isCalenderOpen, setIsCalenderOpen] = useState(false);
 
       <Typography
         variant="h6"
-        sx={{ color: "#6c63ff", fontWeight: "bold", mt: 2, color: '#c026d3', fontSize: '1.2rem' }}
+        sx={{ fontWeight: "bold", mt: 2, color: '#c026d3', fontSize: '1.2rem' }}
       >
         Event Details
       </Typography>

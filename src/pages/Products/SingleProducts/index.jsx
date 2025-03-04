@@ -25,9 +25,9 @@ import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
+import { ToastContainer, toast } from "react-toastify";
 
 // Assests
-import Success from "../../../assets/successGif.gif";
 import ProfileImg1 from "../../../assets/profileImg1.jpg";
 // import Replace from "../../../assets/replace.png";
 // import Cod from "../../../assets/cod.png";
@@ -48,15 +48,18 @@ import { addTechnician } from "../../../redux/slice/technicianSlice";
 
 // styles
 import "./styles.scss";
+import "react-toastify/dist/ReactToastify.css";
+
 import Coupon from "./components/Coupon";
 import StarRating from "../../../components/StarRating";
 import axios from "axios";
+import ModalItem from "./components/Modal";
 
 const SingleProducts = () => {
   const [cart, setCart] = useState([]);
   const [product, setProduct] = useState({});
   const [quantity, setQuantity] = useState(1);
-  const [technicianModalOpen, setTechnicianModalOpen] = useState(false);
+  const [technicianModalOpen, setTechnicianModalOpenOpen] = useState(false);
   const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [technicians, setTechnicians] = useState([]);
@@ -65,6 +68,9 @@ const SingleProducts = () => {
   const [mainImage, setMainImage] = useState("");
   const [relatedProduct, setRelatedProduct] = useState([]);
   const [open, setOpen] = useState(false);
+  const [successType, setSuccessType] = useState("");
+  const [modalType, setModalType] = useState("success");
+  const [modalMessage, setModalMessage] = useState("");
   const [activeTab, setActiveTab] = useState(0);
   const navigate = useNavigate();
   const params = useParams();
@@ -76,10 +82,17 @@ const SingleProducts = () => {
   );
   const [wishlist, setWishlist] = useState([]);
 
-  const userDetail =  sessionStorage.getItem('userDetails');
-  const userDetails = JSON.parse(userDetail);
-  const userId = userDetails._id;
-  console.log(userId);
+  const userDetail = sessionStorage.getItem("userDetails");
+  let userId = null;
+
+  if (userDetail) {
+    try {
+      const userDetails = JSON.parse(userDetail);
+      userId = userDetails?._id || null;
+    } catch (error) {
+      console.error("Error parsing userDetails from sessionStorage:", error);
+    }
+  }
 
   const fetchSingleProduct = async () => {
     try {
@@ -170,9 +183,17 @@ const SingleProducts = () => {
       setTechnicians(filteredTechnicians);
     } catch (error) {
       getErrorMessage(error);
+      toast.error("Failed to add item to cart. Try again!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
-  console.log(product);
 
   const handleContinue = () => {
     if (product) {
@@ -209,7 +230,7 @@ const SingleProducts = () => {
             id: technician._id,
             product_image:
               technician.image ||
-            ProfileImg1,
+              ProfileImg1,
             category: technician.category,
             price: technician.price,
             service_name: technician.service_name,
@@ -226,12 +247,22 @@ const SingleProducts = () => {
         );
       });
     }
-
-    setOpen(true);
+    toast.success("Item added to cart!", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
     setBottomDrawerOpen(false);
-    setTimeout(() => {
-      setOpen(false);
-    }, 1500);
+    
+    // setOpen(true);
+    // setBottomDrawerOpen(false);
+    // setTimeout(() => {
+    //   setOpen(false);
+    // }, 1500);
   };
 
   const handleTabChange = (event, newValue) => {
@@ -266,35 +297,53 @@ const SingleProducts = () => {
     console.log(id);
   };
 
-  const handleClick  = async() => {
+  const handleClick = async () => {
     const payload = {
-      product_name: product.product_name,
-    product_id: product.product_id,
-    product_image: product.product_image[0],
-    product_price: product.product_price,
-    mrp_price: product.mrp_price,
-    discount: product.discount,
-    user_id: userId
+      product_name: product?.product_name,
+      product_id: product?._id,
+      product_image: product?.product_image[0],
+      product_price: product?.product_price,
+      mrp_price: product?.mrp_price,
+      discount: product?.discount,
+      user_id: userId
 
 
     }
 
 
-    try{
+    try {
       const res = await axios.post("https://api.nithyaevent.com/api/wishlist/add-wishlist", payload, {
-        headers:{
-          "Content-Type":"application/json"
+        headers: {
+          "Content-Type": "application/json"
         }
       });
-      alert("Product successfully added!"); 
+      setModalType("success");
+      setModalMessage("The product has been successfully added to your wishlist.");
+      setOpen(true);
+      setTimeout(() => {
+        setOpen(false);
+      }, 1800);
     }
-    catch(error){
-      getErrorMessage(error);
-      alert("Error in wishlist")
+    catch (error) {
+      let errorMessage = "Something went wrong. Please try again.";
+
+      if (error.response && error.response.data?.message) {
+        errorMessage = error.response.data.message.includes("Product already exists")
+          ? "This product is already in your wishlist!"
+          : `Error: ${error.response.data.message}`;
+      }
+
+      setModalType("error");
+      setModalMessage(errorMessage);
+      setOpen(true);
+      setTimeout(() => {
+        setOpen(false);
+      }, 1800);
     }
   }
   return (
     <>
+    <ToastContainer/>
       {showProduct && (
         <Box className="product-container">
           <Box
@@ -355,19 +404,19 @@ const SingleProducts = () => {
               >
                 <Box>
 
-                
-                <Typography variant="p" sx={{ fontSize: "1.4rem" }}>
-                  {product.product_name}
-                </Typography>
-                <Typography
-                  className="rating"
-                  variant="body2"
-                  sx={{ color: "text.secondary" }}
-                >
-                  <Typography variant="p" sx={{ fontSize: "1rem" }}>
-                    Brand: {product.brand}
+
+                  <Typography variant="p" sx={{ fontSize: "1.4rem" }}>
+                    {product.product_name}
                   </Typography>
-                </Typography>
+                  <Typography
+                    className="rating"
+                    variant="body2"
+                    sx={{ color: "text.secondary" }}
+                  >
+                    <Typography variant="p" sx={{ fontSize: "1rem" }}>
+                      Brand: {product.brand}
+                    </Typography>
+                  </Typography>
                 </Box>
                 {/* <Box className="Price-point">
                   <Typography sx={{ fontSize: "1.1rem" }}>
@@ -431,20 +480,20 @@ const SingleProducts = () => {
                     {product.Reviews?.length === 1 ? "" : "s"}
                   </Typography> */}
                   <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
-                        <StarRating
-                          rating={parseFloat(
-                            calculateAverageRating(product.Reviews)
-                          )}
-                        // style={{ marginRight: '2rem' }}
-                        />
-                        <Typography variant="p" style={{ fontSize: "0.8rem" }}>
-                          {product.Reviews.length > 0 ? product.Reviews.length : 0}{" "}
-                          Reviews
-                          {/* {item.Reviews && item.Reviews.length > 0
+                    <StarRating
+                      rating={parseFloat(
+                        calculateAverageRating(product.Reviews)
+                      )}
+                    // style={{ marginRight: '2rem' }}
+                    />
+                    <Typography variant="p" style={{ fontSize: "0.8rem" }}>
+                      {product.Reviews.length > 0 ? product.Reviews.length : 0}{" "}
+                      Reviews
+                      {/* {item.Reviews && item.Reviews.length > 0
                       ? calculateAverageRating(item.Reviews)
                       : "No Ratings"} */}
-                        </Typography>
-                      </Box>
+                    </Typography>
+                  </Box>
                 </Box>
                 {/* <Divider sx={{ width: "50rem", marginBottom: "0.8rem" }} /> */}
                 {/* <Box className="Product-descriptions">
@@ -586,23 +635,25 @@ const SingleProducts = () => {
                   for your convenience.
                 </Typography>
               </Box> */}
-              <Box sx={{ display: "flex", justifyContent: "center", gap:'1rem' }}>
+              <Box sx={{ display: "flex", justifyContent: "center", gap: '1rem' }}>
                 <Button
-                color='white'
-                  sx={{backgroundColor:'#c026d3', color:'white'}}
+                  color='white'
+                  sx={{ backgroundColor: '#c026d3', color: 'white' }}
                   className="addToCart"
                   onClick={handleAddToCart}
                 >
-                   <ShoppingBagOutlinedIcon sx={{ marginRight: '8px' }} /> 
+                  <ShoppingBagOutlinedIcon sx={{ marginRight: '8px' }} />
                   Add to Cart
                 </Button>
+                {console.log("Teh dataaa", product)
+                }
                 <Button
                   variant="outlined"
                   color="red"
                   className="addToWishlist"
-                  onClick={handleClick}
+                  onClick={() => handleClick(product._id)}
                 >
-                  <FavoriteBorderOutlinedIcon   sx={{ marginRight: '8px' }} />
+                  <FavoriteBorderOutlinedIcon sx={{ marginRight: '8px' }} />
                   Add to Wishlist
                 </Button>
               </Box>
@@ -613,26 +664,26 @@ const SingleProducts = () => {
             value={activeTab}
             onChange={handleTabChange}
             className="tabs-container"
-            variant={isMobile ? "scrollable" : "standard"} // Scrollable on mobile
-            scrollButtons="auto" // Show scroll buttons when needed
+            variant={isMobile ? "scrollable" : "standard"}
+            scrollButtons="auto"
             allowScrollButtonsMobile
-            
+
             sx={{
               background: "linear-gradient(rgb(255, 255, 255), rgb(245 232 247))",
               padding: "0.8rem 5rem",
-          
+
               "& .MuiTabs-indicator": {
-                  backgroundColor: "#c026d3", // Purple indicator
+                backgroundColor: "#c026d3",
               },
               "& .MuiTab-root": {
-                  color: "#9c27b0", // Inactive tab color (light purple)
-                  textTransform: "none",
-                  fontWeight: "bold",
+                color: "#9c27b0",
+                textTransform: "none",
+                fontWeight: "bold",
               },
               "& .Mui-selected": {
-                  color: "#c026d3", // Active tab color (darker purple)
+                color: "#c026d3",
               },
-          }}
+            }}
           >
             <Tab label="Product Details" />
             {/* <Tab label="About" /> */}
@@ -684,73 +735,73 @@ const SingleProducts = () => {
             )} */}
 
             {activeTab === 0 && (
-              <Box sx={{display:'flex'}}>
-              <Box className="Product-detail-container">
-                <Typography variant="p" sx={{fontWeight:'600'}} className="Product-detail-heading">
-                  Product Details
-                </Typography>
-                <Box className="Product-detail">
-                  <Box className="tab1-content">
-                    <Typography variant="p">Brand:</Typography>
-                    <Typography variant="p">Category:</Typography>
-                    <Typography variant="p">Model Name:</Typography>
-                    <Typography variant="p">Product Dimensions:</Typography>
-                    <Typography variant="p">Item Weight:</Typography>
-                    <Typography variant="p">Material Type:</Typography>
+              <Box sx={{ display: 'flex' }}>
+                <Box className="Product-detail-container">
+                  <Typography variant="p" sx={{ fontWeight: '600' }} className="Product-detail-heading">
+                    Product Details
+                  </Typography>
+                  <Box className="Product-detail">
+                    <Box className="tab1-content">
+                      <Typography variant="p">Brand:</Typography>
+                      <Typography variant="p">Category:</Typography>
+                      <Typography variant="p">Model Name:</Typography>
+                      <Typography variant="p">Product Dimensions:</Typography>
+                      <Typography variant="p">Item Weight:</Typography>
+                      <Typography variant="p">Material Type:</Typography>
+                    </Box>
+                    <Box className="tab2-content">
+                      <Typography variant="p">{product.brand}</Typography>
+                      <Typography variant="p">
+                        {product.product_category}
+                      </Typography>
+                      <Typography variant="p">{product.model_name}</Typography>
+                      <Typography variant="p">
+                        {product.product_dimension}
+                      </Typography>
+                      <Typography variant="p">
+                        {product.product_weight}
+                      </Typography>
+                      <Typography variant="p">{product.material_type}</Typography>
+
+
+                    </Box>
                   </Box>
-                  <Box className="tab2-content">
-                    <Typography variant="p">{product.brand}</Typography>
-                    <Typography variant="p">
-                      {product.product_category}
-                    </Typography>
-                    <Typography variant="p">{product.model_name}</Typography>
-                    <Typography variant="p">
-                      {product.product_dimension}
-                    </Typography>
-                    <Typography variant="p">
-                      {product.product_weight}
-                    </Typography>
-                    <Typography variant="p">{product.material_type}</Typography>
-             
-              
-                  </Box>
-                </Box>
                 </Box>
                 <Box className="Spec-container">
-                <Typography variant="p" sx={{fontWeight:'600'}} className="Spec-detail-heading">
-                  Other Details
-                </Typography>
-                <Box className="Spec-detail">
-                  <Box className="tab1-content">
-                    <Typography variant="p">Manufacturer:</Typography>
-                    <Typography variant="p">Color:</Typography>
-                    <Typography variant="p">Product Type:</Typography>
-                    <Typography variant="p">Shop Name:</Typography>
-                    <Typography variant="p">vendor Name:</Typography>
-                    <Typography variant="p">Stock In Hand:</Typography>
-                    <Typography variant="p">Country of origin:</Typography>
-                  </Box>
-                  <Box className="tab2-content">
-                    <Typography variant="p">
-                      {product.manufacturer_name}
-                    </Typography>
-                    <Typography variant="p">{product.product_color}</Typography>
-                    <Typography variant="p">{product.product_type}</Typography>
-                    <Typography variant="p">{product.modelName}</Typography>
-                    <Typography variant="p">{product.shop_name}</Typography>
-                    <Typography variant="p">{product.vendor_name}</Typography>
-                    <Typography variant="p">{product.stock_in_hand}</Typography>
-                    <Typography variant="p">
-                      {product.country_of_orgin}
-                    </Typography>
+                  <Typography variant="p" sx={{ fontWeight: '600' }} className="Spec-detail-heading">
+                    Other Details
+                  </Typography>
+                  <Box className="Spec-detail">
+                    <Box className="tab1-content">
+                      <Typography variant="p">Manufacturer:</Typography>
+                      <Typography variant="p">Color:</Typography>
+                      <Typography variant="p">Product Type:</Typography>
+                      <Typography variant="p">Shop Name:</Typography>
+                      <Typography variant="p">vendor Name:</Typography>
+                      <Typography variant="p">Stock In Hand:</Typography>
+                      <Typography variant="p">Country of origin:</Typography>
+                    </Box>
+                    <Box className="tab2-content">
+                      <Typography variant="p">
+                        {product.manufacturer_name}
+                      </Typography>
+                      <Typography variant="p">{product.product_color}</Typography>
+                      <Typography variant="p">{product.product_type}</Typography>
+                      <Typography variant="p">{product.modelName}</Typography>
+                      <Typography variant="p">{product.shop_name}</Typography>
+                      <Typography variant="p">{product.vendor_name}</Typography>
+                      <Typography variant="p">{product.stock_in_hand}</Typography>
+                      <Typography variant="p">
+                        {product.country_of_orgin}
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
               </Box>
 
             )}
 
-        
+
 
             {activeTab === 1 && (
               <Box>
@@ -804,168 +855,125 @@ const SingleProducts = () => {
                       </Box>
                     </Typography>
                   </Box> */}                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            fontWeight: "bold",
-                            fontSize: "1rem",
-                            color: "#343a40",
-                          }}
-                        >
-                          {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
-                        </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: "bold",
+                        fontSize: "1rem",
+                        color: "#343a40",
+                      }}
+                    >
+                      {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
+                    </Typography>
 
-                        <IconButton
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleWishlistClick(item._id);
-                          }}
-                          sx={{ color: "#c026d3", position: 'relative' }}
-                        >
-                          {wishlist.includes(item._id) ? (
-                            <FavoriteOutlinedIcon onClick={handleWishlist} style={{ position: 'absolute' }} />
-                          ) : (
-                            <FavoriteBorderIcon style={{ position: 'absolute' }} />
-                          )}
-                        </IconButton>
-                      </Box>
+                    <IconButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleWishlistClick(item._id);
+                      }}
+                      sx={{ color: "#c026d3", position: 'relative' }}
+                    >
+                      {wishlist.includes(item._id) ? (
+                        <FavoriteOutlinedIcon onClick={handleWishlist} style={{ position: 'absolute' }} />
+                      ) : (
+                        <FavoriteBorderIcon style={{ position: 'absolute' }} />
+                      )}
+                    </IconButton>
+                  </Box>
 
+                  <Typography
+                    variant="p"
+                    sx={{
+                      color: "#6c757d",
+                    }}
+                  >
+                    {item.brand}
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
+                    <StarRating
+                      rating={parseFloat(
+                        calculateAverageRating(item.Reviews)
+                      )}
+                    // style={{ marginRight: '2rem' }}
+                    />
+                    <Typography variant="p" style={{ fontSize: "0.8rem" }}>
+                      {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
+                      Reviews
+                      {/* {item.Reviews && item.Reviews.length > 0
+                      ? calculateAverageRating(item.Reviews)
+                      : "No Ratings"} */}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.7rem",
+                      marginTop: '0.3rem'
+                    }}
+                  >
+                    <Typography
+                      variant="p"
+                      sx={{
+                        fontWeight: "bold",
+                        color: "#000",
+                        fontSize: "1rem",
+                      }}
+                    >
+                      ₹{item.product_price}
+                    </Typography>
+
+                    {item.discount < item.product_price && (
                       <Typography
                         variant="p"
                         sx={{
-                          color: "#6c757d",
+                          textDecoration: "line-through",
+                          color: "red",
+                          fontSize: "1rem",
+                          display: 'flex',
+                          alignItems: 'center'
                         }}
                       >
-                        {item.brand}
+                        ₹{(item.mrp_rate) || "2500"}
                       </Typography>
-                      <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
-                        <StarRating
-                          rating={parseFloat(
-                            calculateAverageRating(item.Reviews)
-                          )}
-                        // style={{ marginRight: '2rem' }}
-                        />
-                        <Typography variant="p" style={{ fontSize: "0.8rem" }}>
-                          {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
-                          Reviews
-                          {/* {item.Reviews && item.Reviews.length > 0
-                      ? calculateAverageRating(item.Reviews)
-                      : "No Ratings"} */}
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.7rem",
-                          marginTop: '0.3rem'
-                        }}
-                      >
-                        <Typography
-                          variant="p"
-                          sx={{
-                            fontWeight: "bold",
-                            color: "#000",
-                            fontSize: "1rem",
-                          }}
-                        >
-                          ₹{item.product_price}
-                        </Typography>
-
-                        {item.discount < item.product_price && (
-                          <Typography
-                            variant="p"
-                            sx={{
-                              textDecoration: "line-through",
-                              color: "red",
-                              fontSize: "1rem",
-                              display: 'flex',
-                              alignItems: 'center'
-                            }}
-                          >
-                            ₹{(item.mrp_rate) || "2500"}
-                          </Typography>
-                        )}
-                        <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
-                      </Box>
+                    )}
+                    <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
+                  </Box>
 
 
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          margin: "0 auto",
-                        }}
-                      >
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          sx={{
-                            width: "15rem",
-                            textTransform: "capitalize",
-                            fontWeight: "bold",
-                            marginTop: "1rem",
-                            backgroundColor: "#c026d3",
-                            color: "white",
-                            border: "none",
-                            "&:hover": {
-                              borderColor: "black",
-                              boxShadow: "none",
-                            },
-                          }}
-                        >
-                          Add to Bag
-                        </Button>
-                      </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      margin: "0 auto",
+                    }}
+                  >
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      sx={{
+                        width: "15rem",
+                        textTransform: "capitalize",
+                        fontWeight: "bold",
+                        marginTop: "1rem",
+                        backgroundColor: "#c026d3",
+                        color: "white",
+                        border: "none",
+                        "&:hover": {
+                          borderColor: "black",
+                          boxShadow: "none",
+                        },
+                      }}
+                    >
+                      Add to Bag
+                    </Button>
+                  </Box>
                 </Box>
               ))}
             </Box>
           </Box>
 
-          {/* <Modal
-            open={technicianModalOpen}
-            onClose={handleCloseTechnicianModal}
-            aria-labelledby="technician-modal-title"
-            aria-describedby="technician-modal-description"
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                top: "50%",
-                right: "2%",
-                transform: "translateY(-50%)",
-                bgcolor: "background.paper",
-                boxShadow: 24,
-                p: 4,
-                borderRadius: "8px",
-                width: "32rem",
-                maxHeight: "100vh",
-                overflowY: "auto",
-              }}
-            >
-              <Technician
-                onSelectTechnician={handleTechnicianSelect}
-                selectedTechnicians={technicians}
-                productCategory={product.product_category}
-              />
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleCloseTechnicianModal}
-                sx={{ mt: 3 }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleContinue}
-                sx={{ mt: 3, ml: 2 }}
-              >
-                Continue
-              </Button>
-            </Box>
-          </Modal> */}
+
           <Drawer
             anchor="bottom"
             open={bottomDrawerOpen}
@@ -1017,41 +1025,13 @@ const SingleProducts = () => {
           </Drawer>
           <Modal
             open={open}
-            onClose={handleClose}
-            aria-labelledby="success-modal-title"
-            aria-describedby="success-modal-description"
+            onClose={() => setOpen(false)}
+            aria-labelledby="modal-title"
+            aria-describedby="modal-description"
           >
-            <Box
-              className="modal-container"
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: 400,
-                bgcolor: "background.paper",
-                boxShadow: 80,
-                p: 4,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#e1f4e5",
-              }}
-            >
-              <img src={Success} className="success-image" alt="Success" />
-              <Typography id="success-modal-title" variant="h6" component="h2">
-                Success!
-              </Typography>
-
-              <Typography id="success-modal-description" sx={{ mt: 2 }}>
-                The product has been successfully added to your cart.
-              </Typography>
-              <Button onClick={handleClose} sx={{ mt: 3 }}>
-                Close
-              </Button>
-            </Box>
+     <ModalItem modalMessage={modalMessage} modalType={modalType}/>
           </Modal>
+
         </Box>
       )}
     </>

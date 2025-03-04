@@ -205,7 +205,7 @@ const Cart = () => {
                               <img src={item.imageUrl} style={{ width: '70px', padding: '0.5rem 0.5rem', textAlign: 'center', marginRight: '30px' }} alt="Not found" />
                             </Box>
                           </TableCell>
-                          <TableCell>{item.productName}</TableCell>
+                          <TableCell>{item.productName.slice(0,20)}</TableCell>
                           <TableCell>
                             ₹{item.productPrice?.toFixed(2)}
                           </TableCell>

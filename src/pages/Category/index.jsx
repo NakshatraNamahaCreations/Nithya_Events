@@ -18,6 +18,7 @@ import {
   FormControl,
   Select,
   MenuItem,
+  Modal,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -35,6 +36,8 @@ import Pagination from "../../components/Pagination";
 import DiscountSlider from "../Products/components/DiscountSlider";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
+import axios from "axios";
+import ModalItem from "../Products/SingleProducts/components/Modal";
 
 
 
@@ -72,14 +75,98 @@ const Category = () => {
   const { numberOfDays } = useSelector((state) => state.date);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedPriceRange, setSelectedPriceRange] = useState([0, 50000]);
+  const [open, setOpen] = useState(false);
+  const [successType, setSuccessType] = useState("");
+  const [modalType, setModalType] = useState("success");
+  const [modalMessage, setModalMessage] = useState("");
 
   const itemsPerPage = 6;
 
-  const breadcrumbPaths = [{ label: "Home", link: "/" }, { label: category }];
+  const userDetail = sessionStorage.getItem("userDetails");
+  let userId = null;
 
-  const handleWishlistClick = (id) => {
-    setWishlist((prev) => prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]);
+  if (userDetail) {
+    try {
+      const userDetails = JSON.parse(userDetail);
+      userId = userDetails?._id || null;
+    } catch (error) {
+      console.error("Error parsing userDetails from sessionStorage:", error);
+    }
   }
+  const breadcrumbPaths = [{ label: "Home", link: "/" }, { label: category }];
+  const fetchWishlist = async () => {
+    dispatch(setLoading(true));
+
+    try {
+      const res = await axios.get(
+        `https://api.nithyaevent.com/api/wishlist/get-my-wishlist/${userId}`,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      if (res.data?.wishlist && Array.isArray(res.data.wishlist)) {
+        const wishlistItems = res.data.wishlist.map((item) => item.product_id);
+        setWishlist(wishlistItems);
+      } else {
+        setWishlist([]); 
+      }
+
+      // setProductList(res.data.wishlist);
+
+      dispatch(setLoading(false));
+
+    } catch (error) {
+      dispatch(setLoading(false));
+      if (error.response && error.response.status === 404) {
+     
+        setWishlist([]);
+      } else {
+
+        alert("Error fetching wishlist. Please try again.");
+      }
+      console.error("API Error:", error.response ? error.response.data : error.message);
+    }
+  };
+
+  const handleWishlistClick = async (item) => {
+    const isInWishlist = wishlist.includes(item._id);
+    console.log(userId);
+
+    const payload = {
+      product_name: item.product_name,
+      product_id: item._id,
+      product_image: item.product_image[0],
+      product_price: item.product_price,
+      mrp_price: item.mrp_price,
+      discount: item.discount,
+      user_id: userId
+    };
+
+    try {
+      const res = await axios.post(
+        "https://api.nithyaevent.com/api/wishlist/add-wishlist",
+        payload,
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      setModalType("success");
+      setModalMessage("The product has been successfully added to your wishlist.");
+      setOpen(true);
+      setWishlist((prev) =>
+        isInWishlist ? prev.filter((id) => id !== item._id) : [...prev, item._id]
+      );
+    } catch (error) {
+      let errorMessage = "Something went wrong. Please try again.";
+
+      if (error.response && error.response.data?.message) {
+        errorMessage = error.response.data.message.includes("Product already exists")
+          ? "This product is already in your wishlist!"
+          : `Error: ${error.response.data.message}`;
+      }
+
+      setModalType("error");
+      setModalMessage(errorMessage);
+      setOpen(true);
+    }
+  };
   const fetchCategories = async () => {
     try {
       dispatch(setLoading(true));
@@ -141,12 +228,13 @@ const Category = () => {
       console.log("Item Discount (Parsed):", discount);
       console.log("Selected Discount Range:", selectedDiscount);
       return discount >= selectedDiscount[0] && discount <= selectedDiscount[1];
-  });
+    });
 
     setFilteredItems(filtered);
   };
   useEffect(() => {
     filterProducts();
+    fetchWishlist();
   }, [
     data,
     activeCategory,
@@ -255,8 +343,11 @@ const Category = () => {
   const handleHighStockChange = (event) => {
     setHighStockChecked(event.target.checked);
   };
-
-
+  const handleCloseSuccessModal = () =>{
+    setOpen(false);
+    console.log("The function is working");
+    
+  }
   return (
     <>
       <Sliders />
@@ -514,22 +605,22 @@ const Category = () => {
                           {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
                         </Typography>
 
-                        <IconButton
+                        <Button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleWishlistClick(item._id);
+                            handleWishlistClick(item);
                           }}
                           sx={{ color: "#c026d3", position: 'relative' }}
                         >
                           {wishlist.includes(item._id) ? (
-                            <Button onClick={handleClick}>
-                              <FavoriteOutlinedIcon  style={{ position: 'absolute' }} />
+                            <Button >
+                              <FavoriteOutlinedIcon style={{ position: 'absolute', color:'#c026d3' }} />
 
                             </Button>
                           ) : (
                             <FavoriteBorderIcon style={{ position: 'absolute' }} />
                           )}
-                        </IconButton>
+                        </Button>
                       </Box>
 
                       <Typography
@@ -638,6 +729,15 @@ const Category = () => {
             </Box>
           )}
         </Box>
+        <Modal
+            open={open}
+            onClose={() => setOpen(false)}
+            aria-labelledby="modal-title"
+            aria-describedby="modal-description"
+          >
+     
+  <ModalItem modalMessage={modalMessage} modalType={modalType} onClose={handleCloseSuccessModal} />
+          </Modal>
       </Box>
     </>
   );

@@ -36,6 +36,7 @@ export const config = {
   GET_ALL_SERVICE: "/service/get-all-service",
   GET_SERVICE_BY_SERVICE_NAME: "/vendor/get-vendor-by-servicename/",
   GET_PARTICULAR_SERVICE: "/vendor/getprofile/",
+  GET_SERVICE_NEW: "/vendor-service/get-services-by-vendor-id/",
 
   // SERVICE REVIEW
   GET_SERVICE_REVIEW: "/vendor/get-service-review/",

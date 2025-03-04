@@ -1,114 +1,198 @@
-import { Box, Card, CardContent, Typography, Button, Grid, IconButton } from "@mui/material";
+// React Related imports 
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+
+// Third party library 
+import {
+  Box, Card, CardContent, Typography, Button, Grid, IconButton,
+  Modal
+} from "@mui/material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { useEffect } from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 
-const wishlistItems = [
-  {
-    id: 1,
-    product_name: "Camera Teleprompter",
-    product_category: "Video",
-    product_price: 20000,
-    product_image: "https://example.com/teleprompter.jpg",
-    discount: 12,
-  },
-  {
-    id: 2,
-    product_name: "Umbrella Lights",
-    product_category: "Lighting",
-    product_price: 5000,
-    product_image: "https://example.com/umbrella-lights.jpg",
-    discount: 10,
-  },
-];
+// Custom component 
+import { setLoading } from "../../redux/slice/LoaderSlice";
+import authService from "../../api/ApiService";
+import { getErrorMessage } from "../../utils/helperFunc";
+import ModalItem from "../Products/SingleProducts/components/Modal";
 
 const Wishlist = () => {
   const navigate = useNavigate();
+  const [wishlistItems, setWishlistItems] = useState([]);
+    const [open, setOpen] = useState(false);
+    const [successType, setSuccessType] = useState("");
+    const [modalType, setModalType] = useState("success");
+    const [modalMessage, setModalMessage] = useState("");
+  const dispatch = useDispatch();
+  const userDetail = sessionStorage.getItem("userDetails");
+  let userId = null;
 
-  const handleRemoveFromWishlist = (id) => {
-    alert("Removed from wishlist");
-  };
-  const userDetail =  sessionStorage.getItem('userDetails');
-const userDetails = JSON.parse(userDetail);
-const userId = userDetails._id;
-console.log(userId);
-
- 
-const getWishlist = async () => {
-  console.log("Fetching Wishlist...");
-  console.log("User ID:", userId);
-
-  try {
-      const res = await axios.get(`http://192.168.1.103:9000/api/wishlist/get-my-wishlist/${userId}`, {
-          headers: { "Content-Type": "application/json" }
-      });
-
-      console.log("Wishlist Response:", res.data);
-  } catch (error) {
-      console.error("API Error:", error.response ? error.response.data : error.message);
-      alert("Error in fetching wishlist");
+  if (userDetail) {
+    try {
+      const userDetails = JSON.parse(userDetail);
+      userId = userDetails?._id || null;
+    } catch (error) {
+      console.error("Error parsing userDetails from sessionStorage:", error);
+    }
   }
-};
 
-useEffect(() => {
-  getWishlist();
-},[])
+  const getWishlist = async () => {
+    dispatch(setLoading(true));
+    try {
+      const res = await axios.get(
+        `https://api.nithyaevent.com/api/wishlist/get-my-wishlist/${userId}`,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      setWishlistItems(res.data.wishlist);
+
+
+      dispatch(setLoading(false));
+
+    } catch (error) {
+      dispatch(setLoading(false));
+      setWishlistItems([]);
+      console.error("API Error:", error.response ? error.response.data : error.message);
+      alert("Error fetching wishlist");
+    }
+  };
+
+  useEffect(() => {
+    getWishlist();
+  }, []);
+
+
+  const handleRemoveFromWishlist = async (id) => {
+    dispatch(setLoading(true));
+    try {
+
+      const res = await axios.delete(`https://api.nithyaevent.com/api/wishlist/remove-wishlist-list/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+        }
+      })
+      
+      setWishlistItems((prev) => prev.filter((item) => item._id !== id));
+      setModalType("success");
+      setModalMessage("The product has been successfully deleted from your wishlist.");
+      setOpen(true);
+      dispatch(setLoading(false));
+      setTimeout(() => {
+        setOpen(false);
+      }, 1800);
+    }
+    catch (error) {
+      dispatch(setLoading(false));
+      getErrorMessage(error);
+    }
+
+  };
+
+  const handleAddToCart = (id) => {
+    alert("Added to cart");
+  };
+
   return (
-    <Box sx={{ padding: "8rem", backgroundColor: "#f5f5f5" }}>
+    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", backgroundColor: "#f5f5f5", minHeight: "100vh", padding: "4rem" }}>
       <Typography variant="h4" sx={{ fontWeight: "bold", marginBottom: "2rem" }}>
         My Wishlist
       </Typography>
-      <Grid container spacing={3}>
-        {wishlistItems.map((item) => (
-          <Grid item xs={12} sm={6} md={3} key={item.id}>
-            <Card sx={{ position: "relative", boxShadow: "0 4px 8px rgba(0,0,0,0.1)", borderRadius: "10px", transition: "transform 0.2s", '&:hover': { transform: 'scale(1.05)' } }}>
-              <Box
-                component="img"
-                src={item.product_image}
-                alt={item.product_name}
-                sx={{ width: "100%", height: "220px", objectFit: "cover", borderRadius: "10px 10px 0 0" }}
-              />
-              <CardContent>
-                <Typography variant="h6" sx={{ fontWeight: "bold", color: '#333' }}>
-                  {item.product_name}
-                </Typography>
-                <Typography variant="body2" sx={{ color: "#6c757d", marginBottom: "1rem" }}>
-                  {item.product_category}
-                </Typography>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Typography variant="body1" sx={{ fontWeight: "bold", color: "#000" }}>
-                    ₹{item.product_price}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ textDecoration: "line-through", color: "#b12704", fontSize: "1rem" }}
-                  >
-                    ₹{(item.product_price / (1 - item.discount / 100)).toFixed(0)}
-                  </Typography>
+      <Box sx={{ maxWidth: "1000px", width: "100%" }}>
+        <Grid container spacing={3} justifyContent="center">
+
+          {wishlistItems.map((item) => (
+            <Grid item xs={12} md={4} key={item.id}>
+              <Card sx={{ padding: "1rem", borderRadius: "10px", boxShadow: "0 4px 8px rgba(0,0,0,0.1)", transition: "transform 0.2s", "&:hover": { transform: "scale(1.02)" }, backgroundColor: "#fff", cursor: 'pointer' }}
+              // onClick={() => navigate(`/products/${item?.product_id}`)}
+              >
+                <Box sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  <Box
+                    component="img"
+                    src={item.product_image}
+                    alt={item.product_name}
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      width: "120px",
+                      height: "120px",
+                      objectFit: "contain",
+                      borderRadius: "8px",
+                      marginRight: "1rem",
+                      backgroundColor: "#fff",
+                      padding: "5px",
+                    }}
+                  />
                 </Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: "1rem" }}>
-                  <Button
-                    variant="contained"
-                    sx={{ backgroundColor: '#c026d3', color: '#fff', '&:hover': { backgroundColor: '#e91e63' } }}
-                    startIcon={<ShoppingCartIcon />}
-                    onClick={() => handleAddToCart(item.id)}
-                  >
-                    Add to Cart
-                  </Button>
-                  <IconButton
-                    sx={{ color: '#ff4081' }}
-                    onClick={() => handleRemoveFromWishlist(item.id)}
-                  >
-                    <FavoriteBorderIcon />
-                  </IconButton>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+                <CardContent sx={{ flexGrow: 1 }}>
+                  {/* Product Name */}
+                  <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333" }}>
+                    {item.product_name.slice(0,23)}
+                  </Typography>
+
+                  {/* Product Category */}
+                  <Typography variant="body2" sx={{ color: "#6c757d", marginBottom: "0.5rem" }}>
+                    Category: {item.product_category}
+                  </Typography>
+
+                  {/* Discount & Pricing */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <Typography variant="h6" sx={{ fontWeight: "bold", color: "#000" }}>
+                      ₹{item.product_price}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ textDecoration: "line-through", color: "#b12704", fontSize: "1rem" }}
+                    >
+                      ₹{(item.product_price / (1 - item.discount / 100)).toFixed(0)}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ backgroundColor: "#c026d3", color: "#fff", padding: "2px 6px", borderRadius: "4px" }}
+                    >
+                      {item.discount}% Off
+                    </Typography>
+                  </Box>
+
+
+                  {/* Buttons - Add to Cart & Remove */}
+                  <Box sx={{ display: "flex", alignItems: "center", marginTop: "1rem", justifyContent: 'space-between' }}>
+                    <Button
+                      variant="contained"
+                      sx={{ backgroundColor: "#c026d3", color: "#fff", "&:hover": { backgroundColor: "#e68a00" } }}
+                      startIcon={<ShoppingCartIcon />}
+                      onClick={() => handleAddToCart(item.id)}
+                    >
+                      Add to Cart
+                    </Button>
+                    <IconButton
+                      sx={{ color: "#ff4081", marginLeft: "1rem" }}
+                      onClick={() => handleRemoveFromWishlist(item._id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+          ))}
+        </Grid>
+
+      </Box>
+      <Modal
+            open={open}
+            onClose={() => setOpen(false)}
+            aria-labelledby="modal-title"
+            aria-describedby="modal-description"
+          >
+     <ModalItem modalMessage={modalMessage} modalType={modalType}/>
+          </Modal>
     </Box>
   );
 };

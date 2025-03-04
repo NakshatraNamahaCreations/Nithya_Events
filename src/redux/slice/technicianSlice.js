@@ -41,7 +41,7 @@ const technicianSlice = createSlice({
 
     removeTechnician: (state, action) => {
       state.technicians = state.technicians.filter(
-        (item) => item._id !== action.payload
+        (item) => item.id !== action.payload
       );
     },
 

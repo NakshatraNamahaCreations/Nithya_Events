@@ -114,6 +114,19 @@ const EventDetails = ({
   };
 
   const handleAcceptTerms = () => {
+        if (
+      !eventDetails.startTime ||
+      !eventDetails.endTime ||
+      !eventDetails.venueEndTime ||
+      !eventDetails.venueStartTime ||
+      !eventDetails.eventName.trim() ||
+      !eventDetails.eventVenue.trim() ||
+      !eventDetails.receiverName.trim() ||
+      !eventDetails.receiverMobile.trim()
+    ) {
+      setSnackbarOpen(true);
+      return;
+    }
     setShowTerms(false);
     setIsOrderSummaryOpen(true);
   };
@@ -349,6 +362,19 @@ const EventDetails = ({
   const handleModalClose = () => {
     setIsOrderSummaryOpen(false);
   };
+  useEffect(() => {
+    const isValid =
+      eventDetails.startTime &&
+      eventDetails.endTime &&
+      eventDetails.eventName.trim() &&
+      eventDetails.eventVenue.trim() &&
+      eventDetails.receiverName.trim() &&
+      eventDetails.receiverMobile.trim() &&
+      addLocation?.address; // Ensure address is selected
+  
+    setIsCheckoutAllowed(isValid);
+  }, [eventDetails, addLocation]); // Re-run when eventDetails or location changes
+  
   const handleCheckout = async () => {
     // if (
     //   !eventDetails.startTime ||
@@ -384,9 +410,6 @@ const EventDetails = ({
     fetchLocation();
   }, []);
 
-  useEffect(() => {
-    console.log(currentLocation);
-  }, [currentLocation]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -705,9 +728,11 @@ const EventDetails = ({
 
               />
             </Grid>
+            <Box sx={{display:"flex", flexDirection:'column',alignItems:'center', justifyContent:'center', marginTop:'1rem'}}>
+            <Typography>{addLocation  ? `${addLocation.address}` : ""}</Typography>
             <Button
               sx={{
-                width: "40rem",
+                width: "33.7rem",
                 marginTop: "2rem",
                 marginLeft: "1rem",
                 border: "1px solid #9c27b0",
@@ -715,7 +740,7 @@ const EventDetails = ({
               }}
               onClick={() => setOpenLocation(!openLocation)}
             >
-              Select Address
+             Select Address
               <Typography
                 variant="button"
                 sx={{ color: 'red', marginLeft: '0.5rem', fontWeight: 'bold', fontSize: '1.2rem' }}
@@ -723,6 +748,8 @@ const EventDetails = ({
                 *
               </Typography>
             </Button>
+               
+            </Box>
             <Grid item xs={6}>
               <TextField
                 label={<Typography
@@ -752,7 +779,7 @@ const EventDetails = ({
                       borderColor: '#c026d3',
                     },
                     '& input': {
-                      color: 'black', // Input text color
+                      color: 'black', 
                     },
                   },
                 }}
@@ -787,7 +814,7 @@ const EventDetails = ({
                       borderColor: '#c026d3',
                     },
                     '& input': {
-                      color: 'black', // Input text color
+                      color: 'black',
                     },
                   },
                 }}
@@ -953,8 +980,9 @@ const EventDetails = ({
             }}
           >
 
+<Typography></Typography>
             <Typography variant="h6" sx={{ mb: 2 }}>
-              Select Location
+             {currentLocation ? currentLocation.city : 'Select Location '}
             </Typography>
             <LocationSection
               onContinue={handleLocationContinue}
