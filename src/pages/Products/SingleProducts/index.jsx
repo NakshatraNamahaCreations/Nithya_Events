@@ -198,21 +198,21 @@ const SingleProducts = () => {
   };
 
   const handleContinue = () => {
-    if (!userId) {
-      toast.error("You need to log in to add items to the cart!", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+    // if (!userId) {
+    //   toast.error("You need to log in to add items to the cart!", {
+    //     position: "top-right",
+    //     autoClose: 2000,
+    //     hideProgressBar: false,
+    //     closeOnClick: true,
+    //     pauseOnHover: true,
+    //     draggable: true,
+    //     progress: undefined,
+    //   });
 
-      // Redirect user to login page
-      navigate("/login", { state: { from: location.pathname } });
-      return;
-    }
+    //   Redirect user to login page
+    //   navigate("/login", { state: { from: location.pathname } });
+    //   return;
+    // }
 
     if (product) {
       dispatch(
@@ -311,6 +311,18 @@ const SingleProducts = () => {
   };
 
   const handleClick = async () => {
+      if(!userId){
+          toast.error("You need to login", {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          return
+        }
     const payload = {
       product_name: product?.product_name,
       product_id: product?._id,
@@ -690,7 +702,7 @@ const SingleProducts = () => {
                   <ShoppingBagOutlinedIcon sx={{ marginRight: "8px" }} />
                   Add to Cart
                 </Button>
-                {console.log("Teh dataaa", product)}
+          
                 <Button
                   variant="outlined"
                   color="red"

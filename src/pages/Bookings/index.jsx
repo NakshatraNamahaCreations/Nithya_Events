@@ -63,14 +63,28 @@ const Bookings = () => {
     setSelectedTab(newValue);
   };
   const filteredBookings = bookings.filter((booking) => {
+    const currentDate = new Date(); // Get current date
     if (selectedTab === 0) return true; // All
     // if (selectedTab === 1) return booking.payment_status === "pending";
-    if (selectedTab === 1) return booking.payment_status === "on progress";
-    if (selectedTab === 2) return booking.payment_status === "success";
-    if (selectedTab === 3) return booking.payment_status === "cancelled";
+    if (selectedTab === 1) {
+      if (booking.order_status === "cancelled" || booking.order_status === "rescheduled") {
+        return false; // Don't show the booking
+      }
+
+      const eventStartDate = new Date(booking.event_start_date);
+      const eventEndDate = new Date(booking.event_end_date);
+  
+      if (currentDate >= eventStartDate && currentDate <= eventEndDate ) {
+        return true; 
+      }
+      
+      return false;
+    }
+    if (selectedTab === 2) return booking.order_status === "success";
+    if (selectedTab === 3) return booking.order_status === "Order Cancelled";
+    if (selectedTab === 3) return booking.order_status === "Order Rescheduled";
     return false;
   });
-console.log("the bookings", bookings);
 
   return (
     <Box className="my-bookings-page" sx={{ padding: "2rem" }}>
@@ -103,6 +117,7 @@ console.log("the bookings", bookings);
           <Tab label="On Progress" />
           <Tab label="Completed" />
           <Tab label="Cancelled" />
+          <Tab label="Re Scheduled" />
         </Tabs>
       </Box>
 

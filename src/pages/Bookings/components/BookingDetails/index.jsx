@@ -47,7 +47,9 @@ import Invoice from "./component/Invoice";
 const BookingDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-
+  const [products, setProducts] = useState([]);
+  const [services, setServices] = useState([]);
+  const [technicians, setTechnicians] = useState([]);
   const [booking, setBooking] = useState(null);
   const [items, setItems] = useState([]);
   const [eventStatus, setEventStatus] = useState("Upcoming Event");
@@ -94,7 +96,9 @@ const BookingDetails = () => {
         const order = res.data.orderId;
         setBooking(order);
         console.log("The check order", order);
-
+        setProducts(order?.product_data || []);
+        setServices(order?.service_data || []);
+        setTechnicians(order?.tech_data || []);
         const combinedItems = [
           ...(order?.product_data || [])?.map((item) => ({
             id: item?.id || item._id,
@@ -214,9 +218,6 @@ const BookingDetails = () => {
     const diffToEnd = Math.round(
       (eventEndDate - currentDate) / (1000 * 60 * 60)
     );
-
-    console.log(`Difference to Event Start: ${diffToStart} hours`);
-    console.log(`Difference to Event End: ${diffToEnd} hours`);
 
     // Determine the event status
     if (diffToEnd < 0) {
@@ -535,31 +536,9 @@ const BookingDetails = () => {
                   />
                 )}
               </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: "0.5rem",
-                  marginTop: "1.5rem",
-                }}
-              >
-                <IconButton
-                  href={`https://wa.me/${9773828339}`}
-                  target="_blank"
-                  sx={{display:'flex', justifyContent:'center', flexDirection:'column'}}
-                >
-                  <WhatsAppIcon sx={{ color: "#25D366", fontSize: "1.5rem" }} />
-                  <Typography variant="p" sx={{fontSize:'0.7rem'}}>Whatsapp</Typography>
-                </IconButton>
-                <IconButton href={`tel:${87328228}`} target="_blank"     sx={{display:'flex', justifyContent:'center', flexDirection:'column'}}>
-                  <PhoneIcon sx={{ color: "#c026d3", fontSize: "1.5rem" }} />
-                  <Typography variant="p" sx={{fontSize:'0.7rem'}}>Call Now</Typography>
-                </IconButton>
-              </Box>
             </Box>
-            <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
-              Items
-            </Typography>
-            {items.map((item) => {
+
+            {/* {items.map((item) => {
               const amount = item.price * item.quantity * numberOfDays;
               return (
                 <Box
@@ -608,7 +587,357 @@ const BookingDetails = () => {
                   </Box>
                 </Box>
               );
-            })}
+            })} */}
+
+            <Box sx={{ p: 2, maxWidth: "1200px", margin: "auto" }}>
+              <Grid container spacing={2}>
+                {/* Products Section */}
+                <Grid item xs={12}>
+                  {products.length > 0 &&
+                    products.map((item) => (
+                      <Paper variant="outlined" sx={{ p: 3 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            sx={{ mb: 2, fontWeight: "bold" }}
+                          >
+                            Products
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: "0.5rem",
+                            }}
+                          >
+                            <IconButton
+                              href={`https://wa.me/${9773828339}`}
+                              target="_blank"
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                flexDirection: "column",
+                              }}
+                            >
+                              <WhatsAppIcon
+                                sx={{ color: "#25D366", fontSize: "1.5rem" }}
+                              />
+                              <Typography
+                                variant="p"
+                                sx={{ fontSize: "0.7rem" }}
+                              >
+                                Whatsapp
+                              </Typography>
+                            </IconButton>
+                            <IconButton
+                              href={`tel:${87328228}`}
+                              target="_blank"
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                flexDirection: "column",
+                              }}
+                            >
+                              <PhoneIcon
+                                sx={{ color: "#c026d3", fontSize: "1.5rem" }}
+                              />
+                              <Typography
+                                variant="p"
+                                sx={{ fontSize: "0.7rem" }}
+                              >
+                                Call Now
+                              </Typography>
+                            </IconButton>
+                          </Box>
+                        </Box>
+
+                        <Box
+                          key={item.id}
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            borderBottom: "1px solid #ccc",
+                            py: 1,
+                          }}
+                        >
+                          <Box sx={{ display: "flex", gap: "1.4rem" }}>
+                            <Box>
+                              <img
+                                src={item.imageUrl}
+                                style={{
+                                  width: "60px",
+                                  borderRadius: "10px",
+                                }}
+                                alt="Not found"
+                              />
+                            </Box>
+                            <Box>
+                              <Typography variant="body2">
+                                <strong>Product:</strong> {item.productName}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Size:</strong> {item.productDimension}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Qty:</strong> {item.quantity}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box>
+                            <Box textAlign="right">
+                              <Typography variant="body2">
+                                <strong>Price:</strong>{" "}
+                                {formatCurrencyIntl(item.productPrice)}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Days:</strong> {numberOfDays}
+                              </Typography>
+                              {/* <Typography variant="body2">
+                        <strong>Amount:</strong> {formatCurrencyIntl(amount)}
+                      </Typography> */}
+                            </Box>
+
+                            <Box></Box>
+                          </Box>
+                        </Box>
+                      </Paper>
+                    ))}
+                </Grid>
+
+                {/* Services Section */}
+                <Grid item xs={12}>
+                  {services.length > 0 &&
+                    services.map((item) => (
+                      <Paper variant="outlined" sx={{ p: 3 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            sx={{ mb: 2, fontWeight: "bold" }}
+                          >
+                            Services
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: "0.5rem",
+                            }}
+                          >
+                            <IconButton
+                              href={`https://wa.me/${9773828339}`}
+                              target="_blank"
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                flexDirection: "column",
+                              }}
+                            >
+                              <WhatsAppIcon
+                                sx={{ color: "#25D366", fontSize: "1.5rem" }}
+                              />
+                              <Typography
+                                variant="p"
+                                sx={{ fontSize: "0.7rem" }}
+                              >
+                                Whatsapp
+                              </Typography>
+                            </IconButton>
+                            <IconButton
+                              href={`tel:${87328228}`}
+                              target="_blank"
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                flexDirection: "column",
+                              }}
+                            >
+                              <PhoneIcon
+                                sx={{ color: "#c026d3", fontSize: "1.5rem" }}
+                              />
+                              <Typography
+                                variant="p"
+                                sx={{ fontSize: "0.7rem" }}
+                              >
+                                Call Now
+                              </Typography>
+                            </IconButton>
+                          </Box>
+                        </Box>
+                        <Box
+                          key={item.id}
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            borderBottom: "1px solid #ccc",
+                            py: 1,
+                          }}
+                        >
+                          <Box sx={{ display: "flex", gap: "1.4rem" }}>
+                            <Box>
+                              <img
+                                src={item.imageUrl}
+                                style={{
+                                  width: "60px",
+                                  borderRadius: "10px",
+                                }}
+                                alt="Not found"
+                              />
+                            </Box>
+                            <Box>
+                              <Typography variant="body2">
+                                <strong>Product:</strong> {item.productName}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Qty:</strong> {item.quantity}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box>
+                            <Box textAlign="right">
+                              <Typography variant="body2">
+                                <strong>Price:</strong>{" "}
+                                {formatCurrencyIntl(item.productPrice)}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Days:</strong> {numberOfDays}
+                              </Typography>
+                              {/* <Typography variant="body2">
+               <strong>Amount:</strong> {formatCurrencyIntl(amount)}
+             </Typography> */}
+                            </Box>
+
+                            <Box></Box>
+                          </Box>
+                        </Box>
+                      </Paper>
+                    ))}
+                </Grid>
+
+                {/* Technicians Section */}
+                <Grid item xs={12}>
+                  {technicians.length > 0 &&
+                    technicians.map((item) => (
+                      <Paper variant="outlined" sx={{ p: 3 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            sx={{ mb: 2, fontWeight: "bold" }}
+                          >
+                            Technicians
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: "0.5rem",
+                            }}
+                          >
+                            <IconButton
+                              href={`https://wa.me/${9773828339}`}
+                              target="_blank"
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                flexDirection: "column",
+                              }}
+                            >
+                              <WhatsAppIcon
+                                sx={{ color: "#25D366", fontSize: "1.5rem" }}
+                              />
+                              <Typography
+                                variant="p"
+                                sx={{ fontSize: "0.7rem" }}
+                              >
+                                Whatsapp
+                              </Typography>
+                            </IconButton>
+                            <IconButton
+                              href={`tel:${87328228}`}
+                              target="_blank"
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                                flexDirection: "column",
+                              }}
+                            >
+                              <PhoneIcon
+                                sx={{ color: "#c026d3", fontSize: "1.5rem" }}
+                              />
+                              <Typography
+                                variant="p"
+                                sx={{ fontSize: "0.7rem" }}
+                              >
+                                Call Now
+                              </Typography>
+                            </IconButton>
+                          </Box>
+                        </Box>
+                        <Box
+                          key={item.id}
+                          sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            borderBottom: "1px solid #ccc",
+                            py: 1,
+                          }}
+                        >
+                          <Box sx={{ display: "flex", gap: "1.4rem" }}>
+                            <Box>
+                              <img
+                                src={item.imageUrl || TechnicianImg}
+                                style={{
+                                  width: "60px",
+                                  borderRadius: "10px",
+                                }}
+                                alt="Not found"
+                              />
+                            </Box>
+                            <Box>
+                              <Typography variant="body2">
+                                <strong>Product:</strong> {item.service_name}
+                              </Typography>
+                              {/* <Typography variant="body2">
+               <strong>Size:</strong> {item.productDimension}
+             </Typography> */}
+                              <Typography variant="body2">
+                                <strong>Qty:</strong> {item.quantity}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box>
+                            <Box textAlign="right">
+                              <Typography variant="body2">
+                                <strong>Price:</strong>{" "}
+                                {formatCurrencyIntl(item.price)}
+                              </Typography>
+                              <Typography variant="body2">
+                                <strong>Days:</strong> {numberOfDays}
+                              </Typography>
+                              {/* <Typography variant="body2">
+               <strong>Amount:</strong> {formatCurrencyIntl(amount)}
+             </Typography> */}
+                            </Box>
+
+                            <Box></Box>
+                          </Box>
+                        </Box>
+                      </Paper>
+                    ))}
+                </Grid>
+              </Grid>
+            </Box>
           </Paper>
 
           {/* <Paper

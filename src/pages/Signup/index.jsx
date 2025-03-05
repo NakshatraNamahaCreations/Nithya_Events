@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../../redux/slice/authSlice";
 import { Box, Button, Grid, Paper, TextField, Typography } from "@mui/material";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -29,9 +31,42 @@ const Signup = () => {
       dispatch(login(response.data.newUser));
       navigate("/company");
     } catch (error) {
-      console.error("Registration failed", error);
+      if (error.response && error.response.data.message) {
+        // Check if the error message indicates that the user already exists
+        if (error.response.data.message.includes("User already exists")) {
+          toast.error("User already exists. Please log in.", {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        } else {
+          toast.error(error.response.data.message, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        }
+      } else {
+        toast.error("Sign up failed. Please try again.", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      }
     }
-  };
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -42,6 +77,7 @@ const Signup = () => {
 
   return (
     <Grid container className="signup-container">
+      <ToastContainer/>
       <Grid item xs={12} md={6} className="signup-form">
         <Box component={Paper} elevation={4} className="form-box">
           <Typography variant="h5" className="title">

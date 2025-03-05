@@ -44,6 +44,7 @@ const Login = lazy(() => import("./pages/Login"));
 const Bookings = lazy(() => import("./pages/Bookings"));
 const AboutUs = lazy(() => import("./pages/About"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 
 // PrivateRoute Component
 const PrivateRoute = ({ isAuthenticated, children }) => {
@@ -57,6 +58,10 @@ const PublicRoute = ({ isAuthenticated, children }) => {
 
 import "./App.css";
 import FaqPage from "./pages/FaqPage";
+import Mood from "./pages/Mood";
+import OtpVerification from "./pages/OtpVerification";
+import ResetPassword from "./pages/ResentPassword";
+import GoogleAuth from "./pages/GoogleAuth";
 
 function App() {
   const loading = useSelector((state) => state.loader.loading);
@@ -94,6 +99,39 @@ function App() {
                 // </PublicRoute>
               }
             />
+                    <Route
+              path="/forgotPassword"
+              element={
+                // <PublicRoute isAuthenticated={isAuthenticated}>
+                <ForgotPassword />
+                // </PublicRoute>
+              }
+            />
+                        <Route
+              path="/verify-otp"
+              element={
+                // <PublicRoute isAuthenticated={isAuthenticated}>
+                <OtpVerification />
+                // </PublicRoute>
+              }
+            />
+                         <Route
+              path="/reset-password"
+              element={
+                // <PublicRoute isAuthenticated={isAuthenticated}>
+                <ResetPassword />
+                // </PublicRoute>
+              }
+            />
+
+<Route
+              path="/sign-google"
+              element={
+                // <PublicRoute isAuthenticated={isAuthenticated}>
+                <GoogleAuth />
+                // </PublicRoute>
+              }
+            />
             <Route
               path="/loginMobile"
               element={
@@ -108,7 +146,7 @@ function App() {
               path="/category/:category"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <Category />
+                <Category />
                 // </PrivateRoute>
               }
             />
@@ -116,7 +154,7 @@ function App() {
               path="/calenders"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <Calendar />
+                <Calendar />
                 // </PrivateRoute>
               }
             />
@@ -124,7 +162,7 @@ function App() {
               path="/services"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <ServicePage />
+                <ServicePage />
                 // </PrivateRoute>
               }
             />
@@ -132,7 +170,7 @@ function App() {
               path="/service/:serviceName"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <ServiceDetails />
+                <ServiceDetails />
                 // </PrivateRoute>
               }
             />
@@ -140,23 +178,23 @@ function App() {
               path="/service/:serviceName/:id"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <SingleService />
+                <SingleService />
                 // </PrivateRoute>
               }
             />
-                  <Route
+            <Route
               path="/wishlist"
               element={
-                // <PrivateRoute isAuthenticated={isAuthenticated}>
+                <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Wishlist />
-                // </PrivateRoute>
+                </PrivateRoute>
               }
             />
-                  <Route
+            <Route
               path="/help-center"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <HelpCentre />
+                <HelpCentre />
                 // </PrivateRoute>
               }
             />
@@ -164,7 +202,7 @@ function App() {
               path="/company"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <CompanyDetails />
+                <CompanyDetails />
                 // </PrivateRoute>
               }
             />
@@ -172,7 +210,7 @@ function App() {
               path="/category/:category/:id"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <SingleCategory />
+                <SingleCategory />
                 // </PrivateRoute>
               }
             />
@@ -180,7 +218,7 @@ function App() {
               path="/categories"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <AllCategory />
+                <AllCategory />
                 // </PrivateRoute>
               }
             />
@@ -189,7 +227,7 @@ function App() {
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Bookings />
-                 </PrivateRoute>
+                </PrivateRoute>
               }
             />
             <Route
@@ -204,7 +242,7 @@ function App() {
               path="/products"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <Products />
+                <Products />
                 // </PrivateRoute>
               }
             />
@@ -212,7 +250,7 @@ function App() {
               path="/Featuredproducts"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <FeaturedProduct />
+                <FeaturedProduct />
                 // </PrivateRoute>
               }
             />
@@ -220,7 +258,7 @@ function App() {
               path="/products/:id"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <SingleProduct />
+                <SingleProduct />
                 // </PrivateRoute>
               }
             />
@@ -228,23 +266,31 @@ function App() {
               path="/vendors"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <Vendors />
+                <Vendors />
                 // </PrivateRoute>
               }
             />
             <Route
               path="/cart"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Cart />
-                </PrivateRoute>
+                // </PrivateRoute>
+              }
+            />
+               <Route
+              path="/mood"
+              element={
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <Mood />
+                // </PrivateRoute>
               }
             />
             <Route
               path="/vendors/:id"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <SingleVendor />
+                <SingleVendor />
                 // </PrivateRoute>
               }
             />
@@ -264,7 +310,7 @@ function App() {
                 </PrivateRoute>
               }
             />
-                <Route
+            <Route
               path="/faq"
               element={
                 // <PublicRoute isAuthenticated={isAuthenticated}>

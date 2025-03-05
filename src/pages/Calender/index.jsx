@@ -44,14 +44,15 @@ const Calendar = ({ calendarClose }) => {
   };
 
   const handleConfirm = () => {
-    if (selectedDates[0]) {
+    if (selectedDates[0] || selectedDates[1]) {
       // setOpenModal(true);
       // setModalMessage(
       //   `Thank you! Your event is booked for ${numberOfDays} day(s).`
       // );
       // setModalType("success");
-      calendarClose();
+      
       navigate("/");
+      calendarClose();
     } else {
       alert("Please select a date range first.");
     }

@@ -1,4 +1,12 @@
-import { Box, Button, Typography, Card, CardContent, IconButton, Modal } from "@mui/material";
+import {
+  Box,
+  Button,
+  Typography,
+  Card,
+  CardContent,
+  IconButton,
+  Modal,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../../../../api/ApiService";
@@ -13,6 +21,7 @@ import { setLoading } from "../../../../redux/slice/LoaderSlice";
 import { useDispatch } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getErrorMessage } from "../../../../utils/helperFunc";
 
 const Featured = () => {
   const [featuredProduct, setFeaturedProduct] = useState([]);
@@ -37,8 +46,13 @@ const Featured = () => {
   }
 
   const fetchFeaturedProducts = async () => {
-    const res = await authService.featuredProducts();
-    setFeaturedProduct(res.data.data);
+    try{
+      const res = await authService.featuredProducts();
+      setFeaturedProduct(res.data.data);
+    }
+catch(error){
+  getErrorMessage(error);
+}
   };
 
   useEffect(() => {
@@ -63,7 +77,6 @@ const Featured = () => {
     return review.length ? (total / review.length).toFixed(1) : 0;
   };
 
-
   // Toggle Wishlist Status
   // const handleWishlistClick = (id) => {
   //   setWishlist((prevWishlist) =>
@@ -74,7 +87,19 @@ const Featured = () => {
   // };
   const fetchWishlist = async () => {
     dispatch(setLoading(true));
-
+    // if (!userId) {
+      // toast.error("You need to login", {
+      //   position: "top-right",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   pauseOnHover: true,
+      //   draggable: true,
+      //   progress: undefined,
+      // });
+    //   dispatch(setLoading(false));
+    //   return;
+    // }
     try {
       const res = await axios.get(
         `https://api.nithyaevent.com/api/wishlist/get-my-wishlist/${userId}`,
@@ -84,71 +109,80 @@ const Featured = () => {
         const wishlistItems = res.data.wishlist.map((item) => item.product_id);
         setWishlist(wishlistItems);
       } else {
-        setWishlist([]); 
+        setWishlist([]);
       }
 
       setProductList(res.data.wishlist);
 
       dispatch(setLoading(false));
-
     } catch (error) {
       dispatch(setLoading(false));
       if (error.response && error.response.status === 404) {
-     
         setWishlist([]);
       } else {
-
         alert("Error fetching wishlist. Please try again.");
       }
-      console.error("API Error:", error.response ? error.response.data : error.message);
+      console.error(
+        "API Error:",
+        error.response ? error.response.data : error.message
+      );
     }
   };
   const handleWishlistClick = async (item) => {
-    const isInWishlist = wishlist.includes(item._id)
-
+    const isInWishlist = wishlist.includes(item._id);
+    if (!userId) {
+      toast.error("You need to login", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
     const wishlistId = productList.find((w) => w.product_id === item._id);
 
     try {
       // if (!isInWishlist) {
 
-        await axios.post(
-          "https://api.nithyaevent.com/api/wishlist/add-wishlist",
-          {
-            product_name: item.product_name,
-            product_id: item._id,
-            product_image: item.product_image[0],
-            product_price: item.product_price,
-            mrp_price: item.mrp_price,
-            discount: item.discount,
-            user_id: userId
-          },
-          { headers: { "Content-Type": "application/json" } }
-        );
+      await axios.post(
+        "https://api.nithyaevent.com/api/wishlist/add-wishlist",
+        {
+          product_name: item.product_name,
+          product_id: item._id,
+          product_image: item.product_image[0],
+          product_price: item.product_price,
+          mrp_price: item.mrp_price,
+          discount: item.discount,
+          user_id: userId,
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
 
-
-        setWishlist((prev) => [...prev, item._id]);
-                  toast.success("Item added to cart!", {
-                    position: "top-right",
-                    autoClose: 2000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                  });
-        // setModalType("success");
-        // setModalMessage("The product has been successfully added to your wishlist.");
-        // setOpen(true);
-        // setTimeout(() => {
-        //   setOpen(false);
-        // }, 1800);
-      // } 
+      setWishlist((prev) => [...prev, item._id]);
+      toast.success("Item added to cart!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      // setModalType("success");
+      // setModalMessage("The product has been successfully added to your wishlist.");
+      // setOpen(true);
+      // setTimeout(() => {
+      //   setOpen(false);
+      // }, 1800);
+      // }
       // else {
 
       //   await axios.delete(
       //     `https://api.nithyaevent.com/api/wishlist/remove-wishlist-list/${wishlistId._id}`
       //   );
-
 
       //   setWishlist((prev) => prev.filter((id) => id !== item._id));
       //   setModalType("success");
@@ -158,15 +192,16 @@ const Featured = () => {
       //     setOpen(false);
       //   }, 1800);
       // }
-    } 
-    catch (error) {
+    } catch (error) {
       let errorMessage = "Something went wrong. Please try again.";
-    
+
       if (error.response && error.response.data?.message) {
-        errorMessage = error.response.data.message.includes("Product already exists")
+        errorMessage = error.response.data.message.includes(
+          "Product already exists"
+        )
           ? "This product is already in your wishlist!"
           : `Error: ${error.response.data.message}`;
-    
+
         toast.error(errorMessage, {
           position: "top-right",
           autoClose: 2000,
@@ -176,10 +211,9 @@ const Featured = () => {
           draggable: true,
           progress: undefined,
         });
-    
-        return;  
+
+        return;
       }
-    
 
       toast.error("Failed to add item to cart. Try again!", {
         position: "top-right",
@@ -193,7 +227,6 @@ const Featured = () => {
     }
   };
 
-
   return (
     <Box sx={{ padding: "6rem" }}>
       <ToastContainer />
@@ -203,10 +236,16 @@ const Featured = () => {
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: "2rem",
-
         }}
       >
-        <Typography sx={{ fontWeight: "bold", color: "#343a40", textTransform: 'uppercase', fontSize: '1.5rem' }}>
+        <Typography
+          sx={{
+            fontWeight: "bold",
+            color: "#343a40",
+            textTransform: "uppercase",
+            fontSize: "1.5rem",
+          }}
+        >
           Featured Products
         </Typography>
       </Box>
@@ -256,23 +295,21 @@ const Featured = () => {
                     color: "#343a40",
                   }}
                 >
-                  {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
+                  {item.product_name.length > 15
+                    ? item.product_name.slice(0, 15) + "..."
+                    : item.product_name}
                 </Typography>
                 <Button
                   onClick={(e) => {
                     // e.stopPropagation();
                     handleWishlistClick(item);
                   }}
-                  sx={{ color: "#c026d3", position: 'relative' }}
+                  sx={{ color: "#c026d3", position: "relative" }}
                 >
                   {wishlist.includes(item._id) ? (
-
-
-
-                    <FavoriteOutlinedIcon style={{ position: 'absolute' }} />
-
+                    <FavoriteOutlinedIcon style={{ position: "absolute" }} />
                   ) : (
-                    <FavoriteBorderIcon style={{ position: 'absolute' }} />
+                    <FavoriteBorderIcon style={{ position: "absolute" }} />
                   )}
                 </Button>
               </Box>
@@ -285,16 +322,13 @@ const Featured = () => {
               >
                 {item.brand}
               </Typography>
-              <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
+              <Box sx={{ display: "flex", gap: "1rem", marginTop: "0.2rem" }}>
                 <StarRating
-                  rating={parseFloat(
-                    calculateAverageRating(item.Reviews)
-                  )}
-                // style={{ marginRight: '2rem' }}
+                  rating={parseFloat(calculateAverageRating(item.Reviews))}
+                  // style={{ marginRight: '2rem' }}
                 />
                 <Typography variant="p" style={{ fontSize: "0.8rem" }}>
-                  {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
-                  Reviews
+                  {item.Reviews.length > 0 ? item.Reviews.length : 0} Reviews
                   {/* {item.Reviews && item.Reviews.length > 0
                       ? calculateAverageRating(item.Reviews)
                       : "No Ratings"} */}
@@ -305,7 +339,7 @@ const Featured = () => {
                   display: "flex",
                   alignItems: "center",
                   gap: "0.7rem",
-                  marginTop: '0.3rem'
+                  marginTop: "0.3rem",
                 }}
               >
                 <Typography
@@ -326,16 +360,17 @@ const Featured = () => {
                       textDecoration: "line-through",
                       color: "red",
                       fontSize: "1rem",
-                      display: 'flex',
-                      alignItems: 'center'
+                      display: "flex",
+                      alignItems: "center",
                     }}
                   >
-                    ₹{(item.mrp_rate) || "2500"}
+                    ₹{item.mrp_rate || "2500"}
                   </Typography>
                 )}
-                <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
+                <Typography sx={{ color: "red", marginLeft: "-0.2rem" }}>
+                  Per day
+                </Typography>
               </Box>
-
 
               <Box
                 sx={{

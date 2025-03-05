@@ -87,7 +87,6 @@ const FeaturedProduct = () => {
     }
   }
 
-  console.log(userId);
   
   const toggleSection = (section) => {
     setOpenSections((prev) => ({
@@ -119,8 +118,10 @@ const FeaturedProduct = () => {
   }, []);
 
   const fetchWishlist = async () => {
-    dispatch(setLoading(true));
-
+    // dispatch(setLoading(true));
+if(!userId){
+  return;
+}
     try {
       const res = await axios.get(
         `https://api.nithyaevent.com/api/wishlist/get-my-wishlist/${userId}`,
@@ -151,8 +152,19 @@ const FeaturedProduct = () => {
   };
 
   const handleWishlistClick = async (item) => {
-    const isInWishlist = wishlist.includes(item._id)
-
+    // const isInWishlist = wishlist.includes(item._id)
+    if(!userId){
+      toast.error("You need to login", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return
+    }
     // const wishlistId = productList.find((w) => w.product_id === item._id);
 
     try {
@@ -208,7 +220,7 @@ const FeaturedProduct = () => {
     }
     catch (error) {
       let errorMessage = "Something went wrong. Please try again.";
-    
+
       if (error.response && error.response.data?.message) {
         errorMessage = error.response.data.message.includes("Product already exists")
           ? "This product is already in your wishlist!"
@@ -590,7 +602,7 @@ const FeaturedProduct = () => {
               <Card
                 key={item.id}
                 className="product-card"
-                onClick={() => handleOpen(item._id)}
+               
               >
                 <img
                   src={item.product_image[0]}
@@ -712,6 +724,7 @@ const FeaturedProduct = () => {
                           boxShadow: "none",
                         },
                       }}
+                      onClick={() => handleOpen(item._id)}
                     >
                       View More
                     </Button>

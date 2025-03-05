@@ -38,6 +38,9 @@ import { config } from "../../../../api/config";
 import axios from "axios";
 import { formatDate, getCurrentCity } from "../../../../utils/helperFunc";
 import moment from "moment";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 const FieldLabel = ({ label }) => (
   <Typography component="span">
@@ -51,6 +54,7 @@ const FieldLabel = ({ label }) => (
 const EventDetails = ({
   cartItems,
   technicianItems,
+  serviceItems,
   billingDetails,
   handleClearAll,
  
@@ -97,7 +101,7 @@ const EventDetails = ({
   const dispatch = useDispatch();
   const formatedStartDate = formatDate(startDate);
   const formatedEndDate = formatDate(endDate);
-
+const navigate = useNavigate();
   const handleProceedToTerms = () => {
     //   if (
     //     !eventDetails.startTime ||
@@ -113,8 +117,33 @@ const EventDetails = ({
     setShowTerms(true);
     //   }
   };
+  const userDetail = sessionStorage.getItem("userDetails");
+  let userId = null;
 
+  if (userDetail) {
+    try {
+      const userDetails = JSON.parse(userDetail);
+      userId = userDetails?._id || null;
+    } catch (error) {
+      console.error("Error parsing userDetails from sessionStorage:", error);
+    }
+  }
   const handleAcceptTerms = () => {
+    if (!userId) {
+      toast.error("Authentication is Required!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      localStorage.setItem("previousPage", location.pathname);
+      navigate("/login");
+    
+      return;
+    }
         if (
       !eventDetails.startTime ||
       !eventDetails.endTime ||
@@ -162,7 +191,7 @@ const EventDetails = ({
     const { name, value } = e.target;
     setEventDetails({ ...eventDetails, [name]: value });
   };
-  console.log("The prodcut data",cartItems);
+
   
   const techniciansData = technicianItem?.map((item) => ({
     orderId: Date.now().toString(),
@@ -219,19 +248,23 @@ const EventDetails = ({
 
   const servicesData = servicesItem?.map((item) => ({
     orderId: Date.now().toString(),
-    id: item.id,
+    id: item.id || item._id, // Ensuring id is covered in both cases
     context: "service",
-    shopName: item.shopName,
-    storeImage:
-      item.storeImage ||
-      "https://centrechurch.org/wp-content/uploads/2022/03/img-person-placeholder.jpeg",
-    vendorName: item.vendorName,
-    pricing: item.pricing,
-    totalPrice: (item.pricing || 0) * (item.quantity || 1),
-    orderDate: moment().utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
-    commissionTax: item.commissionTax || 0,
-    commissionPercentage: item.commissionPercentage || 0,
+    store: "123rooms", // Replace with actual store name if dynamic
+    sellerName: item.vendorName || item.sellerName || "Unknown Seller",
+    sellerId: item.vendor_id || item.sellerId || "Unknown Vendor",
+    productName: item.productName || item.service_name || "Service",
+    productPrice: item.productPrice || item.price || 0,
+    imageUrl: item.imageUrl || item.additional_images?.[0] || "",
+    totalPrice: (item.pricing || item.productPrice || item.price || 0) * (item.quantity || 1),
+    quantity: item.quantity || 1,
+    // orderDate: moment().utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
+    eventStartDate: item.eventStartDate || new Date().toISOString().split("T")[0],
+    eventEndDate: item.eventEndDate || new Date().toISOString().split("T")[0],
+    commissionTax: item.commissionTax || 18,
+    commissionPercentage: item.commissionPercentage || 22,
   }));
+  
 
   const handleDateChange = (newDate) => {
     setEventDetails({ ...eventDetails, eventDate: newDate });
@@ -311,9 +344,9 @@ const EventDetails = ({
     formData.append("tds_deduction", billingDetails.tdsCharges);
     formData.append("amount_after_deduction", billingDetails.amountAfterTds);
     formData.append("paid_amount", billingDetails.grandTotal);
-    formData.append("payment_method", "offline"); //Need to change once I get api
-    formData.append("order_status", "Order Placed"); //Need to change once I get api
-    formData.append("payment_status", "success"); //Need to change once I get api
+    formData.append("payment_method", "offline");
+    formData.append("order_status", "Order Placed"); 
+    formData.append("payment_status", "success"); 
     formData.append("vendors_message", "Test");
 
     try {
@@ -339,15 +372,35 @@ const EventDetails = ({
         upload_invitation: "",
         upload_gatepass: "",
       });
-      setOpenModal(true);
-      setModalMessage("Order Created Successfully");
-      setModalType("success");
+
+           toast.success("Your Order is Placed!", {
+                  position: "top-right",
+                  autoClose: 2000,
+                  hideProgressBar: false,
+                  closeOnClick: true,
+                  pauseOnHover: true,
+                  draggable: true,
+                  progress: undefined,
+                });
+
+      // setOpenModal(true);
+      // setModalMessage("Order Created Successfully");
+      // setModalType("success");
       setIsOrderSummaryOpen(false);
       handleClearAll();
     } catch (error) {
-      setOpenModal(true);
-      setModalMessage("Order failed");
-      setModalType("failure");
+            toast.error("Order failed", {
+              position: "top-right",
+              autoClose: 2000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+            });
+      // setOpenModal(true);
+      // setModalMessage("Order failed");
+      // setModalType("failure");
       setIsOrderSummaryOpen(false);
       console.error(
         "Error creating order:",
@@ -978,7 +1031,6 @@ const EventDetails = ({
             }}
           >
 
-<Typography></Typography>
             <Typography variant="h6" sx={{ mb: 2 }}>
              {currentLocation ? currentLocation.city : 'Select Location '}
             </Typography>

@@ -44,7 +44,12 @@ import {
   incrementTechnicianQuantity,
   removeTechnician,
 } from "../../redux/slice/technicianSlice";
-import { clearServices, removeService } from "../../redux/slice/serviceSlice";
+import {
+  clearServices,
+  decrementServiceQuantity,
+  incrementServiceQuantity,
+  removeService,
+} from "../../redux/slice/serviceSlice";
 
 // Assests
 import Check from "../../assets/check.png";
@@ -52,6 +57,9 @@ import TechnicianImg from "../../assets/profileImg1.jpg";
 
 // Styles
 import "./styles.scss";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Cart = () => {
   const cartItems = useSelector((state) => state.cart.cart);
@@ -66,7 +74,18 @@ const Cart = () => {
   const { startDate, endDate, numberOfDays } = useSelector(
     (state) => state.date
   );
-  const userDetails = useSelector((state) => state.auth.userDetails);
+  // const userDetails = useSelector((state) => state.auth.userDetails);
+  const userDetail = sessionStorage.getItem("userDetails");
+  let userId = null;
+
+  if (userDetail) {
+    try {
+      const userDetails = JSON.parse(userDetail);
+      userId = userDetails?._id || null;
+    } catch (error) {
+      console.error("Error parsing userDetails from sessionStorage:", error);
+    }
+  }
 
   const breadcrumbPaths = [
     { label: "Home", link: "/" },
@@ -86,10 +105,104 @@ const Cart = () => {
     }
   };
 
-  const handleWishlistClick = (id) => {
-    setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]
-    );
+  const handleWishlistClick = async (item) => {
+    const isInWishlist = wishlist.includes(item._id);
+    if (!userId) {
+      toast.error("You need to login", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
+    // const wishlistId = productList.find((w) => w.product_id === item._id);
+
+    try {
+      // if (!isInWishlist) {
+
+      await axios.post(
+        "https://api.nithyaevent.com/api/wishlist/add-wishlist",
+        {
+          product_name: item.product_name,
+          product_id: item._id,
+          product_image: item.product_image[0],
+          product_price: item.product_price,
+          mrp_price: item.mrp_price,
+          discount: item.discount,
+          user_id: userId,
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      setWishlist((prev) => [...prev, item._id]);
+      toast.success("Item added to cart!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      // setModalType("success");
+      // setModalMessage("The product has been successfully added to your wishlist.");
+      // setOpen(true);
+      // setTimeout(() => {
+      //   setOpen(false);
+      // }, 1800);
+      // }
+      // else {
+
+      //   await axios.delete(
+      //     `https://api.nithyaevent.com/api/wishlist/remove-wishlist-list/${wishlistId._id}`
+      //   );
+
+      //   setWishlist((prev) => prev.filter((id) => id !== item._id));
+      //   setModalType("success");
+      //   setModalMessage("The product has been successfully deleted from your wishlist.");
+      //   setOpen(true);
+      //   setTimeout(() => {
+      //     setOpen(false);
+      //   }, 1800);
+      // }
+    } catch (error) {
+      let errorMessage = "Something went wrong. Please try again.";
+
+      if (error.response && error.response.data?.message) {
+        errorMessage = error.response.data.message.includes(
+          "Product already exists"
+        )
+          ? "This product is already in your wishlist!"
+          : `Error: ${error.response.data.message}`;
+
+        toast.error(errorMessage, {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+
+        return;
+      }
+
+      // This will only run if the first condition is not met
+      toast.error("Failed to add item to cart. Try again!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
   };
 
   const productTotal = cartItems.reduce(
@@ -98,7 +211,7 @@ const Cart = () => {
   );
 
   const serviceTotal = servicesItem.reduce(
-    (total, item) => total + (item.pricing || 0) * (item.quantity || 1),
+    (total, item) => total + (item.productPrice || 0) * (item.quantity || 1),
     0
   );
 
@@ -127,6 +240,8 @@ const Cart = () => {
       dispatch(quantityDecrement(itemId));
     } else if (type === "technicians") {
       dispatch(decrementTechnicianQuantity(itemId));
+    } else if (type === "service") {
+      dispatch(decrementServiceQuantity(itemId));
     }
     // else if (servicesItem.some((service) => service._id === itemId)) {
     //   dispatch(decrementService(itemId));
@@ -135,24 +250,21 @@ const Cart = () => {
 
   const handleQuantityIncrement = (itemId, type) => {
     if (type === "product") {
-      console.log(itemId);
       dispatch(quantityIncrement(itemId));
     } else if (type === "technicians") {
-      console.log(itemId);
       dispatch(incrementTechnicianQuantity(itemId));
+    } else if (type === "service") {
+      dispatch(incrementServiceQuantity(itemId));
     }
   };
 
   const handleDeleteItem = (itemId) => {
     if (cartItems.some((item) => item.id === itemId)) {
       dispatch(removeFromCart(itemId));
-      console.log("nothing is executed1", itemId);
     } else if (technicianItem.some((tech) => tech.id === itemId)) {
       dispatch(removeTechnician(itemId));
     } else if (servicesItem.some((service) => service.id === itemId)) {
       dispatch(removeService(itemId));
-    } else {
-      console.log("nothing is executed");
     }
   };
   const handleClearAll = () => {
@@ -259,7 +371,24 @@ const Cart = () => {
                               >
                                 <DeleteIcon />
                               </IconButton>
-                              <IconButton
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleWishlistClick(item);
+                                }}
+                                sx={{ color: "#c026d3", position: "relative" }}
+                              >
+                                {wishlist.includes(item._id) ? (
+                                  <FavoriteOutlinedIcon
+                                    style={{ position: "absolute" }}
+                                  />
+                                ) : (
+                                  <FavoriteBorderIcon
+                                    style={{ position: "absolute" }}
+                                  />
+                                )}
+                              </Button>
+                              {/* <IconButton
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleWishlistClick(item.id);
@@ -277,7 +406,7 @@ const Cart = () => {
                                     sx={{ cursor: "pointer" }}
                                   />
                                 )}
-                              </IconButton>
+                              </IconButton> */}
                             </Box>
 
                             {/* <FavoriteBorderIcon  color="error"   sx={{cursor:'pointer'}}   onClick={() => handleWishlistClick(item._id)}/> */}
@@ -378,15 +507,45 @@ const Cart = () => {
                   {servicesItem.length > 0 && (
                     <>
                       {servicesItem.map((item) => (
-                        <TableRow key={item.orderId}>
-                          <TableCell>{item.shopName}</TableCell>
-                          <TableCell>₹{item.pricing?.toFixed(2)}</TableCell>
+                        <TableRow key={item?.orderId}>
                           <TableCell>
-                            <IconButton disabled={true}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                gap: "0.3rem",
+                                alignItems: "center",
+                              }}
+                            >
+                              <img
+                                src={item.imageUrl}
+                                style={{
+                                  width: "70px",
+                                  padding: "0.5rem 0.5rem",
+                                  textAlign: "center",
+                                  marginRight: "30px",
+                                }}
+                                alt="Not found"
+                              />
+                            </Box>
+                          </TableCell>
+                          <TableCell>{item?.productName}</TableCell>
+                          <TableCell>
+                            ₹{item?.productPrice?.toFixed(2)}
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              onClick={() =>
+                                handleQuantityDecrement(item.id, "service")
+                              }
+                            >
                               <RemoveIcon />
                             </IconButton>
                             {item.quantity || 1}
-                            <IconButton disabled={true}>
+                            <IconButton
+                              onClick={() =>
+                                handleQuantityIncrement(item.id, "service")
+                              }
+                            >
                               <AddIcon />
                             </IconButton>
                           </TableCell>
@@ -401,7 +560,7 @@ const Cart = () => {
                             >
                               <IconButton
                                 onClick={() =>
-                                  handleDeleteItem(item.orderId, "service")
+                                  handleDeleteItem(item.id, "service")
                                 }
                                 color="error"
                               >
@@ -424,7 +583,6 @@ const Cart = () => {
                                   <FavoriteBorderIcon
                                     color="error"
                                     sx={{ cursor: "pointer" }}
-                                    style={{ position: "absolute" }}
                                   />
                                 )}
                               </IconButton>
@@ -626,11 +784,11 @@ const Cart = () => {
       <EventDetails
         cartItems={cartItems}
         technicianItems={technicianItem}
-        servicesItem={servicesItem}
+        servicesItems={servicesItem}
         billingDetails={{
           cartValue: totalPrice,
           eventDays: numberOfDays,
-          totalPrice:totalPrice,
+          totalPrice: totalPrice,
           baseAmount: baseAmount,
           tdsCharges: tdsCharges,
           amountAfterTds: baseAmount - tdsCharges,

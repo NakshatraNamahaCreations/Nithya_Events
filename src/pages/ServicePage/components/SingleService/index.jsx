@@ -36,6 +36,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./styles.scss";
 import { Star } from "@mui/icons-material";
+import { addService } from "../../../../redux/slice/serviceSlice";
 
 
 const SingleService = () => {
@@ -60,11 +61,17 @@ const SingleService = () => {
     try {
       dispatch(setLoading(true));
       const res = await authService.getParticularService(id);
-      const individualService = await authService.getIndividualService(id);
+      console.log("vendor profile data:",res.data)
       setService(res.data);
-      setServices(individualService.data.service);
+      if (res.data.shop_image_or_logo) {
+        setMainImage(res.data.shop_image_or_logo);
+      } else if (res.data.additional_services?.length > 0) {
+        setMainImage(res.data.additional_services[0]);
+      }
 
-      console.log(individualService.data.service);
+      const individualService = await authService.getIndividualService(id);
+  
+      setServices(individualService.data.service);
 
       if (res.data.shop_image_or_logo) {
         setMainImage(res.data.shop_image_or_logo);
@@ -82,6 +89,7 @@ const SingleService = () => {
     fetchService();
   }, [id]);
 
+console.log("service data profike",service);
 
   useEffect(() => {
     // Simulate API call in the future
@@ -112,7 +120,31 @@ const SingleService = () => {
   //     alert("Error adding service to wishlist");
   //   }
   // };
-
+  const handleAddToCart = (serviceItem) => {
+    if (!serviceItem) return;
+  
+    const payload = {
+      orderId: Date.now().toString(),
+      id: serviceItem._id,
+      context: "service",
+      store: "123rooms", // Replace with actual store name if dynamic
+      productName: serviceItem.service_name,
+      productPrice: serviceItem.price,
+      imageUrl: serviceItem.additional_images?.[0] || "", // Use the first image if available
+      sellerName: serviceItem.vendor_name || "Unknown Seller",
+      sellerId: serviceItem.vendor_id,
+      totalPrice: serviceItem.price, // Assuming quantity is always 1 for now
+      quantity: 1,
+      eventStartDate: new Date().toISOString().split("T")[0], // Example: current date
+      eventEndDate: new Date().toISOString().split("T")[0], // Example: current date
+      commissionTax: 18, // If available, dynamically fetch from serviceItem
+      commissionPercentage: 22, // If available, dynamically fetch from serviceItem
+    };
+  
+    dispatch(addService(payload));
+    alert("Service added to cart!");
+  };
+  
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
@@ -352,7 +384,7 @@ const SingleService = () => {
                 </ul> */}
               </CardContent>
 
-              <Grid item xs={6} sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }} onClick={() => handleAddToCart(serviceItem)}>
+              <Grid item xs={6} sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}   onClick={() => handleAddToCart(serviceItem)} >
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                   ₹{serviceItem?.price?.toLocaleString()}
                 </Typography>
@@ -377,8 +409,7 @@ const SingleService = () => {
       )}
 
       {activeTab === 1 && <ReviewSection id={id} />}
-      {console.log(service)
-      }
+     
       {/* {activeTab === 2 && (
         <Box sx={{ marginTop: "2rem" }}>
           <Typography variant="h6">Photos</Typography>

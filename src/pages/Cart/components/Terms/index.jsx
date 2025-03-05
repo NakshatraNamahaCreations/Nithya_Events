@@ -7,6 +7,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Terms = ({ open, onClose, onContinue }) => {
   const [isAccepted, setIsAccepted] = useState(false);
@@ -14,6 +16,18 @@ const Terms = ({ open, onClose, onContinue }) => {
   const handleAcceptTerms = (event) => {
     setIsAccepted(event.target.checked);
   };
+
+  const userDetail = sessionStorage.getItem("userDetails");
+  let userId = null;
+
+  if (userDetail) {
+    try {
+      const userDetails = JSON.parse(userDetail);
+      userId = userDetails?._id || null;
+    } catch (error) {
+      console.error("Error parsing userDetails from sessionStorage:", error);
+    }
+  }
   const handleProceedToTerms = () => {
     //   if (
     //     !eventDetails.startTime ||
@@ -34,7 +48,9 @@ const Terms = ({ open, onClose, onContinue }) => {
     setIsCheckoutAllowed(true);
   };
   const handleContinue = () => {
+
     if (isAccepted) {
+       
       onContinue();
       // onClose();
     } else {
@@ -44,6 +60,7 @@ const Terms = ({ open, onClose, onContinue }) => {
 
   return (
     <Box>
+       <ToastContainer />
        <Modal
           open={showTerms}
           onClose={() => setShowTerms(false)}

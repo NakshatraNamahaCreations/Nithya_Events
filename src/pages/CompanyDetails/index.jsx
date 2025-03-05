@@ -15,6 +15,8 @@ import authService from "../../api/ApiService";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Calendar from "../Calender";
+import { config } from "../../api/config";
+import axios from "axios";
 
 const CompanyDetails = () => {
   const [companyType, setCompanyType] = useState("");
@@ -55,7 +57,9 @@ const CompanyDetails = () => {
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setFormData({ ...formData, [name]: files[0] });
+    if (files.length > 0) {
+      setFormData({ ...formData, [name]: files[0] });
+    }
   };
 
   const handleSubmit = async () => {
@@ -65,9 +69,18 @@ const CompanyDetails = () => {
       Object.keys(formData).forEach((key) => {
         payload.append(key, formData[key]);
       });
-      const response = await authService.updateUserProfile(
-        userDetails._id,
-        payload
+      // const response = await authService.updateUserProfile(
+      //   userDetails._id,
+      //   payload
+      // );
+      const response = await axios.put(
+        `${config.BASEURL}${config.UPDATE_USER_PROFILE}${userDetails?._id}`,
+        payload,
+        {
+          headers: {
+            content: "multipart/form-data",
+          },
+        }
       );
       // navigate("/calenders");
       setIsCalendarOpen(true);
@@ -214,6 +227,11 @@ const CompanyDetails = () => {
                     onChange={handleFileChange}
                   />
                 </IconButton>
+                {formData.pan_front_image && (
+                  <Typography align="center" variant="subtitle2" sx={{ mt: 1 }}>
+                    {formData.pan_front_image.name.slice(0,20)}
+                  </Typography>
+                )}
               </Paper>
               <Typography align="center" variant="subtitle2">
                 PAN Front Image
@@ -241,6 +259,11 @@ const CompanyDetails = () => {
                     onChange={handleFileChange}
                   />
                 </IconButton>
+                {formData.pan_back_image && (
+                  <Typography align="center" variant="subtitle2" sx={{ mt: 1 }}>
+                    {formData.pan_back_image.name.slice(0,20)}
+                  </Typography>
+                )}
               </Paper>
               <Typography align="center" variant="subtitle2">
                 PAN Back Image
@@ -309,18 +332,6 @@ const CompanyDetails = () => {
             textAlign: "center",
           }}
         >
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: "bold",
-              color: "#6c63ff",
-              marginBottom: "15px",
-              textTransform: "uppercase",
-            }}
-          >
-            Select Event Dates
-          </Typography>
-
           <Box
             sx={{
               marginBottom: "20px",
@@ -338,27 +349,7 @@ const CompanyDetails = () => {
               gap: "10px",
               marginTop: "20px",
             }}
-          >
-            <Button
-              variant="contained"
-              onClick={handleCalendarClose}
-              sx={{
-                flex: 1,
-                background: "linear-gradient(90deg, #ff6f61, #ff8a73)",
-                color: "#fff",
-                textTransform: "uppercase",
-                fontWeight: "bold",
-                padding: "10px",
-                borderRadius: "8px",
-                boxShadow: "0px 5px 15px rgba(0, 0, 0, 0.2)",
-                "&:hover": {
-                  background: "linear-gradient(90deg, #ff8a73, #ff6f61)",
-                },
-              }}
-            >
-              Close
-            </Button>
-          </Box>
+          ></Box>
         </Box>
       </Modal>
     </Box>

@@ -129,7 +129,18 @@ const Category = () => {
 
   const handleWishlistClick = async (item) => {
     const isInWishlist = wishlist.includes(item._id);
-
+  if(!userId){
+      toast.error("You need to login", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return
+    }
     const payload = {
       product_name: item.product_name,
       product_id: item._id,
