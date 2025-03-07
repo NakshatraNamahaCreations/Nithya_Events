@@ -76,9 +76,11 @@ import SearchIcon from "@mui/icons-material/Search";
 
 // styles
 import "./styles.scss";
+import { config } from "../../api/config";
 
 const PageHeader = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [suggestedProducts, setSuggestedProducts] = useState([]);
   const [currLocation, setCurrLocation] = useState({ city: "", town: "" });
   const [anchorEl, setAnchorEl] = useState(null);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -131,6 +133,37 @@ const PageHeader = () => {
     setActivePath(location.pathname);
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setSuggestedProducts([]);
+      return;
+    }
+
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        
+        const res = await axios.get(
+          `${config.BASEURL}/api/product/search-product?limit=5&search=${searchTerm}`
+        );
+        setSuggestedProducts(res.data.products || []);
+      } catch (error) {
+        console.error("Error fetching search results:", error);
+      }
+      setLoading(false);
+    };
+
+    const debounceSearch = setTimeout(fetchProducts, 300); // Debounce API calls
+    return () => clearTimeout(debounceSearch);
+  }, [searchTerm]);
+
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
+
+
   const closeMenuAndNavigate = (path) => {
     setActivePath(path);
     setMenuOpen(false);
@@ -140,11 +173,7 @@ const PageHeader = () => {
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
   };
-  const handleSearch = () => {
-    if (searchTerm.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
-    }
-  };
+
   useEffect(() => {
     const homeVisited = sessionStorage.getItem("homeVisited");
 
@@ -362,6 +391,10 @@ const PageHeader = () => {
                 border: "1px solid #e0e0e0",
                 backgroundColor: "#f4f4f4",
               }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSearch();
+              }}
             >
               <SearchIcon sx={{ color: "#9e9e9e", marginLeft: "8px" }} />
 
@@ -512,7 +545,7 @@ const PageHeader = () => {
                 >
                   
                   <CalendarMonthIcon
-                    fontSize="small"
+                    fontSize="medium"
                     sx={{ color: "#e389eb", cursor: "pointer" }}
                   />
                   <Typography

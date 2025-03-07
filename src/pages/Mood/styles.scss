@@ -1,78 +1,74 @@
-// body {
-//     margin: 0;
-//     font-family: Arial, sans-serif;
-//   }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
   
-//   .app {
-//     display: flex;
-//     height: 100vh;
-//     background-color: #f1f1f1;
-//   }
+  .app {
+    display: flex;
+    height: 100vh;
+    background-color: #f1f1f1;
+  }
   
-//   /* Sidebar Palette */
-//   .palette {
-//     width: 250px;
-//     padding: 20px;
-//     background-color: #ffffff;
-//     border-right: 2px solid #ccc;
-//   }
+  /* Sidebar Palette */
+  .palette {
+    width: 250px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-right: 2px solid #ccc;
+  }
   
-//   .palette h2 {
-//     text-align: center;
-//     font-size: 18px;
-//     font-weight: bold;
-//     margin-bottom: 20px;
-//   }
+  .palette h2 {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
   
-//   .palette-item {
-//     display: flex;
-//     align-items: center;
-//     justify-content: space-between;
-//     margin-bottom: 15px;
-//   }
+  .palette-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+  }
   
-//   .icon {
-//     width: 50px;
-//     height: 50px;
-//   }
+  .icon {
+    width: 50px;
+    height: 50px;
+  }
   
-//   button {
-//     width: 30px;
-//     height: 30px;
-//     border-radius: 50%;
-//     font-size: 18px;
-//     font-weight: bold;
-//     border: none;
-//     color: white;
-//     cursor: pointer;
-//   }
+
+  .add-btn {
+    background-color: #d2ead8;
+    border: none;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.2rem;
+  }
   
-//   .add-btn {
-//     background-color: #28a745;
-//   }
+  .remove-btn {
+    background-color: #d2ead8;
+    border: none;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.2rem;
+  }
   
-//   .remove-btn {
-//     background-color: #dc3545;
-//   }
+  /* Canvas Area */
+  .canvas {
+    flex: 1;
+    background-color: #f4f4f9;
+    position: relative;
+    overflow: hidden;
+  }
   
-//   /* Canvas Area */
-//   .canvas {
-//     flex: 1;
-//     background-color: #f4f4f9;
-//     position: relative;
-//     overflow: hidden;
-//   }
+  /* Draggable Objects */
+  .draggable-object {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    cursor: grab;
+  }
   
-//   /* Draggable Objects */
-//   .draggable-object {
-//     position: absolute;
-//     width: 50px;
-//     height: 50px;
-//     cursor: grab;
-//   }
-  
-//   .object-img {
-//     width: 100%;
-//     height: 100%;
-//   }
+  .object-img {
+    width: 100%;
+    height: 100%;
+  }
   

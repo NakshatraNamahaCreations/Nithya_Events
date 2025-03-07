@@ -127,18 +127,18 @@ console.log("service data profike",service);
       orderId: Date.now().toString(),
       id: serviceItem._id,
       context: "service",
-      store: "123rooms", // Replace with actual store name if dynamic
+      store: "123rooms",
       productName: serviceItem.service_name,
       productPrice: serviceItem.price,
-      imageUrl: serviceItem.additional_images?.[0] || "", // Use the first image if available
+      imageUrl: serviceItem.additional_images?.[0] || "", 
       sellerName: serviceItem.vendor_name || "Unknown Seller",
       sellerId: serviceItem.vendor_id,
-      totalPrice: serviceItem.price, // Assuming quantity is always 1 for now
+      totalPrice: serviceItem.price, 
       quantity: 1,
-      eventStartDate: new Date().toISOString().split("T")[0], // Example: current date
-      eventEndDate: new Date().toISOString().split("T")[0], // Example: current date
-      commissionTax: 18, // If available, dynamically fetch from serviceItem
-      commissionPercentage: 22, // If available, dynamically fetch from serviceItem
+      eventStartDate: new Date().toISOString().split("T")[0], 
+      eventEndDate: new Date().toISOString().split("T")[0], 
+      commissionTax: 18, 
+      commissionPercentage: 22,
     };
   
     dispatch(addService(payload));

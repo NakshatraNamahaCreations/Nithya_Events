@@ -1,6 +1,6 @@
 // React related imports
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 // Third Party Library
@@ -43,6 +43,11 @@ import PhoneIcon from "@mui/icons-material/Phone";
 // styles
 import "./styles.scss";
 import Invoice from "./component/Invoice";
+import { config } from "../../../../api/config";
+import axios from "axios";
+import RescheduleModal from "./component/RescheduleModal";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BookingDetails = () => {
   const { id } = useParams();
@@ -55,13 +60,16 @@ const BookingDetails = () => {
   const [eventStatus, setEventStatus] = useState("Upcoming Event");
   const [loading, setLoadingState] = useState(true);
   const [open, setOpen] = useState(false);
+  const [openReschedule, setOpenReschedule] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [reason, setReason] = useState("");
+  const [days, setDays] = useState(0);
   const [formData, setFormData] = useState({
     receiver_mobilenumber: "",
     receiver_name: "",
     event_location: "",
     location_lat: "",
+    lacation_long: "",
     venue_open_time: "",
     event_start_time: "",
     event_end_time: "",
@@ -72,10 +80,10 @@ const BookingDetails = () => {
     reschedule_remark: "",
     upload_gatepass: "",
     upload_invitation: "",
-    order_status: "",
+    order_status: "Order Rescheduled",
     rescheduled_date: "",
   });
-
+const navigate = useNavigate();
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -88,6 +96,9 @@ const BookingDetails = () => {
     setReason(event.target.value);
   };
 
+  const handleOpenReschedule = () => setOpenReschedule(true);
+  const handleCloseReschedule = () => setOpenReschedule(false);
+
   useEffect(() => {
     const getBookingDetails = async () => {
       try {
@@ -96,6 +107,7 @@ const BookingDetails = () => {
         const order = res.data.orderId;
         setBooking(order);
         console.log("The check order", order);
+        setDays(order.number_of_days);
         setProducts(order?.product_data || []);
         setServices(order?.service_data || []);
         setTechnicians(order?.tech_data || []);
@@ -145,28 +157,29 @@ const BookingDetails = () => {
       calculateEventStatus(booking.event_date);
     }
 
-    if (booking) {
-      calculateEventStatus(booking.event_date, booking.event_start_time);
+    // if (booking) {
+    //   calculateEventStatus(booking.event_date, booking.event_start_time);
 
-      setFormData({
-        receiver_mobilenumber: booking.receiver_mobilenumber || "",
-        receiver_name: booking.receiver_name || "",
-        event_location: booking.event_location || "",
-        location_lat: booking.location_lat || "",
-        venue_open_time: booking.venue_open_time || "",
-        event_start_time: booking.event_start_time || "",
-        event_end_time: booking.event_end_time || "",
-        event_name: booking.event_name || "",
-        event_date: booking.event_date || "",
-        event_start_date: booking.event_start_date || "",
-        event_end_date: booking.event_end_date || "",
-        reschedule_remark: booking.reschedule_remark || "",
-        upload_gatepass: booking.upload_gatepass || null,
-        upload_invitation: booking.upload_invitation || null,
-        order_status: booking.order_status || "",
-        rescheduled_date: booking.rescheduled_date || "",
-      });
-    }
+    //   setFormData({
+    //     receiver_mobilenumber: booking.receiver_mobilenumber || "",
+    //     receiver_name: booking.receiver_name || "",
+    //     event_location: booking.event_location || "",
+    //     location_lat: "434343" || "",
+    //     location_long: "34533" || "",
+    //     venue_open_time: booking.venue_open_time || "",
+    //     event_start_time: booking.event_start_time || "",
+    //     event_end_time: booking.event_end_time || "",
+    //     event_name: booking.event_name || "",
+    //     event_date: booking.event_date || "",
+    //     event_start_date: booking.event_start_date || "",
+    //     event_end_date: booking.event_end_date || "",
+    //     reschedule_remark: booking.reschedule_remark || "",
+    //     upload_gatepass: booking.upload_gatepass || null,
+    //     upload_invitation: booking.upload_invitation || null,
+    //     order_status: "Order Rescheduled" || "",
+    //     rescheduled_date: booking.rescheduled_date || "",
+    //   });
+    // }
   }, [booking]);
   const numberOfDays = booking?.number_of_days || 1;
 
@@ -190,46 +203,39 @@ const BookingDetails = () => {
       </Box>
     );
   }
-  const calculateEventStatus = (eventDateRange, eventStartTime) => {
+  const calculateEventStatus = (
+    eventDateRange,
+    eventStartTime = "12:00:00"
+  ) => {
     const currentDate = new Date();
-    console.log("Current Date:", currentDate);
 
-    // Split and parse the start and end dates
+    // Split eventDateRange into start and end dates
     const [startDateStr, endDateStr] = eventDateRange.split(" to ");
 
-    // Check if an explicit event start time is given; otherwise, default to 12:00 PM
-    const eventStartTimeFormatted = eventStartTime
-      ? eventStartTime
-      : "12:00:00";
-
-    // Construct start and end dates correctly
-    const eventStartDate = new Date(
-      `${startDateStr.trim()}T${eventStartTimeFormatted}`
-    );
+    // Convert the start and end dates to Date objects
+    const eventStartDate = new Date(`${startDateStr.trim()}T${eventStartTime}`);
     const eventEndDate = new Date(`${endDateStr.trim()}T23:59:59`);
 
-    console.log("The Start Date (Parsed):", eventStartDate);
-    console.log("The End Date (Parsed):", eventEndDate);
-
-    // Calculate time difference in **HOURS**
-    const diffToStart = Math.round(
+    // Calculate time difference in HOURS
+    const diffToStart = Math.floor(
       (eventStartDate - currentDate) / (1000 * 60 * 60)
     );
-    const diffToEnd = Math.round(
+    const diffToEnd = Math.floor(
       (eventEndDate - currentDate) / (1000 * 60 * 60)
     );
 
-    // Determine the event status
+    console.log("Hours Until Start:", diffToStart);
+    console.log("Hours Until End:", diffToEnd);
+
+    // Determine event status
     if (diffToEnd < 0) {
       setEventStatus("Event Completed");
     } else if (diffToStart > 24) {
-      setEventStatus("Cancel Event");
+      setEventStatus("Cancel Event"); // More than 24 hours left
     } else if (diffToStart > 0 && diffToStart <= 24) {
-      setEventStatus("Reschedule");
-    } else if (diffToStart > 0 && diffToStart < 24) {
-      setEventStatus("Event Ongoing");
-    } else if (diffToStart <= 0 && diffToEnd >= 0) {
-      setEventStatus("Event Started");
+      setEventStatus("Reschedule"); // Event is within 24 hours
+    } else if (diffToStart <= 0 && diffToEnd > 0) {
+      setEventStatus("Event Started"); // Event is happening now
     }
   };
 
@@ -270,25 +276,45 @@ const BookingDetails = () => {
 
   const handleRescheduleOrder = async () => {
     const formDataToSend = new FormData();
-
     Object.keys(formData).forEach((key) => {
       if (formData[key]) {
-        formDataToSend.append(key, formData[key]);
+        if (key === "upload_gatepass" || key === "upload_invitation") {
+          // Check if a file is selected before appending
+          if (formData[key] instanceof File) {
+            formDataToSend.append(key, formData[key]);
+          }
+        } else {
+          formDataToSend.append(key, formData[key]);
+        }
       }
     });
 
     try {
-      const res = await authService.rescheduleOrder(
-        booking._id,
+      const res = await axios.put(
+        `${config.BASEURL}/user-order/reschedule-order/${booking._id}`,
         formDataToSend,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
-      console.log("Reschedule API Response:", res.data);
+      // const res = await authService.rescheduleOrder(booking._id, formDataToSend, {
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // });
+
+      toast.success("Item is Rescheduled!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      window.location.reload();
       handleClose();
+      handleCloseReschedule();
     } catch (error) {
       console.error("Error in rescheduling the event:", error);
     }
@@ -480,14 +506,87 @@ const BookingDetails = () => {
         return "#9e9e9e";
     }
   };
-  console.log("The item", items);
+  const handleRaiseTicket = () => {
+    navigate(`/raise-ticket/${id}`);
+  };
 
   return (
     <Box sx={{ p: 2, maxWidth: "1200px", margin: "auto" }}>
+      <ToastContainer />
       <Grid container spacing={2}>
         <Grid item xs={8}>
           <Paper variant="outlined" sx={{ p: 3 }}>
-            <Box
+            <Box sx={{display:'flex', alignItems:'center',justifyContent:'space-between'}}>
+              {eventStatus === "Cancel Event" &&
+              booking.order_status !== "Order Cancelled" &&
+              booking.order_status !== "Order Rescheduled" ? (
+                <Button
+                  variant="contained"
+                  onClick={handleOpen}
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    mb: 2,
+                    color: "#fff",
+                    backgroundColor: "#f44336", 
+                    "&:hover": {
+                      backgroundColor: "#d32f2f",
+                      opacity: 0.9,
+                    },
+                  }}
+                >
+                  Cancel Event
+                </Button>
+              ) : eventStatus === "Reschedule" &&
+                booking.order_status !== "Order Cancelled" &&
+                booking.order_status !== "Order Rescheduled" ? (
+                <Button
+                  variant="contained"
+                  onClick={handleOpenReschedule}
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    mb: 2,
+                    color: "#fff",
+                    backgroundColor: "#ff9800",
+                    "&:hover": {
+                      backgroundColor: "#e68a00",
+                      opacity: 0.9,
+                    },
+                  }}
+                >
+                  Reschedule Event
+                </Button>
+              ) : (
+                <Chip
+                  label={
+                    booking.order_status === "Order Cancelled"
+                      ? "Event Cancelled"
+                      : booking.order_status === "Order Rescheduled"
+                      ? "Order Rescheduled"
+                      : eventStatus
+                  }
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    mb: 2,
+                    color: "#fff",
+                    backgroundColor:
+                      booking.order_status === "Order Cancelled"
+                        ? "#f44336"
+                        : booking.order_status === "Order Rescheduled"
+                        ? "#ff9800"
+                        : "#9e9e9e",
+                  }}
+                />
+              )}
+              <Box>
+
+              <Button variant="contained" sx={{backgroundColor:'#c026d3', borderRadius:'20px'}} onClick={handleRaiseTicket}>Raise Ticket</Button>
+              </Box>
+            </Box>
+
+            {/* <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -495,11 +594,9 @@ const BookingDetails = () => {
               }}
             >
               <Box>
-                {["Cancel Event", "Reschedule"].includes(eventStatus) &&
-                !(
-                  booking.order_status === "Order Cancelled" ||
-                  booking.order_status === "Order Rescheduled"
-                ) ? (
+                {eventStatus === "Cancel Event" &&
+                booking.order_status !== "Order Cancelled" &&
+                booking.order_status !== "Order Rescheduled" && (
                   <Button
                     variant="contained"
                     onClick={handleOpen}
@@ -515,29 +612,43 @@ const BookingDetails = () => {
                       },
                     }}
                   >
-                    {eventStatus}
+                   {"Cancel Event"}
                   </Button>
-                ) : (
-                  <Chip
-                    label={
-                      booking.order_status === "Order Cancelled"
-                        ? "Order Cancelled"
-                        : booking.order_status === "Order Rescheduled"
-                        ? "Order Rescheduled"
-                        : eventStatus
-                    }
-                    sx={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                      mb: 2,
-                      color: "#fff",
-                      backgroundColor: getChipColor(eventStatus),
-                    }}
-                  />
-                )}
+                ) }
               </Box>
             </Box>
-
+            <Box>
+              {eventStatus === "Order Reschedule" ? (
+                <Button
+                  variant="contained"
+                  onClick={handleOpenReschedule}
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    mb: 2,
+                    color: "#fff",
+                    backgroundColor: "#ff9800",
+                  }}
+                >
+                  Reschedule
+                </Button>
+              ) : (
+                <Chip
+                  label={
+                    booking.order_status === "Order Rescheduled"
+                      ? "Order Rescheduled"
+                      : eventStatus
+                  }
+                  sx={{
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                    mb: 2,
+                    color: "#fff",
+                    backgroundColor: getChipColor(eventStatus),
+                  }}
+                />
+              )}
+            </Box> */}
             {/* {items.map((item) => {
               const amount = item.price * item.quantity * numberOfDays;
               return (
@@ -1000,16 +1111,16 @@ const BookingDetails = () => {
                 <Typography variant="body2">{amountAfterDeduction}</Typography>
               </Box>
 
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              {/* <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="body2">CGST (9%)</Typography>
                 <Typography variant="body2">
                   {formatCurrencyIntl(cgst)}
                 </Typography>
-              </Box>
+              </Box> */}
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="body2">SGST (9%)</Typography>
+                <Typography variant="body2">GST (18%)</Typography>
                 <Typography variant="body2">
-                  {formatCurrencyIntl(sgst)}
+                  {Math.floor(amountAfterDeduction * 0.18)}
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -1100,7 +1211,6 @@ const BookingDetails = () => {
           Download Invoice
         </Button>
       </Paper>
-
       {/* <Invoice bookings={booking} items={items}/> */}
       <Modal
         open={open}
@@ -1185,6 +1295,14 @@ const BookingDetails = () => {
           )}
         </Box>
       </Modal>
+      <RescheduleModal
+        open={openReschedule}
+        handleClose={handleCloseReschedule}
+        formData={formData}
+        setFormData={setFormData}
+        handleRescheduleOrder={handleRescheduleOrder}
+        days={days}
+      />{" "}
     </Box>
   );
 };

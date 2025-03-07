@@ -157,6 +157,7 @@ const navigate = useNavigate();
       setSnackbarOpen(true);
       return;
     }
+    setIsOrderSummaryOpen(true);
     setShowTerms(false);
     setIsOrderSummaryOpen(true);
   };
@@ -360,6 +361,7 @@ const navigate = useNavigate();
           },
         }
       );
+      setAddLocation("");
       setEventDetails({
         eventDate: null,
         startTime: null,
@@ -438,7 +440,7 @@ const navigate = useNavigate();
     //   setSnackbarOpen(true);
     //   return;
     // }
-    setIsOrderSummaryOpen(true);
+
   };
   useEffect(() => {
     const fetchLocation = async () => {
@@ -927,17 +929,7 @@ const navigate = useNavigate();
           </Grid>
 
           <Box mt={4} textAlign="center">
-            {isCheckoutAllowed ? (
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                onClick={handleCheckout}
-                sx={{ width: "100%", py: 1.5 }}
-              >
-                Checkout
-              </Button>
-            ) : (
+            {isCheckoutAllowed && (
               <Box mt={4} textAlign="center">
                 {/* 🔹 Informational Message */}
                 <Typography

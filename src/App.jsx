@@ -62,6 +62,7 @@ import Mood from "./pages/Mood";
 import OtpVerification from "./pages/OtpVerification";
 import ResetPassword from "./pages/ResentPassword";
 import GoogleAuth from "./pages/GoogleAuth";
+import RaiseTicket from "./pages/RaiseTicket";
 
 function App() {
   const loading = useSelector((state) => state.loader.loading);
@@ -138,6 +139,14 @@ function App() {
                 // <PublicRoute isAuthenticated={isAuthenticated}>
                 <LoginWithMobile />
                 // </PublicRoute>
+              }
+            />
+                    <Route
+              path="/raise-ticket/:bookingId"
+              element={
+                // <PublicRoute isAuthenticated={isAuthenticated}>
+                <RaiseTicket />
+                //  </PublicRoute>
               }
             />
             <Route path="/aboutUs" element={<AboutUs />} />

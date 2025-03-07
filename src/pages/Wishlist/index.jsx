@@ -170,7 +170,7 @@ const Wishlist = () => {
                     backgroundColor: "#fff",
                     cursor: "pointer",
                   }}
-                  // onClick={() => navigate(`/products/${item?.product_id}`)}
+                  onClick={() => navigate(`/products/${item?.product_id}`)}
                 >
                   <Box
                     sx={{
@@ -199,19 +199,19 @@ const Wishlist = () => {
                   <CardContent sx={{ flexGrow: 1 }}>
                     {/* Product Name */}
                     <Typography
-                      variant="h6"
-                      sx={{ fontWeight: "bold", color: "#333" }}
+                      variant="p"
+                      sx={{ color: "#333" }}
                     >
                       {item.product_name.slice(0, 23)}
                     </Typography>
 
                     {/* Product Category */}
-                    <Typography
+                    {/* <Typography
                       variant="body2"
                       sx={{ color: "#6c757d", marginBottom: "0.5rem" }}
                     >
                       Category: {item.product_category}
-                    </Typography>
+                    </Typography> */}
 
                     {/* Discount & Pricing */}
                     <Box
@@ -222,12 +222,12 @@ const Wishlist = () => {
                       }}
                     >
                       <Typography
-                        variant="h6"
-                        sx={{ fontWeight: "bold", color: "#000" }}
+                        variant="p"
+                        sx={{  color: "#000", fontWeight:'bold' }}
                       >
                         ₹{item.product_price}
                       </Typography>
-                      <Typography
+                      {/* <Typography
                         variant="body2"
                         sx={{
                           textDecoration: "line-through",
@@ -240,8 +240,8 @@ const Wishlist = () => {
                           item.product_price /
                           (1 - item.discount / 100)
                         ).toFixed(0)}
-                      </Typography>
-                      <Typography
+                      </Typography> */}
+                      {/* <Typography
                         variant="body2"
                         sx={{
                           backgroundColor: "#c026d3",
@@ -251,7 +251,7 @@ const Wishlist = () => {
                         }}
                       >
                         {item.discount}% Off
-                      </Typography>
+                      </Typography> */}
                     </Box>
 
                     {/* Buttons - Add to Cart & Remove */}
@@ -271,16 +271,17 @@ const Wishlist = () => {
                           "&:hover": { backgroundColor: "#e68a00" },
                         }}
                         startIcon={<ShoppingCartIcon />}
-                        onClick={() => handleAddToCart(item.id)}
-                      >
-                        Add to Cart
-                      </Button>
-                      <IconButton
-                        sx={{ color: "#ff4081", marginLeft: "1rem" }}
+                        // onClick={() => handleAddToCart(item.id)}
                         onClick={() => handleRemoveFromWishlist(item._id)}
                       >
+                        Remove
+                      </Button>
+                      {/* <IconButton
+                        sx={{ color: "#ff4081", marginLeft: "1rem" }}
+                       
+                      >
                         <DeleteIcon />
-                      </IconButton>
+                      </IconButton> */}
                     </Box>
                   </CardContent>
                 </Card>

@@ -60,6 +60,7 @@ import "./styles.scss";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { config } from "../../api/config";
 
 const Cart = () => {
   const cartItems = useSelector((state) => state.cart.cart);
@@ -104,21 +105,42 @@ const Cart = () => {
       getErrorMessage(error);
     }
   };
+  
+  const getWishlist = async() => {
+    try{
+
+      const res = await axios.get(
+        `${config.BASEURL}/wishlist/get-my-wishlist/${userId}`,
+        { headers: { "Content-Type": "application/json" } }
+      );
+      if (res.data?.wishlist) {
+        const wishlistItems = res.data.wishlist.map((item) => item.product_id);
+        setWishlist(wishlistItems);
+        console.log(wishlist);
+        
+      } else {
+        setWishlist([]);
+      }
+    }
+    catch(error){
+      getErrorMessage(error);
+    }
+  }
 
   const handleWishlistClick = async (item) => {
-    const isInWishlist = wishlist.includes(item._id);
-    if (!userId) {
-      toast.error("You need to login", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      return;
-    }
+    // const isInWishlist = wishlist.includes(item._id);
+    // if (!userId) {
+    //   toast.error("You need to login", {
+    //     position: "top-right",
+    //     autoClose: 2000,
+    //     hideProgressBar: false,
+    //     closeOnClick: true,
+    //     pauseOnHover: true,
+    //     draggable: true,
+    //     progress: undefined,
+    //   });
+    //   return;
+    // }
     // const wishlistId = productList.find((w) => w.product_id === item._id);
 
     try {
@@ -127,18 +149,19 @@ const Cart = () => {
       await axios.post(
         "https://api.nithyaevent.com/api/wishlist/add-wishlist",
         {
-          product_name: item.product_name,
-          product_id: item._id,
-          product_image: item.product_image[0],
-          product_price: item.product_price,
-          mrp_price: item.mrp_price,
+          product_name: item.productName,
+          product_id: item.id,
+          product_image: item.imageUrl[0],
+          product_price: item.productPrice,
+          mrp_price: item.mrpPrice,
           discount: item.discount,
           user_id: userId,
         },
         { headers: { "Content-Type": "application/json" } }
       );
 
-      setWishlist((prev) => [...prev, item._id]);
+      setWishlist((prev) => [...prev, item.id]);
+    
       toast.success("Item added to cart!", {
         position: "top-right",
         autoClose: 2000,
@@ -148,6 +171,9 @@ const Cart = () => {
         draggable: true,
         progress: undefined,
       });
+    setTimeout(() => {
+      dispatch(removeFromCart(item.id))
+    },1000)
       // setModalType("success");
       // setModalMessage("The product has been successfully added to your wishlist.");
       // setOpen(true);
@@ -274,10 +300,12 @@ const Cart = () => {
   };
   useEffect(() => {
     getTechnicians();
+    getWishlist();
   }, []);
 
   return (
     <Box sx={{ padding: "2rem" }}>
+      <ToastContainer/>
       <BreadCrumb paths={breadcrumbPaths} />
 
       <Typography
@@ -373,12 +401,12 @@ const Cart = () => {
                               </IconButton>
                               <Button
                                 onClick={(e) => {
-                                  e.stopPropagation();
+                                 
                                   handleWishlistClick(item);
                                 }}
                                 sx={{ color: "#c026d3", position: "relative" }}
                               >
-                                {wishlist.includes(item._id) ? (
+                                {wishlist.includes(item.id) ? (
                                   <FavoriteOutlinedIcon
                                     style={{ position: "absolute" }}
                                   />
@@ -477,26 +505,23 @@ const Cart = () => {
                               >
                                 <DeleteIcon />
                               </IconButton>
-                              <IconButton
+                              {/* <Button
                                 onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleWishlistClick(item.id);
+                                 
+                                  handleWishlistClick(item);
                                 }}
                                 sx={{ color: "#c026d3", position: "relative" }}
                               >
                                 {wishlist.includes(item.id) ? (
                                   <FavoriteOutlinedIcon
-                                    color="error"
-                                    sx={{ cursor: "pointer" }}
                                     style={{ position: "absolute" }}
                                   />
                                 ) : (
                                   <FavoriteBorderIcon
-                                    color="error"
-                                    sx={{ cursor: "pointer" }}
+                                    style={{ position: "absolute" }}
                                   />
                                 )}
-                              </IconButton>
+                              </Button> */}
                             </Box>
                           </TableCell>
                         </TableRow>
@@ -549,7 +574,7 @@ const Cart = () => {
                               <AddIcon />
                             </IconButton>
                           </TableCell>
-                          <TableCell>₹{item.totalPrice?.toFixed(2)}</TableCell>
+                          <TableCell>₹{item.totalPrice?.toFixed(2)* item.quantity}</TableCell>
                           <TableCell>
                             <Box
                               sx={{
@@ -566,26 +591,23 @@ const Cart = () => {
                               >
                                 <DeleteIcon />
                               </IconButton>
-                              <IconButton
+                              {/* <Button
                                 onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleWishlistClick(item.orderId);
+                                 
+                                  handleWishlistClick(item);
                                 }}
                                 sx={{ color: "#c026d3", position: "relative" }}
                               >
                                 {wishlist.includes(item.id) ? (
                                   <FavoriteOutlinedIcon
-                                    color="error"
-                                    sx={{ cursor: "pointer" }}
                                     style={{ position: "absolute" }}
                                   />
                                 ) : (
                                   <FavoriteBorderIcon
-                                    color="error"
-                                    sx={{ cursor: "pointer" }}
+                                    style={{ position: "absolute" }}
                                   />
                                 )}
-                              </IconButton>
+                              </Button> */}
                             </Box>
                           </TableCell>
                         </TableRow>
@@ -705,7 +727,7 @@ const Cart = () => {
               Gst: (18%)
             </Typography>
             <Typography sx={{ fontSize: "0.9rem" }}>
-              ₹{totalGst.toLocaleString()}
+              ₹{Math.floor(totalGst)}
             </Typography>
           </Box>
 
@@ -723,7 +745,7 @@ const Cart = () => {
               Grand Total:
               <div style={{ fontSize: "0.8rem" }}>(GST and TDS Deduction)</div>
             </Typography>
-            <Typography>₹{grandTotal.toLocaleString()}</Typography>
+            <Typography>₹{Math.floor(grandTotal)}</Typography>
           </Box>
         </Grid>
       </Grid>

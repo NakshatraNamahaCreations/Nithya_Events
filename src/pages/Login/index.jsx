@@ -21,7 +21,15 @@ const Login = () => {
       dispatch(setLoading(true));
       const res = await authService.loginUser(data);
       dispatch(login(res.data.user));
+      const previousPage = localStorage.getItem("previousPage");
+    if (previousPage) {
+    
+      navigate(previousPage);
+      localStorage.removeItem("previousPage");
+    }
+    else{
       navigate("/");
+    }
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
       alert("Failed to login. Please try again.");

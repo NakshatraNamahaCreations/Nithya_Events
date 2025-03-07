@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../../../../../../redux/slice/LoaderSlice";
 import { getErrorMessage } from "../../../../../../utils/helperFunc";
 
-const LocationSection = ({ onContinue, setOpenLocation }) => {
+const LocationSection = ({ onContinue, setOpenLocation, }) => {
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [searchedLocation, setSearchedLocation] = useState(null);
   const [selectedSavedAddress, setSelectedSavedAddress] = useState(null);
@@ -151,7 +151,7 @@ const LocationSection = ({ onContinue, setOpenLocation }) => {
         <Button
           variant="outlined"
           fullWidth
-          sx={{ marginTop: 2 }}
+          sx={{ marginTop: 2, border:'1px solid #c026d3', color:'#c026d3' }}
           onClick={() => setIsAddingNewAddress(true)}
         >
           + Add New Address
@@ -165,7 +165,7 @@ const LocationSection = ({ onContinue, setOpenLocation }) => {
             borderRadius: 2,
           }}
         >
-          <Typography variant="subtitle1" gutterBottom>
+          <Typography variant="subtitle1 " gutterBottom>
             Add New Address
           </Typography>
 
@@ -218,8 +218,7 @@ const LocationSection = ({ onContinue, setOpenLocation }) => {
       <Button
         variant="contained"
         fullWidth
-        color="primary"
-        sx={{ mt: 2 }}
+        sx={{ mt: 2, backgroundColor:'#c026d3' }}
         onClick={handleContinue} // Now properly handles saved address selection
       >
         Continue

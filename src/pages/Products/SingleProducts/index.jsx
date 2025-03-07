@@ -215,6 +215,7 @@ const SingleProducts = () => {
     // }
 
     if (product) {
+
       dispatch(
         addToCart({
           orderId: Date.now().toString(),
@@ -1039,7 +1040,7 @@ const SingleProducts = () => {
                         },
                       }}
                     >
-                      Add to Bag
+                      View More
                     </Button>
                   </Box>
                 </Box>

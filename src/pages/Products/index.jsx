@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -80,6 +80,7 @@ const Products = () => {
   const [productList, setProductList] = useState([]);
   const [selectedDiscount, setSelectedDiscount] = useState([0, 100]);
   const breadcrumbPaths = [{ label: "Home", link: "/" }, { label: "Products" }];
+  const location = useLocation();
 
   const userDetail = sessionStorage.getItem("userDetails");
   let userId = null;
@@ -151,6 +152,20 @@ const Products = () => {
       console.error("API Error:", error.response ? error.response.data : error.message);
     }
   };
+    useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const search = params.get("search") || "";
+    setSearchQuery(search);
+
+    if (search.trim()) {
+      const filtered = products.filter((item) =>
+        item.product_name.toLowerCase().includes(search.toLowerCase())
+      );
+      setFilteredItems(filtered);
+    } else {
+      setFilteredItems(products);
+    }
+  }, [location.search, products]);
   const handleWishlistClick = async (item) => {
     const isInWishlist = wishlist.includes(item._id);
       if(!userId){

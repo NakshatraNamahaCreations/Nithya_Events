@@ -314,14 +314,14 @@ catch(error){
                 </Button>
               </Box>
 
-              <Typography
+              {/* <Typography
                 variant="p"
                 sx={{
                   color: "#6c757d",
                 }}
               >
                 {item.brand}
-              </Typography>
+              </Typography> */}
               <Box sx={{ display: "flex", gap: "1rem", marginTop: "0.2rem" }}>
                 <StarRating
                   rating={parseFloat(calculateAverageRating(item.Reviews))}
@@ -395,6 +395,7 @@ catch(error){
                       boxShadow: "none",
                     },
                   }}
+                     onClick={() => handleProductClick(item._id)}
                 >
                   View More
                 </Button>
