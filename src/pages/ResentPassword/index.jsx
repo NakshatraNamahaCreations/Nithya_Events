@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Box, TextField, Button, Typography, CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
+import { config } from "../../api/config";
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
@@ -29,7 +30,9 @@ const ResetPassword = () => {
     setMessage("");
 
     try {
-      const response = await axios.post(`${config.BASEURL}/api/user/reset-password`, {
+      console.log("ezeceuting");
+      
+      const response = await axios.post(`${config.BASEURL}/user/reset-password`, {
         email,
         newPassword: newPassword,
       });

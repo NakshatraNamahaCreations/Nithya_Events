@@ -54,6 +54,17 @@ const SingleService = () => {
   // const userDetails = JSON.parse(userDetail);
   // const userId = userDetails?._id;
   const [modalMainImage, setModalMainImage] = useState("");
+  const userDetail = sessionStorage.getItem("userDetails");
+  let userId = null;
+
+  if (userDetail) {
+    try {
+      const userDetails = JSON.parse(userDetail);
+      userId = userDetails?._id || null;
+    } catch (error) {
+      console.error("Error parsing userDetails from sessionStorage:", error);
+    }
+  }
 
 
   const [services, setServices] = useState([]);
@@ -408,7 +419,7 @@ console.log("service data profike",service);
         </Box>
       )}
 
-      {activeTab === 1 && <ReviewSection id={id} />}
+      {activeTab === 1 && <ReviewSection id={id} userId={userId} />}
      
       {/* {activeTab === 2 && (
         <Box sx={{ marginTop: "2rem" }}>

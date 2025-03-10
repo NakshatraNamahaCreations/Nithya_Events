@@ -1,169 +1,150 @@
-import React, { useState, useRef } from "react";
-import html2canvas from "html2canvas";
-import "./styles.scss"; // Import external CSS for styling
-
-// Importing images
-import ChairIcon from "../../assets/wooden-chair.png";
-import MicIcon from "../../assets/mic-stand.png";
-import Tribune from "../../assets/tribune.png";
-import TableCloth from "../../assets/tablecloth.png";
-import Spotlight1 from "../../assets/spotlight1.png";
-import Spotlight from "../../assets/spotlight.png";
-import Theater from "../../assets/theatre.png";
-import Dinning from "../../assets/dining.png";
+import React, { useState, useEffect } from "react";
+import { Button, Modal, Box, Typography, TextField, Card, CardContent, Grid } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const Mood = () => {
-  const [objects, setObjects] = useState([]);
-  const canvasRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  const [projectName, setProjectName] = useState("");
+  const [projects, setProjects] = useState([]);
+  const navigate = useNavigate();
 
-  const addObject = (type) => {
-    const newObject = {
-      id: Date.now(),
-      type,
-      x: 100,
-      y: 100,
-      rotation: 0,
-    };
-    setObjects([...objects, newObject]);
-  };
+  const userDetails = sessionStorage.getItem("userDetails");
 
-  const removeObjectOfType = (type) => {
-    setObjects((prevObjects) => prevObjects.filter((obj) => obj.type !== type));
-  };
+  let userId = null;
 
-  const handleRotate = (id) => {
-    setObjects((prevObjects) =>
-      prevObjects.map((obj) =>
-        obj.id === id ? { ...obj, rotation: (obj.rotation + 90) % 360 } : obj
-      )
-    );
-  };
-
-  const handleDragStart = (id, e) => {
-    e.dataTransfer.setData("id", id);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const id = e.dataTransfer.getData("id");
-    const dropX = e.clientX;
-    const dropY = e.clientY;
-
-    const canvasRect = canvasRef.current.getBoundingClientRect();
-
-    setObjects((prevObjects) =>
-      prevObjects.map((obj) =>
-        obj.id === parseInt(id)
-          ? {
-              ...obj,
-              x: dropX - canvasRect.left - 25, // Adjust for canvas position
-              y: dropY - canvasRect.top - 25,
-            }
-          : obj
-      )
-    );
-  };
-
-  const allowDrop = (e) => {
-    e.preventDefault(); // Prevent default behavior to allow dropping
-  };
-
-  const saveLayout = () => {
-    localStorage.setItem("savedLayout", JSON.stringify(objects));
-    alert("Layout saved successfully!");
-  };
-
-  const loadLayout = () => {
-    const savedLayout = localStorage.getItem("savedLayout");
-    if (savedLayout) {
-      setObjects(JSON.parse(savedLayout));
+  if (userDetails) {
+    try {
+      let userDetail = JSON.parse(userDetails);
+      userId = userDetail._id;
+    } catch (error) {
+      console.error("Error in userDetails from sessionStorage");
     }
+  }
+
+  // Load projects specific to the logged-in user
+  useEffect(() => {
+    const savedProjects =
+      JSON.parse(localStorage.getItem(`projects_${userId}`)) || [];
+    setProjects(savedProjects);
+  }, [userId]);
+
+  // Open Modal
+  const handleOpen = () => setOpen(true);
+
+ 
+  const handleClose = () => {
+    setOpen(false);
+    setProjectName(""); 
   };
 
-  const downloadLayout = () => {
-    const link = document.createElement("a");
-    const file = new Blob([JSON.stringify(objects, null, 2)], { type: "application/json" });
-    link.href = URL.createObjectURL(file);
-    link.download = "layout.json";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const downloadDesign = () => {
-    html2canvas(canvasRef.current).then((canvas) => {
-      const link = document.createElement("a");
-      link.href = canvas.toDataURL("image/png");
-      link.download = "design.png";
-      link.click();
-    });
-  };
-
-  const renderIcon = (type) => {
-    switch (type) {
-      case "chair":
-        return ChairIcon;
-      case "mic":
-        return MicIcon;
-      case "tribune":
-        return Tribune;
-      case "theater":
-        return Theater;
-      case "spotlight":
-        return Spotlight;
-      case "spotlight1":
-        return Spotlight1;
-      case "tablecloth":
-        return TableCloth;
-      case "dinning":
-        return Dinning;
-      default:
-        return null;
+ 
+  const handleSave = () => {
+    if (projectName.trim() === "") {
+      alert("Project name cannot be empty!");
+      return;
     }
-  };
 
+    const updatedProjects = [...projects, projectName]; 
+    setProjects(updatedProjects);
+
+    localStorage.setItem(`projects_${userId}`, JSON.stringify(updatedProjects)); 
+    handleClose(); 
+  };
+const handleProjectClick = () => {
+navigate("/");
+}
   return (
-    <div className="app" style={{marginTop:'2rem',position:'relative', display:'flex',justifyContent:'flex-end'}}>
-      <div className="controls" style={{display:'flex', position:'absolute', zIndex:'1'}}>
-        <button onClick={saveLayout}>Save Layout</button>
-        <button onClick={loadLayout}>Load Layout</button>
-        {/* <button onClick={downloadLayout}>Download Layout</button> */}
-        <button onClick={downloadDesign}>Download Design</button>
-      </div>
-      <div className="palette">
-        <h2>Object Palette</h2>
-        {["chair", "mic", "spotlight1", "spotlight", "dinning", "tablecloth", "tribune", "theater"].map((type) => (
-          <div key={type} className="palette-item">
-            <img src={renderIcon(type)} alt={type} className="icon" />
-            <button onClick={() => addObject(type)} className="add-btn">+</button>
-            <button onClick={() => removeObjectOfType(type)} className="remove-btn">-</button>
-          </div>
-        ))}
-      </div>
-      
-      <div className="canvas" ref={canvasRef} onDrop={handleDrop} onDragOver={allowDrop}>
-        {objects.map((obj) => (
-          <div
-            key={obj.id}
-            className="draggable-object"
-            style={{
-              top: obj.y,
-              left: obj.x,
-              transform: `rotate(${obj.rotation}deg)`,
-              position: "absolute",
-            }}
-            draggable="true"
-            onDragStart={(e) => handleDragStart(obj.id, e)}
-            onContextMenu={(e) => {
-              e.preventDefault(); // Prevent default right-click
-              handleRotate(obj.id);
-            }}
-          >
-            <img src={renderIcon(obj.type)} alt={obj.type} className="object-img" />
-          </div>
-        ))}
-      </div>
-    </div>
+    <Box sx={{ textAlign: "center", mt: 8, mb: 12 }}>
+      {/* Open Modal Button */}
+      <Button variant="contained" sx={{backgroundColor:'#c026d3'}} onClick={handleOpen}>
+        Create New Project
+      </Button>
+
+      {/* Modal */}
+      <Modal open={open} onClose={handleClose}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 3,
+            borderRadius: 2,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Create New Project
+          </Typography>
+
+          {/* Project Name Input */}
+          <TextField
+            fullWidth
+            label="Project Name"
+            variant="outlined"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+
+          {/* Buttons */}
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Button variant="contained" sx={{backgroundColor:'#c026d3'}} onClick={handleSave}>
+              Save
+            </Button>
+            <Button variant="outlined" color="secondary" onClick={handleClose}>
+              Cancel
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+
+      {/* Display Saved Projects */}
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h6" sx={{ mb: 3 }}>
+          Saved Projects:
+        </Typography>
+
+        {projects.length > 0 ? (
+          <Grid container spacing={3} justifyContent="center">
+            {projects.map((proj, index) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                <Card
+                  sx={{
+                    boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+                    borderRadius: "10px",
+                    transition: "0.3s",
+                    "&:hover": { boxShadow: "0px 6px 10px rgba(0,0,0,0.15)" },
+                    cursor:'pointer'
+                  }}
+                  onClick={handleProjectClick}
+                >
+                  <CardContent>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: "bold",
+                        color: "#333",
+                        textAlign: "center",
+                      }}
+                    >
+                      {proj}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Typography color="text.secondary">
+            No projects created yet.
+          </Typography>
+        )}
+      </Box>
+    </Box>
   );
 };
 

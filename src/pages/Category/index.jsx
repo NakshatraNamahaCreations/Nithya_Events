@@ -41,8 +41,6 @@ import ModalItem from "../Products/SingleProducts/components/Modal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
-
 const Category = () => {
   const { category } = useParams();
   const [data, setData] = useState([]);
@@ -107,29 +105,29 @@ const Category = () => {
         const wishlistItems = res.data.wishlist.map((item) => item.product_id);
         setWishlist(wishlistItems);
       } else {
-        setWishlist([]); 
+        setWishlist([]);
       }
 
       // setProductList(res.data.wishlist);
 
       dispatch(setLoading(false));
-
     } catch (error) {
       dispatch(setLoading(false));
       if (error.response && error.response.status === 404) {
-     
         setWishlist([]);
       } else {
-
         alert("Error fetching wishlist. Please try again.");
       }
-      console.error("API Error:", error.response ? error.response.data : error.message);
+      console.error(
+        "API Error:",
+        error.response ? error.response.data : error.message
+      );
     }
   };
 
   const handleWishlistClick = async (item) => {
     const isInWishlist = wishlist.includes(item._id);
-  if(!userId){
+    if (!userId) {
       toast.error("You need to login", {
         position: "top-right",
         autoClose: 2000,
@@ -139,7 +137,7 @@ const Category = () => {
         draggable: true,
         progress: undefined,
       });
-      return
+      return;
     }
     const payload = {
       product_name: item.product_name,
@@ -148,7 +146,7 @@ const Category = () => {
       product_price: item.product_price,
       mrp_price: item.mrp_price,
       discount: item.discount,
-      user_id: userId
+      user_id: userId,
     };
 
     try {
@@ -159,26 +157,29 @@ const Category = () => {
       );
 
       toast.success("Item added to cart!", {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          });
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
       setWishlist((prev) =>
-        isInWishlist ? prev.filter((id) => id !== item._id) : [...prev, item._id]
+        isInWishlist
+          ? prev.filter((id) => id !== item._id)
+          : [...prev, item._id]
       );
-    } 
-  catch (error) {
+    } catch (error) {
       let errorMessage = "Something went wrong. Please try again.";
-    
+
       if (error.response && error.response.data?.message) {
-        errorMessage = error.response.data.message.includes("Product already exists")
+        errorMessage = error.response.data.message.includes(
+          "Product already exists"
+        )
           ? "This product is already in your wishlist!"
           : `Error: ${error.response.data.message}`;
-    
+
         toast.error(errorMessage, {
           position: "top-right",
           autoClose: 2000,
@@ -188,11 +189,10 @@ const Category = () => {
           draggable: true,
           progress: undefined,
         });
-    
-        return;  
+
+        return;
       }
-    
-  
+
       toast.error("Failed to add item to cart. Try again!", {
         position: "top-right",
         autoClose: 2000,
@@ -225,7 +225,6 @@ const Category = () => {
   const filterProducts = () => {
     let filtered = data;
 
-
     if (activeCategory !== "All") {
       filtered = filtered.filter(
         (item) =>
@@ -250,7 +249,6 @@ const Category = () => {
           parseFloat(item.product_price) <= selectedPriceRange[1]
       );
     }
-
 
     if (lowStockChecked) {
       filtered = filtered.filter((item) => item.stock_in_hand < 50);
@@ -380,29 +378,26 @@ const Category = () => {
   const handleHighStockChange = (event) => {
     setHighStockChecked(event.target.checked);
   };
-  const handleCloseSuccessModal = () =>{
+  const handleCloseSuccessModal = () => {
     setOpen(false);
     console.log("The function is working");
-    
-  }
+  };
   return (
     <>
       <Sliders />
-      <ToastContainer/>
+      <ToastContainer />
       <BreadCrumb paths={breadcrumbPaths} />
-      <Box sx={{ paddingLeft: '2rem', fontSize: '2rem' }}>
-        <Typography sx={{ fontSize: '2.5rem', fontWeight: '600' }} variant="h6">{category.toUpperCase() + " " + "CATEGORY"}</Typography>
-
+      <Box sx={{ paddingLeft: "2rem", fontSize: "2rem" }}>
+        <Typography sx={{ fontSize: "2.5rem", fontWeight: "600" }} variant="h6">
+          {category.toUpperCase() + " " + "CATEGORY"}
+        </Typography>
       </Box>
 
       <Box className="category-page">
         <Box className="products-page">
-
           <Box className="filters-sidebar">
-
             {/* Categories Section */}
             <Box className="filter-group">
-
               <Box
                 sx={{
                   display: "flex",
@@ -452,7 +447,11 @@ const Category = () => {
               >
                 <Typography variant="subtitle1">Price Range</Typography>
                 <IconButton size="small">
-                  {openSections.priceRange ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  {openSections.priceRange ? (
+                    <ExpandLessIcon />
+                  ) : (
+                    <ExpandMoreIcon />
+                  )}
                 </IconButton>
               </Box>
               <Collapse in={openSections.priceRange}>
@@ -631,7 +630,12 @@ const Category = () => {
                       className="product-image"
                     />
                     <CardContent>
-                      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
                         <Typography
                           variant="h6"
                           sx={{
@@ -640,7 +644,9 @@ const Category = () => {
                             color: "#343a40",
                           }}
                         >
-                          {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
+                          {item.product_name.length > 15
+                            ? item.product_name.slice(0, 15) + "..."
+                            : item.product_name}
                         </Typography>
 
                         <Button
@@ -648,15 +654,21 @@ const Category = () => {
                             e.stopPropagation();
                             handleWishlistClick(item);
                           }}
-                          sx={{ color: "#c026d3", position: 'relative' }}
+                          sx={{ color: "#c026d3", position: "relative" }}
                         >
                           {wishlist.includes(item._id) ? (
-                            <Button >
-                              <FavoriteOutlinedIcon style={{ position: 'absolute', color:'#c026d3' }} />
-
+                            <Button>
+                              <FavoriteOutlinedIcon
+                                style={{
+                                  position: "absolute",
+                                  color: "#c026d3",
+                                }}
+                              />
                             </Button>
                           ) : (
-                            <FavoriteBorderIcon style={{ position: 'absolute' }} />
+                            <FavoriteBorderIcon
+                              style={{ position: "absolute" }}
+                            />
                           )}
                         </Button>
                       </Box>
@@ -669,12 +681,18 @@ const Category = () => {
                       >
                         {item.brand}
                       </Typography>
-                      <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          gap: "1rem",
+                          marginTop: "0.2rem",
+                        }}
+                      >
                         <StarRating
                           rating={parseFloat(
                             calculateAverageRating(item.Reviews)
                           )}
-                        // style={{ marginRight: '2rem' }}
+                          // style={{ marginRight: '2rem' }}
                         />
                         <Typography variant="p" style={{ fontSize: "0.8rem" }}>
                           {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
@@ -689,7 +707,7 @@ const Category = () => {
                           display: "flex",
                           alignItems: "center",
                           gap: "0.7rem",
-                          marginTop: '0.3rem'
+                          marginTop: "0.3rem",
                         }}
                       >
                         <Typography
@@ -710,16 +728,19 @@ const Category = () => {
                               textDecoration: "line-through",
                               color: "red",
                               fontSize: "1rem",
-                              display: 'flex',
-                              alignItems: 'center'
+                              display: "flex",
+                              alignItems: "center",
                             }}
                           >
-                            ₹{(item.mrp_rate) || "2500"}
+                            ₹{item.mrp_rate || "2500"}
                           </Typography>
                         )}
-                        <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
+                        <Typography
+                          sx={{ color: "red", marginLeft: "-0.2rem" }}
+                        >
+                          Per day
+                        </Typography>
                       </Box>
-
 
                       <Box
                         sx={{
@@ -756,7 +777,6 @@ const Category = () => {
                 currentPage={currentPage}
                 totalPages={Math.ceil(filteredItems.length / itemsPerPage)}
                 onPageChange={handlePageChange}
-
               />
             </Box>
           ) : (
@@ -768,14 +788,17 @@ const Category = () => {
           )}
         </Box>
         <Modal
-            open={open}
-            onClose={() => setOpen(false)}
-            aria-labelledby="modal-title"
-            aria-describedby="modal-description"
-          >
-     
-  <ModalItem modalMessage={modalMessage} modalType={modalType} onClose={handleCloseSuccessModal} />
-          </Modal>
+          open={open}
+          onClose={() => setOpen(false)}
+          aria-labelledby="modal-title"
+          aria-describedby="modal-description"
+        >
+          <ModalItem
+            modalMessage={modalMessage}
+            modalType={modalType}
+            onClose={handleCloseSuccessModal}
+          />
+        </Modal>
       </Box>
     </>
   );

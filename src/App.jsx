@@ -63,6 +63,8 @@ import OtpVerification from "./pages/OtpVerification";
 import ResetPassword from "./pages/ResentPassword";
 import GoogleAuth from "./pages/GoogleAuth";
 import RaiseTicket from "./pages/RaiseTicket";
+import MoodDetail from "./pages/Mood/MoodDetail";
+import GetTickets from "./pages/RaiseTicket/GetTickets";
 
 function App() {
   const loading = useSelector((state) => state.loader.loading);
@@ -288,13 +290,31 @@ function App() {
               }
             />
                <Route
-              path="/mood"
+              path="/moodDetails"
               element={
-                // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <Mood />
-                // </PrivateRoute>
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <MoodDetail />
+                 </PrivateRoute>
               }
             />
+                   <Route
+              path="/mood-board"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <Mood />
+                 </PrivateRoute>
+              }
+            />
+
+<Route
+              path="/my-tickets"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <GetTickets />
+                 </PrivateRoute>
+              }
+            />
+
             <Route
               path="/vendors/:id"
               element={

@@ -153,7 +153,7 @@ const PageHeader = () => {
       setLoading(false);
     };
 
-    const debounceSearch = setTimeout(fetchProducts, 300); // Debounce API calls
+    const debounceSearch = setTimeout(fetchProducts, 300); 
     return () => clearTimeout(debounceSearch);
   }, [searchTerm]);
 
@@ -448,7 +448,6 @@ const PageHeader = () => {
                   sx={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: "0.2rem",
                     alignItems: "center",
                   }}
                 >
@@ -459,7 +458,6 @@ const PageHeader = () => {
                       color: "black",
                       display: "flex",
                       alignItems: "center",
-                      gap: "0.5rem",
                       position: "relative",
                     }}
                   >
@@ -500,9 +498,18 @@ const PageHeader = () => {
 
                 <Box
                   sx={{
+              
+                  }}
+                >
+                      <Link
+                  to={"/mood-board"}
+                  style={{
+                    textDecoration: "none",
+                    color: "black",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
+                
                   }}
                 >
                   <DesignServicesOutlinedIcon
@@ -518,6 +525,7 @@ const PageHeader = () => {
                   >
                     Mood Board
                   </Typography>
+                  </Link>
                 </Box>
                 {/* <Link
                   to={"/cart"}

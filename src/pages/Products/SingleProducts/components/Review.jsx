@@ -15,8 +15,11 @@ import authService from "../../../../api/ApiService";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../../../../redux/slice/LoaderSlice";
 import { getErrorMessage } from "../../../../utils/helperFunc";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
-const Review = ({ onSubmit, productId }) => {
+const Review = ({ onSubmit, productId, userId }) => {
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [reviews, setReviews] = useState([]);
@@ -28,6 +31,7 @@ const Review = ({ onSubmit, productId }) => {
   const dispatch = useDispatch();
   const userDetails = useSelector((state) => state.auth.userDetails);
   // let visibleReview =5;
+  const navigate = useNavigate();
 
   const fetchProductReview = async () => {
     try {
@@ -45,7 +49,24 @@ const Review = ({ onSubmit, productId }) => {
     fetchProductReview();
   }, [productId]);
 
-  const handleOpen = () => setOpen(true);
+  const handleOpen = () => {
+    if(!userId){
+        toast.error("You need to login", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        navigate("/login");
+    }
+    else{
+
+      setOpen(true);
+    }
+  }
   const handleClose = () => {
     setOpen(false);
     resetFields();

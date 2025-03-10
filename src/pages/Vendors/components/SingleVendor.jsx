@@ -22,6 +22,19 @@ const SingleVendor = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const userDetail = sessionStorage.getItem("userDetails");
+  let userId = null;
+
+  if (userDetail) {
+    try {
+      const userDetails = JSON.parse(userDetail);
+      userId = userDetails?._id || null;
+    } catch (error) {
+      console.error("Error parsing userDetails from sessionStorage:", error);
+    }
+  }
+
+  
   const calculateAverageRating = (reviews) => {
     if (!reviews || reviews.length === 0) return 0;
     const totalRatings = reviews.reduce(
@@ -146,7 +159,10 @@ const SingleVendor = () => {
        <Review     onSubmit={handleReviewSubmit}
             productId={id}
             open={isReviewModalOpen}
-            onClose={() => setReviewModalOpen(false)}/>
+            onClose={() => setReviewModalOpen(false)}
+            userId={userId}
+            />
+
         </>
       )}
     </Box>

@@ -76,7 +76,7 @@ const Signup = () => {
   useEffect(() => {}, []);
 
   return (
-    <Grid container className="signup-container">
+    <Grid container className="signup-container" mb={20}>
       <ToastContainer/>
       <Grid item xs={12} md={6} className="signup-form">
         <Box component={Paper} elevation={4} className="form-box">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 import {jwtDecode} from "jwt-decode"; 
 import { useNavigate } from "react-router-dom";
 import { config } from "../../api/config";
@@ -12,68 +12,66 @@ const GoogleAuth = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    try {
-      const decoded = jwtDecode(credentialResponse.credential);
-      console.log("Decoded User:", decoded);
+  // const handleGoogleSuccess = async (credentialResponse) => {
+  //   console.log("credentialResponse",credentialResponse)
+  //   try {
+  //     const decoded = jwtDecode(credentialResponse.credential);
+  //     console.log("Decoded User:", decoded);
 
-      const idToken = credentialResponse.credential;
-      const email = decoded.email;
+  //     const idToken = credentialResponse.credential;
+  //     const email = decoded.email;
 
-      if (!idToken) {
-        throw new Error("Google ID Token is missing");
-      }
+  //     if (!idToken) {
+  //       throw new Error("Google ID Token is missing");
+  //     }
 
-      if (!email) {
-        throw new Error("User email is missing");
-      }
+  //     if (!email) {
+  //       throw new Error("User email is missing");
+  //     }
 
-      // Send token to backend for verification
-      const res = await fetch(`${config.BASEURL}/user/auth/validate-token`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token: idToken, email }),
-      });
+  //     const res = await fetch(`${config.BASEURL}/user/auth/validate-token`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ token: idToken, email }),
+  //     });
 
-      const data = await res.json();
-      console.log("Server Response:", data);
+  //     const data = await res.json();
+  //     console.log("Server Response:", data);
 
-      if (data?.error) {
-        setError(data.error.message);
-        alert("Login Failed: User does not exist. Please try again.");
-      } else if (data?.user) {
-        localStorage.setItem("user", JSON.stringify(data.user)); // Store user in localStorage
-        setUser(data.user);
-        navigate("/enable-location"); // Redirect after login
-      }
-    } catch (apiError) {
-      console.error("Login API Error:", apiError);
-      alert(apiError?.message || "Something went wrong");
-    }
-  };
+  //     if (data?.error) {
+  //       setError(data.error.message);
+  //       alert("Login Failed: User does not exist. Please try again.");
+  //     } else if (data?.user) {
+  //       localStorage.setItem("user", JSON.stringify(data.user)); // Store user in localStorage
+  //       setUser(data.user);
+  //       navigate("/enable-location"); // Redirect after login
+  //     }
+  //   } catch (apiError) {
+  //     console.error("Login API Error:", apiError);
+  //     alert(apiError?.message || "Something went wrong");
+  //   }
+  // };
 
-  const handleGoogleFailure = (error) => {
-    console.error("Google Sign-In Error:", error);
-    setError("Google login failed. Please try again.");
-  };
+ 
 
   return (
-    <GoogleOAuthProvider clientId={CLIENT_ID}>
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
-        <h2>Google Authentication</h2>
-        {user ? (
-          <div>
-            <h3>Welcome, {user.name}</h3>
-            <p>Email: {user.email}</p>
-          </div>
-        ) : (
-          <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleFailure} />
-        )}
-        {error && <p style={{ color: "red" }}>{error}</p>}
-      </div>
-    </GoogleOAuthProvider>
+    <></>
+    // <GoogleOAuthProvider clientId={CLIENT_ID}>
+      // <div style={{ textAlign: "center", marginTop: "50px" }}>
+      //   <h2>Google Authentication</h2>
+      //   {user ? (
+      //     <div>
+      //       <h3>Welcome, {user.name}</h3>
+      //       <p>Email: {user.email}</p>
+      //     </div>
+      //   ) : (
+      //     <GoogleLogin onSuccess={handleGoogleSuccess} onError={handleGoogleFailure} />
+      //   )}
+      //   {error && <p style={{ color: "red" }}>{error}</p>}
+      // </div>
+    // </GoogleOAuthProvider>
   );
 };
 

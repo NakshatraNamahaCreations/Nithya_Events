@@ -48,14 +48,13 @@ import { addTechnician } from "../../../redux/slice/technicianSlice";
 
 // styles
 import "./styles.scss";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Coupon from "./components/Coupon";
 import StarRating from "../../../components/StarRating";
 import axios from "axios";
 import ModalItem from "./components/Modal";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 const SingleProducts = () => {
   const [cart, setCart] = useState([]);
@@ -393,6 +392,115 @@ const SingleProducts = () => {
       });
     }
   };
+
+    const handleWishlistClick = async (item) => {
+      const isInWishlist = wishlist.includes(item._id);
+      if (!userId) {
+        toast.error("You need to login", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        return;
+      }
+      // const wishlistId = productList.find((w) => w.product_id === item._id);
+      try {
+        // if (!isInWishlist) {
+  
+        await axios.post(
+          "https://api.nithyaevent.com/api/wishlist/add-wishlist",
+          {
+            product_name: item.product_name,
+            product_id: item._id,
+            product_image: item.product_image[0],
+            product_price: item.product_price,
+            mrp_price: item.mrp_price,
+            discount: item.discount,
+            user_id: userId,
+          },
+          { headers: { "Content-Type": "application/json" } }
+        );
+  
+        setWishlist((prev) => [...prev, item._id]);
+        toast.success("Item added to cart!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        // setModalType("success");
+        // setModalMessage("The product has been successfully added to your wishlist.");
+        // setOpen(true);
+        // setTimeout(() => {
+        //   setOpen(false);
+        // }, 1800);
+        // }
+        // else {
+  
+        //   await axios.delete(
+        //     `https://api.nithyaevent.com/api/wishlist/remove-wishlist-list/${wishlistId._id}`
+        //   );
+  
+        //   setWishlist((prev) => prev.filter((id) => id !== item._id));
+  
+        //      toast.error("Failed to add item to cart. Try again!", {
+        //           position: "top-right",
+        //           autoClose: 2000,
+        //           hideProgressBar: false,
+        //           closeOnClick: true,
+        //           pauseOnHover: true,
+        //           draggable: true,
+        //           progress: undefined,
+        //         });
+        //   // setModalType("success");
+        //   // setModalMessage("The product has been successfully deleted from your wishlist.");
+        //   // setOpen(true);
+        //   // setTimeout(() => {
+        //   //   setOpen(false);
+        //   // }, 1800);
+        // }
+      } catch (error) {
+        let errorMessage = "Something went wrong. Please try again.";
+  
+        if (error.response && error.response.data?.message) {
+          errorMessage = error.response.data.message.includes(
+            "Product already exists"
+          )
+            ? "This product is already in your wishlist!"
+            : `Error: ${error.response.data.message}`;
+  
+          toast.error(errorMessage, {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+  
+          return;
+        }
+  
+        toast.error("Failed to add item to cart. Try again!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      }
+    };
+
   return (
     <>
       <ToastContainer />
@@ -725,6 +833,7 @@ const SingleProducts = () => {
             scrollButtons="auto"
             allowScrollButtonsMobile
             sx={{
+              color:'red',
               background:
                 "linear-gradient(rgb(255, 255, 255), rgb(245 232 247))",
               padding: "0.8rem 5rem",
@@ -873,7 +982,7 @@ const SingleProducts = () => {
 
             {activeTab === 1 && (
               <Box>
-                <Review onSubmit={handleReviewSubmit} productId={productId} />
+                <Review onSubmit={handleReviewSubmit} productId={productId} userId={userId}/>
               </Box>
             )}
           </Box>
@@ -939,31 +1048,30 @@ const SingleProducts = () => {
                         : item.product_name}
                     </Typography>
 
-                    <IconButton
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleWishlistClick(item._id);
+                        handleWishlistClick(item);
                       }}
                       sx={{ color: "#c026d3", position: "relative" }}
                     >
                       {wishlist.includes(item._id) ? (
                         <FavoriteOutlinedIcon
-                          onClick={handleWishlist}
                           style={{ position: "absolute" }}
                         />
                       ) : (
                         <FavoriteBorderIcon style={{ position: "absolute" }} />
                       )}
-                    </IconButton>
+                    </Button>
                   </Box>
-                  <Typography
+                  {/* <Typography
                     variant="p"
                     sx={{
                       color: "#6c757d",
                     }}
                   >
                     {item.brand}
-                  </Typography>
+                  </Typography> */}
                   <Box
                     sx={{ display: "flex", gap: "1rem", marginTop: "0.2rem" }}
                   >

@@ -6,8 +6,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../../../../../../redux/slice/LoaderSlice";
 import { getErrorMessage } from "../../../../../../utils/helperFunc";
 import CustomModal from "../../../../../../components/CustomModal";
+import { useNavigate } from "react-router-dom";
 
-const ReviewSection = ({ id }) => {
+const ReviewSection = ({ id, userId }) => {
   const [reviews, setReviews] = useState([]);
   const [displayedReviews, setDisplayedReviews] = useState([]);
   const [reviewsToShow, setReviewsToShow] = useState(3);
@@ -22,9 +23,15 @@ const ReviewSection = ({ id }) => {
 
   const userDetails = useSelector((state) => state.auth.userDetails);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
-    const payload = {
+    if(!userId){
+      navigate("/login");
+    }
+    else{
+
+    }   const payload = {
       user_id: userDetails._id,
       user_name: userDetails.username,
       review_title: title,
@@ -49,6 +56,7 @@ const ReviewSection = ({ id }) => {
       setModalType("failure");
       getErrorMessage(error);
     }
+ 
   };
 
   const getReview = async () => {

@@ -359,7 +359,7 @@ const navigate = useNavigate();
 
     let infoBoxX = 120;
     let infoBoxY = 20;
-    let infoBoxWidth = 75;
+    let infoBoxWidth = 95;
     let infoBoxHeight = 50;
     doc.rect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
 

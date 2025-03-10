@@ -28,7 +28,7 @@ const OtpVerification = () => {
     setMessage("");
 
     try {
-      const response = await axios.post(`${config.BASEURL}/api/user/verify-email-otp`, {
+      const response = await axios.post(`${config.BASEURL}/user/verify-email-otp`, {
         email,
         otp,
       });
