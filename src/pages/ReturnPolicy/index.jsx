@@ -1,6 +1,6 @@
 const ReturnPolicy = () => {
   return (
-    <div style={{ marginLeft: "1rem" }}>
+    <div style={{ marginLeft: "1rem", padding:'1rem 5rem ' }}>
       <h2 style={{ textAlign: "center", marginTop: "4rem" }}>Refund Policy</h2>
       <br /> Customers may cancel their order within 48 hours of placing the
       order. Cancellations made after this period may not be eligible for a full

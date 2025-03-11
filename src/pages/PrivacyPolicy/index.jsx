@@ -41,7 +41,7 @@ const PrivacyPolicy = () => {
   `;
 
   return (
-    <Box mt={6} pl={8} pr={8} pt={2}>
+    <Box mt={6} pl={8} pr={8} pt={2} pb={8}>
       <Typography
         variant="h5"
         sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}

@@ -65,6 +65,7 @@ import GoogleAuth from "./pages/GoogleAuth";
 import RaiseTicket from "./pages/RaiseTicket";
 import MoodDetail from "./pages/Mood/MoodDetail";
 import GetTickets from "./pages/RaiseTicket/GetTickets";
+import Phonepe from "./components/Phonepe";
 
 function App() {
   const loading = useSelector((state) => state.loader.loading);
@@ -102,7 +103,7 @@ function App() {
                 // </PublicRoute>
               }
             />
-                    <Route
+            <Route
               path="/forgotPassword"
               element={
                 // <PublicRoute isAuthenticated={isAuthenticated}>
@@ -110,7 +111,7 @@ function App() {
                 // </PublicRoute>
               }
             />
-                        <Route
+            <Route
               path="/verify-otp"
               element={
                 // <PublicRoute isAuthenticated={isAuthenticated}>
@@ -118,7 +119,7 @@ function App() {
                 // </PublicRoute>
               }
             />
-                         <Route
+            <Route
               path="/reset-password"
               element={
                 // <PublicRoute isAuthenticated={isAuthenticated}>
@@ -127,7 +128,7 @@ function App() {
               }
             />
 
-<Route
+            <Route
               path="/sign-google"
               element={
                 // <PublicRoute isAuthenticated={isAuthenticated}>
@@ -143,7 +144,7 @@ function App() {
                 // </PublicRoute>
               }
             />
-                    <Route
+            <Route
               path="/raise-ticket/:bookingId"
               element={
                 // <PublicRoute isAuthenticated={isAuthenticated}>
@@ -285,33 +286,41 @@ function App() {
               path="/cart"
               element={
                 // <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <Cart />
+                <Cart />
                 // </PrivateRoute>
               }
             />
-               <Route
-              path="/moodDetails"
+            <Route
+              path="/moodDetails/:id"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
                   <MoodDetail />
-                 </PrivateRoute>
+                </PrivateRoute>
               }
             />
-                   <Route
+            <Route
+              path="/phonepe"
+              element={
+                // <PrivateRoute isAuthenticated={isAuthenticated}>
+                <Phonepe />
+                //  </PrivateRoute>
+              }
+            />
+            <Route
               path="/mood-board"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
                   <Mood />
-                 </PrivateRoute>
+                </PrivateRoute>
               }
             />
 
-<Route
+            <Route
               path="/my-tickets"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
                   <GetTickets />
-                 </PrivateRoute>
+                </PrivateRoute>
               }
             />
 

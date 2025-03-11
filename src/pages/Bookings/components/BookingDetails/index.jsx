@@ -84,6 +84,20 @@ const BookingDetails = () => {
     rescheduled_date: "",
   });
 const navigate = useNavigate();
+const userDetail = sessionStorage.getItem("userDetails");
+let userName = null;
+let userMobile = null;
+
+if (userDetail) {
+  try {
+    const userDetails = JSON.parse(userDetail);
+    userName = userDetails?.username || null;
+    userMobile = userDetails?.mobilenumber || null;
+  } catch (error) {
+    console.error("Error parsing userDetails from sessionStorage:", error);
+  }
+}
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -91,7 +105,7 @@ const navigate = useNavigate();
       [name]: value,
     }));
   };
-
+  console.log("The bookings", booking);
   const handleReasonChange = (event) => {
     setReason(event.target.value);
   };
@@ -289,6 +303,7 @@ const navigate = useNavigate();
       }
     });
 
+
     try {
       const res = await axios.put(
         `${config.BASEURL}/user-order/reschedule-order/${booking._id}`,
@@ -326,6 +341,7 @@ const navigate = useNavigate();
     let startX = 15;
     let currentY = 20;
 
+    // Company Information
     doc.setFont(undefined, "bold");
     doc.text("KADAGAM VENTURES PRIVATE LIMITED", startX, currentY);
     doc.setFont(undefined, "normal");
@@ -334,29 +350,28 @@ const navigate = useNavigate();
     currentY += 5;
     doc.text("Bengaluru, Karnataka 560068, India", startX, currentY);
     currentY += 5;
-    doc.text("GST: 29AABCK9472B1ZW", startX, currentY); // Example GST
+    doc.text("GST: 29AABCK9472B1ZW", startX, currentY);
     currentY += 5;
     doc.text("SACCODE: 998597", startX, currentY);
     currentY += 7;
 
-    // Add phone & user details
+    // Customer Details
     doc.setFont(undefined, "bold");
-    doc.text(
-      `Phone: ${booking.receiver_mobilenumber || "N/A"}`,
-      startX,
-      currentY
-    );
+    doc.text(`To`, startX, currentY);
+    currentY += 5;
+    doc.setFont(undefined, "bold");
+    doc.text(`Name: ${userName || "N/A"}`, startX, currentY);
+    currentY += 5;
+    doc.setFont(undefined, "bold");
+    doc.text(`Phone: ${userMobile || "N/A"}`, startX, currentY);
     currentY += 5;
     doc.setFont(undefined, "normal");
     doc.text(`GST: ${booking.gst_number || "NA"}`, startX, currentY);
     currentY += 5;
-    doc.text(
-      booking.event_location ? booking.event_location : "No address provided",
-      startX,
-      currentY
-    );
+    doc.text(booking.event_location || "No address provided", startX, currentY);
     currentY += 5;
 
+    // Invoice Details Box
     let infoBoxX = 120;
     let infoBoxY = 20;
     let infoBoxWidth = 95;
@@ -367,74 +382,64 @@ const navigate = useNavigate();
     let infoTextY = infoBoxY + 5;
 
     const invoiceDetails = [
-      { label: "Invoice #", value: "INV77KS19" },
+      { label: "Invoice #", value: `INV${booking._id.slice(-6)}` },
       { label: "Event Name", value: booking.event_name || "N/A" },
       { label: "Ordered Date", value: formatDate(booking.ordered_date) || "-" },
       { label: "Venue Name", value: booking.venue_name || "-" },
-      // { label: "Venue Location", value: booking.event_location || "-" },
-      {
-        label: "Venue Available Time",
-        value: booking.venue_open_time || "00:00",
-      },
-      {
-        label: "Event Date/Time",
-        value:
-          formatDate(booking.event_start_date) +
-          " " +
-          (booking.event_start_time || ""),
-      },
+      { label: "Venue Available Time", value: booking.venue_open_time || "00:00" },
+      { label: "Event Date", value: (`${formatDate(booking.event_start_date)}- ${formatDate(booking.event_end_date)}` ) },
+      // { label: "Event Time", value: (`${booking.event_start_time}- ${formatDate(booking.event_end_time)}` ) },
       { label: "No of Days", value: String(numberOfDays) },
-    ];
+  ];
 
     doc.setFontSize(9);
     invoiceDetails.forEach((item, idx) => {
-      doc.setFont(undefined, "bold");
-      doc.text(`${item.label}`, infoTextX, infoTextY);
-      doc.setFont(undefined, "normal");
-      doc.text(item.value, infoTextX + 40, infoTextY);
-      infoTextY += 5;
+        doc.setFont(undefined, "bold");
+        doc.text(`${item.label}`, infoTextX, infoTextY);
+        doc.setFont(undefined, "normal");
+        doc.text(item.value, infoTextX + 40, infoTextY);
+        infoTextY += 5;
     });
 
+    // Product & Services Table
     let tableStartY = infoBoxY + infoBoxHeight + 15;
     const columns = [
-      { header: "Product", dataKey: "name" },
-      { header: "Size", dataKey: "dimension" },
-      { header: "Qty", dataKey: "quantity" },
-      { header: "Price", dataKey: "price" },
-      { header: "Days", dataKey: "days" },
-      { header: "Amount", dataKey: "amount" },
+        { header: "Product", dataKey: "name" },
+        { header: "Size", dataKey: "dimension" },
+        { header: "Qty", dataKey: "quantity" },
+        { header: "Price", dataKey: "price" },
+        { header: "Days", dataKey: "days" },
+        { header: "Amount", dataKey: "amount" },
     ];
-    const rows = items.map((item) => {
-      const amount = item.price * item.quantity * numberOfDays;
-      return {
+    const rows = items.map((item) => ({
         name: item.name,
         dimension: item.dimension,
         quantity: item.quantity,
         price: item.price,
         days: String(numberOfDays),
-        amount: amount,
-      };
-    });
+        amount: item.price * item.quantity * numberOfDays,
+    }));
 
     doc.autoTable({
-      startY: tableStartY,
-      theme: "grid",
-      head: [columns.map((col) => col.header)],
-      body: rows.map((r) => columns.map((col) => r[col.dataKey])),
-      headStyles: {
-        fillColor: [255, 255, 0],
-        textColor: [0, 0, 0],
-        fontStyle: "bold",
-      },
-      styles: {
-        fontSize: 9,
-      },
-      margin: { left: 15 },
-      tableWidth: 180,
+        startY: tableStartY,
+        theme: "grid",
+        head: [columns.map((col) => col.header)],
+        body: rows.map((r) => columns.map((col) => r[col.dataKey])),
+        headStyles: {
+            fillColor: [255, 255, 0],
+            textColor: [0, 0, 0],
+            fontStyle: "bold",
+        },
+        styles: {
+            fontSize: 9,
+        },
+        margin: { left: 15 },
+        tableWidth: 180,
     });
 
     let finalY = doc.lastAutoTable.finalY + 5;
 
+    // Payment Summary
     doc.setFontSize(10);
     doc.setFont(undefined, "bold");
     doc.text("Sub Total", 125, finalY);
@@ -460,29 +465,35 @@ const navigate = useNavigate();
     doc.text(formatCurrencyIntl(grandTotal), 170, finalY, { align: "right" });
     finalY += 10;
 
+    // Terms & Conditions
     doc.setFontSize(10);
     doc.setFont(undefined, "bold");
-    doc.text("Terms & Condition", 15, finalY);
+    doc.text("Terms & Conditions", 15, finalY);
     finalY += 5;
 
     doc.setFont(undefined, "normal");
     const terms = [
-      "Payment Terms: Payment is due [e.g., upon receipt].",
-      "Reservation & Deposit: A 100% deposit is required.",
-      "Cancellation Policy: Cancellations must be made at least 2 days in advance.",
-      "Rental Period: The rental period starts from event start time.",
-      "Delivery & Pickup: Additional fee may apply.",
-      "Condition of Equipment: Returned in original condition.",
-      "Liability: The customer agrees to assume all liability.",
-    ];
+      "1. Payment Terms: Payment is due upon receipt.",
+      "2. Reservation & Deposit: A 100% deposit is required to secure your reservation",
+      "3. Cancellation Policy: Cancellations must be made at least 2 days in advance. Cancellation made within a day will be no refund.",
+      `4. Rental Period: The rental period starts from ${booking.event_start_time} to ${booking.event_end_time}. Any extensions must be arranged in advance and is subject to availabilty`,
+      "5. Delivery & Pickup: Delivery and pickup services are available for an additional fee. The customer must ensure the rental location is accessible for delivery.",
+      "6. Condition of Equipment: Rented items should be returned in their original condition. Customers are responsible for any damage or loss incurred during the rental period.",
+      "7. Liability: The customer agrees to assume all liability for rented items during the rental period.[Include any insurance requirements if applicable.]",
+      "8. Indemnification: The customer agrees to indemnify and hold Nithya Events or Kadagam Ventures Pvt Ltd harmless from any claims or damages arising from the use of rented items.",
+      "9. Governing Law: This agreement follows the laws of Bangalore, Karnataka.",
+      "10. Changes to Terms: Nithya Events or Kadagam Ventures Pvt Ltd reserves the right to change these terms and conditions at any time. Customers will be notified of any significant changes.",
+      "11. Contact: For questions, contact support@nithyaevent.com.",
+  ];
 
     terms.forEach((line, index) => {
-      doc.text(`${index + 1}. ${line}`, 15, finalY);
-      finalY += 5;
+        doc.text(`${line}`, 15, finalY);
+        finalY += 5;
     });
 
     doc.save("invoice.pdf");
-  };
+};
+
 
   if (!booking) {
     return (

@@ -101,7 +101,6 @@ const Products = () => {
     }));
   };
 
-
   const fetchProducts = async () => {
     dispatch(setLoading(true));
     try {
@@ -139,20 +138,20 @@ const Products = () => {
       setProductList(res.data.wishlist);
 
       dispatch(setLoading(false));
-
     } catch (error) {
       dispatch(setLoading(false));
       if (error.response && error.response.status === 404) {
-
         setWishlist([]);
       } else {
-
         alert("Error fetching wishlist. Please try again.");
       }
-      console.error("API Error:", error.response ? error.response.data : error.message);
+      console.error(
+        "API Error:",
+        error.response ? error.response.data : error.message
+      );
     }
   };
-    useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const search = params.get("search") || "";
     setSearchQuery(search);
@@ -168,60 +167,58 @@ const Products = () => {
   }, [location.search, products]);
   const handleWishlistClick = async (item) => {
     const isInWishlist = wishlist.includes(item._id);
-      if(!userId){
-          toast.error("You need to login", {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          });
-          return
-        }
+    if (!userId) {
+      toast.error("You need to login", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
     const wishlistId = productList.find((w) => w.product_id === item._id);
     try {
       // if (!isInWishlist) {
 
-        await axios.post(
-          "https://api.nithyaevent.com/api/wishlist/add-wishlist",
-          {
-            product_name: item.product_name,
-            product_id: item._id,
-            product_image: item.product_image[0],
-            product_price: item.product_price,
-            mrp_price: item.mrp_price,
-            discount: item.discount,
-            user_id: userId
-          },
-          { headers: { "Content-Type": "application/json" } }
-        );
+      await axios.post(
+        "https://api.nithyaevent.com/api/wishlist/add-wishlist",
+        {
+          product_name: item.product_name,
+          product_id: item._id,
+          product_image: item.product_image[0],
+          product_price: item.product_price,
+          mrp_price: item.mrp_price,
+          discount: item.discount,
+          user_id: userId,
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
 
-
-        setWishlist((prev) => [...prev, item._id]);
-                 toast.success("Item added to cart!", {
-                    position: "top-right",
-                    autoClose: 2000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                  });
-        // setModalType("success");
-        // setModalMessage("The product has been successfully added to your wishlist.");
-        // setOpen(true);
-        // setTimeout(() => {
-        //   setOpen(false);
-        // }, 1800);
+      setWishlist((prev) => [...prev, item._id]);
+      toast.success("Item added to cart!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      // setModalType("success");
+      // setModalMessage("The product has been successfully added to your wishlist.");
+      // setOpen(true);
+      // setTimeout(() => {
+      //   setOpen(false);
+      // }, 1800);
       // }
       // else {
 
       //   await axios.delete(
       //     `https://api.nithyaevent.com/api/wishlist/remove-wishlist-list/${wishlistId._id}`
-      //   );
-
+      //   ); 
 
       //   setWishlist((prev) => prev.filter((id) => id !== item._id));
 
@@ -241,16 +238,16 @@ const Products = () => {
       //   //   setOpen(false);
       //   // }, 1800);
       // }
-    }
-
-    catch (error) {
+    } catch (error) {
       let errorMessage = "Something went wrong. Please try again.";
-    
+
       if (error.response && error.response.data?.message) {
-        errorMessage = error.response.data.message.includes("Product already exists")
+        errorMessage = error.response.data.message.includes(
+          "Product already exists"
+        )
           ? "This product is already in your wishlist!"
           : `Error: ${error.response.data.message}`;
-    
+
         toast.error(errorMessage, {
           position: "top-right",
           autoClose: 2000,
@@ -260,11 +257,10 @@ const Products = () => {
           draggable: true,
           progress: undefined,
         });
-    
-        return; 
+
+        return;
       }
-    
-      
+
       toast.error("Failed to add item to cart. Try again!", {
         position: "top-right",
         autoClose: 2000,
@@ -275,7 +271,6 @@ const Products = () => {
         progress: undefined,
       });
     }
-    
   };
   useEffect(() => {
     fetchProducts();
@@ -408,12 +403,11 @@ const Products = () => {
   const handleCloseSuccessModal = () => {
     setOpen(false);
     console.log("The function is working");
-
-  }
+  };
   return (
     <>
       <Slider />
-      <ToastContainer/>
+      <ToastContainer />
       <BreadCrumb paths={breadcrumbPaths} />
 
       <Box className="products-page">
@@ -469,7 +463,11 @@ const Products = () => {
             >
               <Typography variant="subtitle1">Price Range</Typography>
               <IconButton size="small">
-                {openSections.priceRange ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                {openSections.priceRange ? (
+                  <ExpandLessIcon />
+                ) : (
+                  <ExpandMoreIcon />
+                )}
               </IconButton>
             </Box>
             <Collapse in={openSections.priceRange}>
@@ -491,7 +489,7 @@ const Products = () => {
             </Collapse>
           </Box>
 
-          <Box className="filter-group">
+          {/* <Box className="filter-group">
             <Box
               sx={{
                 display: "flex",
@@ -513,13 +511,17 @@ const Products = () => {
             <Collapse in={openSections.discount}>
               <Box sx={{ marginTop: "0.5rem" }}>
                 <Box className="p-6 bg-white shadow-lg rounded-lg max-w-md mx-auto">
-                  <DiscountSlider value={selectedDiscount} onChange={setSelectedDiscount} min={0}
+                  <DiscountSlider
+                    value={selectedDiscount}
+                    onChange={setSelectedDiscount}
+                    min={0}
                     max={100}
-                    step={100} />
+                    step={100}
+                  />
                 </Box>
               </Box>
             </Collapse>
-          </Box>
+          </Box> */}
 
           <Box className="filter-group">
             <Box
@@ -641,7 +643,9 @@ const Products = () => {
                   className="product-image"
                 />
                 <CardContent>
-                  <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "space-between" }}
+                  >
                     <Typography
                       variant="h6"
                       sx={{
@@ -650,19 +654,23 @@ const Products = () => {
                         color: "#343a40",
                       }}
                     >
-                      {item.product_name.length > 15 ? item.product_name.slice(0, 15) + "..." : item.product_name}
+                      {item.product_name.length > 15
+                        ? item.product_name.slice(0, 15) + "..."
+                        : item.product_name}
                     </Typography>
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleWishlistClick(item);
                       }}
-                      sx={{ color: "#c026d3", position: 'relative' }}
+                      sx={{ color: "#c026d3", position: "relative" }}
                     >
                       {wishlist.includes(item._id) ? (
-                        <FavoriteOutlinedIcon style={{ position: 'absolute' }} />
+                        <FavoriteOutlinedIcon
+                          style={{ position: "absolute" }}
+                        />
                       ) : (
-                        <FavoriteBorderIcon style={{ position: 'absolute' }} />
+                        <FavoriteBorderIcon style={{ position: "absolute" }} />
                       )}
                     </Button>
                   </Box>
@@ -675,12 +683,12 @@ const Products = () => {
                   >
                     {item.brand}
                   </Typography>
-                  <Box sx={{ display: 'flex', gap: '1rem', marginTop: '0.2rem' }}>
+                  <Box
+                    sx={{ display: "flex", gap: "1rem", marginTop: "0.2rem" }}
+                  >
                     <StarRating
-                      rating={parseFloat(
-                        calculateAverageRating(item.Reviews)
-                      )}
-                    // style={{ marginRight: '2rem' }}
+                      rating={parseFloat(calculateAverageRating(item.Reviews))}
+                      // style={{ marginRight: '2rem' }}
                     />
                     <Typography variant="p" style={{ fontSize: "0.8rem" }}>
                       {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
@@ -695,7 +703,7 @@ const Products = () => {
                       display: "flex",
                       alignItems: "center",
                       gap: "0.7rem",
-                      marginTop: '0.3rem'
+                      marginTop: "0.3rem",
                     }}
                   >
                     <Typography
@@ -716,16 +724,17 @@ const Products = () => {
                           textDecoration: "line-through",
                           color: "red",
                           fontSize: "1rem",
-                          display: 'flex',
-                          alignItems: 'center'
+                          display: "flex",
+                          alignItems: "center",
                         }}
                       >
-                        ₹{(item.mrp_rate) || "2500"}
+                        ₹{item.mrp_rate || "2500"}
                       </Typography>
                     )}
-                    <Typography sx={{ color: 'red', marginLeft: '-0.2rem' }} >Per day</Typography>
+                    <Typography sx={{ color: "red", marginLeft: "-0.2rem" }}>
+                      Per day
+                    </Typography>
                   </Box>
-
 
                   <Box
                     sx={{
@@ -770,8 +779,11 @@ const Products = () => {
           aria-labelledby="modal-title"
           aria-describedby="modal-description"
         >
-
-          <ModalItem modalMessage={modalMessage} modalType={modalType} onClose={handleCloseSuccessModal} />
+          <ModalItem
+            modalMessage={modalMessage}
+            modalType={modalType}
+            onClose={handleCloseSuccessModal}
+          />
         </Modal>
       </Box>
     </>

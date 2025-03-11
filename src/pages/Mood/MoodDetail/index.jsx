@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import html2canvas from "html2canvas";
 import "./styles.scss"; // Import external CSS for styling
 
@@ -11,11 +11,40 @@ import Spotlight1 from "../../../assets/spotlight1.png";
 import Spotlight from "../../../assets/spotlight.png";
 import Theater from "../../../assets/theatre.png";
 import Dinning from "../../../assets/dining.png";
+import Download from "../../../assets/moodDownload.png";
+import Save from "../../../assets/moodSave.png";
+import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { useParams } from "react-router-dom";
 
 const MoodDetail = () => {
+  const [project, setProject] = useState(null);
   const [objects, setObjects] = useState([]);
-  const canvasRef = useRef(null);
+    const canvasRef = useRef(null);
+  const { id } = useParams();   
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  useEffect(() => {
+    // Retrieve projects from localStorage
+    const userDetails = sessionStorage.getItem("userDetails");
+    let userId = userDetails ? JSON.parse(userDetails)._id : null;
+    const savedProjects = JSON.parse(localStorage.getItem(`projects_${userId}`)) || [];
+
+    // Find the project by ID
+    const selectedProject = savedProjects.find((p) => p.id.toString() === id);
+    setProject(selectedProject);
+
+    // Retrieve saved layout for the project
+    if (selectedProject) {
+      const savedLayout = JSON.parse(localStorage.getItem(`layout_${id}`)) || [];
+      setObjects(savedLayout);
+    }
+  }, [id]);
+
+  const saveLayout = () => {
+    localStorage.setItem(`layout_${id}`, JSON.stringify(objects));
+    alert("Layout saved successfully!");
+  };
   const addObject = (type) => {
     const newObject = {
       id: Date.now(),
@@ -68,21 +97,13 @@ const MoodDetail = () => {
     e.preventDefault(); // Prevent default behavior to allow dropping
   };
 
-  const saveLayout = () => {
-    localStorage.setItem("savedLayout", JSON.stringify(objects));
-    alert("Layout saved successfully!");
-  };
 
-  const loadLayout = () => {
-    const savedLayout = localStorage.getItem("savedLayout");
-    if (savedLayout) {
-      setObjects(JSON.parse(savedLayout));
-    }
-  };
 
   const downloadLayout = () => {
     const link = document.createElement("a");
-    const file = new Blob([JSON.stringify(objects, null, 2)], { type: "application/json" });
+    const file = new Blob([JSON.stringify(objects, null, 2)], {
+      type: "application/json",
+    });
     link.href = URL.createObjectURL(file);
     link.download = "layout.json";
     document.body.appendChild(link);
@@ -123,25 +144,123 @@ const MoodDetail = () => {
   };
 
   return (
-    <div className="app" style={{marginTop:'2rem',position:'relative', display:'flex',justifyContent:'flex-end'}}>
-      <div className="controls" style={{display:'flex', position:'absolute', zIndex:'1'}}>
-        <button onClick={saveLayout}>Save Layout</button>
-        <button onClick={loadLayout}>Load Layout</button>
-        {/* <button onClick={downloadLayout}>Download Layout</button> */}
-        <button onClick={downloadDesign}>Download Design</button>
+    <Box>
+          <div
+        className="controls"
+        style={{ display: "flex", gap: "10px", justifyContent: "end", backgroundColor:'#f4f4f9', marginTop:'2rem' }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor:'pointer'
+          }}
+          onClick={saveLayout}
+        >
+          <img style={{ width: "30px" }} src={Save} alt="Save Image" />
+          <Typography sx={{ fontSize: "0.7rem" }} >
+            Save
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor:'pointer'
+          }}
+          onClick={downloadDesign}
+        >
+          <img style={{ width: "30px" }} src={Download} alt="Download Image" />
+          <Typography sx={{ fontSize: "0.7rem" }} >
+            Download
+          </Typography>
+        </Box>
       </div>
-      <div className="palette">
-        <h2>Object Palette</h2>
-        {["chair", "mic", "spotlight1", "spotlight", "dinning", "tablecloth", "tribune", "theater"].map((type) => (
-          <div key={type} className="palette-item">
-            <img src={renderIcon(type)} alt={type} className="icon" />
-            <button onClick={() => addObject(type)} className="add-btn">+</button>
-            <button onClick={() => removeObjectOfType(type)} className="remove-btn">-</button>
+
+    <div
+      className="app"
+      style={{
+        // marginTop: "2rem",
+        position: "relative",
+        display: "flex",
+        justifyContent: "flex-end",
+      }}
+    >
+  
+
+      {isMobile && (
+        <Box>
+          <div className="palette-mobile">
+            <h2>Object Palette</h2>
+            {[
+              "chair",
+              "mic",
+              "spotlight1",
+              "spotlight",
+              "dinning",
+              "tablecloth",
+              "tribune",
+              "theater",
+            ].map((type) => (
+              <div key={type} className="palette-item">
+                <img src={renderIcon(type)} alt={type} className="icon" />
+                <button onClick={() => addObject(type)} className="add-btn">
+                  +
+                </button>
+                <button
+                  onClick={() => removeObjectOfType(type)}
+                  className="remove-btn"
+                >
+                  -
+                </button>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      
-      <div className="canvas" ref={canvasRef} onDrop={handleDrop} onDragOver={allowDrop}>
+        </Box>
+      )}
+
+      {!isMobile && (
+        <Box>
+          <div className="palette">
+            <h2>Object Palette</h2>
+            {[
+              "chair",
+              "mic",
+              "spotlight1",
+              "spotlight",
+              "dinning",
+              "tablecloth",
+              "tribune",
+              "theater",
+            ].map((type) => (
+              <div key={type} className="palette-item">
+                <img src={renderIcon(type)} alt={type} className="icon" />
+                <button onClick={() => addObject(type)} className="add-btn">
+                  +
+                </button>
+                <button
+                  onClick={() => removeObjectOfType(type)}
+                  className="remove-btn"
+                >
+                  -
+                </button>
+              </div>
+            ))}
+          </div>
+        </Box>
+      )}
+
+
+      <div
+        className="canvas"
+        ref={canvasRef}
+        onDrop={handleDrop}
+        onDragOver={allowDrop}
+      >
         {objects.map((obj) => (
           <div
             key={obj.id}
@@ -159,11 +278,16 @@ const MoodDetail = () => {
               handleRotate(obj.id);
             }}
           >
-            <img src={renderIcon(obj.type)} alt={obj.type} className="object-img" />
+            <img
+              src={renderIcon(obj.type)}
+              alt={obj.type}
+              className="object-img"
+            />
           </div>
         ))}
       </div>
     </div>
+    </Box>
   );
 };
 

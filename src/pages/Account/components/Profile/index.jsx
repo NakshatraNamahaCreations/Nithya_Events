@@ -1,18 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  TextField,
-  Typography,
-  Grid,
-  Paper,
-  IconButton,
-  Button,
-} from "@mui/material";
-import PhotoCamera from "@mui/icons-material/PhotoCamera";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { Link } from "react-router-dom";
+import { Box, TextField, Typography, Grid, Paper, Button } from "@mui/material";
 import { useSelector } from "react-redux";
 import authService from "../../../../api/ApiService";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Profile = () => {
   const [accountDetails, setAccountDetails] = useState({
@@ -22,39 +14,115 @@ const Profile = () => {
     companyName: "",
     companyType: "",
     designation: "",
-    panCard: "",
+    panNumber: "",
+    gstNumber: "",
+    cinNumber: "",
+    tradeLicense: "",
+    panFrontImage: "",
+    panBackImage: "",
   });
-  const [otherDetails, setOtherDetails] = useState([]);
+  const [updatedDetails, setUpdatedDetails] = useState({});
+  const [originalDetails, setOriginalDetails] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); 
+
+  const userDetail = sessionStorage.getItem("userDetails");
+  let userId = null;
+
+  if (userDetail) {
+    try {
+      const userDetails = JSON.parse(userDetail);
+      userId = userDetails?._id || null;
+    } catch (error) {
+      console.error("Error parsing userDetails from sessionStorage:", error);
+    }
+  }
+
   const userDetails = useSelector((state) => state.auth.userDetails);
-  const companyDetails = userDetails.company_profile?.[0] || {};
+  const companyType = accountDetails.companyType;
 
   const getUser = async () => {
-    const res = await authService.getCompanyDetail(userDetails._id);
-    setOtherDetails(res.data.company_profile[0]);
-    console.log(res.data.company_profile[0]);
+    try {
+      const res = await authService.getCompanyDetail(userDetails._id);
+      const companyDetails = res.data.company_profile[0];
+
+      const userData = {
+        name: res.data.username || "",
+        email: res.data.email || "",
+        mobileNumber: res.data.mobilenumber || "",
+        companyName: companyDetails?.company_name || "",
+        companyType: companyDetails?.company_type || "",
+        designation: companyDetails?.designation || "",
+        panNumber: companyDetails?.pan_number || "",
+        gstNumber: companyDetails?.gst_number || "",
+        cinNumber: companyDetails?.cin_number || "",
+        tradeLicense: companyDetails?.tradeLicense || "",
+        panFrontImage: companyDetails?.pan_front_image || "",
+        panBackImage: companyDetails?.pan_back_image || "",
+      };
+
+      setAccountDetails(userData);
+      setOriginalDetails(userData); // Store original backend values
+      setUpdatedDetails(userData); // Set fields for editing
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
   };
 
   useEffect(() => {
     getUser();
   }, []);
-  useEffect(() => {
-    if (userDetails) {
-      setAccountDetails({
-        name: userDetails?.username || "",
-        email: userDetails?.email || "",
-        mobileNumber: userDetails?.mobilenumber || "",
-        companyName: otherDetails?.company_name || "",
-        companyType: otherDetails?.company_type || "",
-        designation: otherDetails?.designation || "",
-        panCard: otherDetails?.pan_number || "",
-      });
-    }
-  }, [userDetails, otherDetails]);
 
-  const handleChange = (e) => {
+  // Handle Input Change for Editable Fields
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setAccountDetails({ ...accountDetails, [name]: value });
+    setUpdatedDetails((prev) => ({ ...prev, [name]: value }));
+
+    // If name is edited, enable editing mode
+ 
+      setIsEditing(true);
+    
   };
+
+  // Update User API Call
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await axios.put(`http://192.168.1.103:9000/api/user/edit-profile/${userId}`, {
+        username: updatedDetails.name,
+        email: updatedDetails.email,
+        mobilenumber: updatedDetails.mobileNumber, 
+      });
+
+      toast.success("Name has been updated successfully", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      setOriginalDetails(updatedDetails); 
+      setIsEditing(false); 
+
+    } catch (error) {
+            toast.error("Error in editing the name", {
+                position: "top-right",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+              });
+      setUpdatedDetails(originalDetails); // Reset to original backend values
+    }
+    setIsSaving(false);
+  };
+  useEffect(() => {
+    getUser();
+  }, []);
 
   return (
     <Box
@@ -69,25 +137,7 @@ const Profile = () => {
         marginTop: "5rem",
       }}
     >
-      <Box
-        sx={{
-          position: "absolute",
-          top: -40,
-          left: "50%",
-          transform: "translateX(-50%)",
-          backgroundColor: "#1976d2",
-          height: 80,
-          width: 80,
-          borderRadius: "50%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          color: "#fff",
-        }}
-      >
-        <AccountCircleIcon sx={{ fontSize: 50 }} />
-      </Box>
-
+      <ToastContainer/>
       <Typography
         variant="h5"
         align="center"
@@ -99,209 +149,263 @@ const Profile = () => {
           textTransform: "uppercase",
         }}
       >
-        Account
+        Account Details
       </Typography>
-      <Box component="form" noValidate autoComplete="off">
-        <Typography
-          variant="subtitle1"
-          gutterBottom
-          sx={{
-            fontWeight: "bold",
-            marginBottom: 1,
-            color: "#555",
-            textTransform: "uppercase",
-          }}
-        >
-          Personal Details
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
+
+      {/* Personal Details */}
+      <Typography
+        variant="subtitle1"
+        gutterBottom
+        sx={{
+          fontWeight: "bold",
+          marginBottom: 1,
+          color: "#555",
+          textTransform: "uppercase",
+        }}
+      >
+        Personal Details
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+        <TextField
+            fullWidth
+          
+            variant="outlined"
+            name="name"
+            value={updatedDetails.name}
+            onChange={handleInputChange}
+            // InputProps={{ readOnly: !isEditing }}  
+          />
+        </Grid>
+        <Grid item xs={12}>
+     
             <TextField
-              fullWidth
-              label="Name"
-              variant="outlined"
-              value={accountDetails.name}
-              name="name"
-              onChange={handleChange}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Email"
-              variant="outlined"
-              value={accountDetails.email}
-              name="email"
-              onChange={handleChange}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Mobile Number"
-              variant="outlined"
-              value={accountDetails.mobileNumber}
-              name="mobileNumber"
-              onChange={handleChange}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
+            fullWidth
+            label="email"
+            variant="outlined"
+            value={accountDetails.email}
+            InputProps={{ readOnly: true }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Mobile Number"
+            variant="outlined"
+            value={accountDetails.mobileNumber}
+            InputProps={{ readOnly: true }}
+          />
+        </Grid>
+      </Grid>
+
+      {/* Company Details */}
+      <Typography
+        variant="subtitle1"
+        gutterBottom
+        sx={{
+          fontWeight: "bold",
+          marginTop: 4,
+          marginBottom: 1,
+          color: "#555",
+          textTransform: "uppercase",
+        }}
+      >
+        Company Details
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label={companyType === "Self/Others" ? "Name" : "Company Name"}
+            variant="outlined"
+            value={accountDetails.companyName}
+            InputProps={{ readOnly: true }}
+          />
         </Grid>
 
-        {/* Company Details */}
-        <Typography
-          variant="subtitle1"
-          gutterBottom
-          sx={{
-            fontWeight: "bold",
-            marginTop: 4,
-            marginBottom: 1,
-            color: "#555",
-            textTransform: "uppercase",
-          }}
-        >
-          Company Details
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Company Name"
-              variant="outlined"
-              value={accountDetails.companyName}
-              name="companyName"
-              onChange={handleChange}
-              InputProps={{ readOnly: true }}
-            />
-          </Grid>
+        {companyType !== "Self/Others" && (
           <Grid item xs={6}>
             <TextField
               fullWidth
               label="Company Type"
               variant="outlined"
               value={accountDetails.companyType}
-              name="companyType"
-              onChange={handleChange}
               InputProps={{ readOnly: true }}
             />
           </Grid>
+        )}
+
+        {companyType !== "Self/Others" && (
           <Grid item xs={6}>
             <TextField
               fullWidth
               label="Designation"
               variant="outlined"
               value={accountDetails.designation}
-              name="designation"
-              onChange={handleChange}
               InputProps={{ readOnly: true }}
             />
           </Grid>
-        </Grid>
+        )}
 
-        {/* Additional Details */}
-        <Typography
-          variant="subtitle1"
-          gutterBottom
-          sx={{
-            fontWeight: "bold",
-            marginTop: 4,
-            marginBottom: 1,
-            color: "#555",
-            textTransform: "uppercase",
-          }}
-        >
-          Additional Details
-        </Typography>
-        <Grid container spacing={2}>
+        {companyType !== "Self/Others" && (
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="PAN Card"
+              label="TDS"
               variant="outlined"
-              value={accountDetails.panCard}
-              name="panCard"
-              onChange={handleChange}
+              value="2%"
               InputProps={{ readOnly: true }}
             />
           </Grid>
-        </Grid>
+        )}
+      </Grid>
 
-        {/* Document Upload */}
-        <Typography
-          variant="subtitle1"
-          gutterBottom
-          sx={{
-            fontWeight: "bold",
-            marginTop: 4,
-            marginBottom: 1,
-            color: "#555",
-            textTransform: "uppercase",
-          }}
-        >
-          Upload Documents
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <Paper
-              sx={{
-                height: 120,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: "#f5f5f5",
-                borderRadius: 2,
-                border: "2px dashed #ddd",
-              }}
-            >
-              <IconButton color="primary" component="label">
-                <PhotoCamera />
-                <input hidden accept="image/*" type="file" />
-              </IconButton>
-            </Paper>
-          </Grid>
-          <Grid item xs={6}>
-            <Paper
-              sx={{
-                height: 120,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: "#f5f5f5",
-                borderRadius: 2,
-                border: "2px dashed #ddd",
-              }}
-            >
-              <IconButton color="primary" component="label">
-                <PhotoCamera />
-                <input hidden accept="image/*" type="file" />
-              </IconButton>
-            </Paper>
-          </Grid>
-        </Grid>
-
-        {/* Save Button */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: 4,
-          }}
-        >
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
+      {/* GST & PAN Details - Shown for Certain Company Types */}
+      {[
+        "Private Limited & Limited",
+        "Partnership & LLP",
+        "Proprietorship",
+        "Limited",
+      ].includes(companyType) && (
+        <>
+          <Typography
+            variant="subtitle1"
+            gutterBottom
             sx={{
-              paddingX: 4,
-              textTransform: "uppercase",
               fontWeight: "bold",
+              marginTop: 4,
+              marginBottom: 1,
+              color: "#555",
+              textTransform: "uppercase",
             }}
           >
-            Save Changes
-          </Button>
-        </Box>
+            Tax & Compliance Details
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="GST Number"
+                variant="outlined"
+                value={accountDetails.gstNumber}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="PAN Number"
+                variant="outlined"
+                value={accountDetails.panNumber}
+                InputProps={{ readOnly: true }}
+              />
+            </Grid>
+          </Grid>
+
+          {/* PAN Card Images */}
+          <Typography
+            variant="subtitle1"
+            gutterBottom
+            sx={{
+              fontWeight: "bold",
+              marginTop: 4,
+              marginBottom: 1,
+              color: "#555",
+              textTransform: "uppercase",
+            }}
+          >
+            PAN Card Images
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <Paper
+                sx={{
+                  height: 120,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: 2,
+                  border: "2px dashed #ddd",
+                }}
+              >
+                {accountDetails.panFrontImage ? (
+                  <img
+                    src={accountDetails.panFrontImage}
+                    alt="PAN Front"
+                    style={{ maxWidth: "100%", maxHeight: "100%" }}
+                  />
+                ) : (
+                  <Typography>No Image</Typography>
+                )}
+              </Paper>
+            </Grid>
+            <Grid item xs={6}>
+              <Paper
+                sx={{
+                  height: 120,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "#f5f5f5",
+                  borderRadius: 2,
+                  border: "2px dashed #ddd",
+                }}
+              >
+                {accountDetails.panBackImage ? (
+                  <img
+                    src={accountDetails.panBackImage}
+                    alt="PAN Back"
+                    style={{ maxWidth: "100%", maxHeight: "100%" }}
+                  />
+                ) : (
+                  <Typography>No Image</Typography>
+                )}
+              </Paper>
+            </Grid>
+          </Grid>
+        </>
+      )}
+
+      {/* CIN Number (For Specific Companies) */}
+      {["Private Limited & Limited", "Partnership & LLP", "Limited"].includes(
+        companyType
+      ) && (
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="CIN Number"
+            variant="outlined"
+            value={accountDetails.cinNumber}
+            sx={{ marginTop: "2rem" }}
+            InputProps={{ readOnly: true }}
+          />
+        </Grid>
+      )}
+
+      {/* Trade License (Only for Proprietorship) */}
+      {companyType === "Proprietorship" && (
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Trade License"
+            variant="outlined"
+            value={accountDetails.tradeLicense}
+            InputProps={{ readOnly: true }}
+          />
+        </Grid>
+      )}
+      <Box sx={{ display: "flex", justifyContent: "center", marginTop: 4 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          sx={{ paddingX: 4, textTransform: "uppercase", fontWeight: "bold" }}
+          onClick={handleSave}
+          disabled={isSaving}
+        >
+          {isSaving ? "Saving..." : "Save Changes"}
+        </Button>
       </Box>
     </Box>
   );

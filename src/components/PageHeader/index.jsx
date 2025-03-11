@@ -77,6 +77,8 @@ import SearchIcon from "@mui/icons-material/Search";
 // styles
 import "./styles.scss";
 import { config } from "../../api/config";
+import { setLoading } from "../../redux/slice/LoaderSlice";
+import axios from "axios";
 
 const PageHeader = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -135,34 +137,51 @@ const PageHeader = () => {
 
   useEffect(() => {
     if (!searchTerm.trim()) {
-      setSuggestedProducts([]);
+      setSuggestedProducts([]); 
       return;
     }
-
+  
     const fetchProducts = async () => {
-      setLoading(true);
+      // setLoading(true);
+      dispatch(setLoading(true));
       try {
-        
-        const res = await axios.get(
-          `${config.BASEURL}/api/product/search-product?limit=5&search=${searchTerm}`
+        const res = await axios.post(
+          `${config.BASEURL}/product/search-product?limit=5&name=${searchTerm}`
         );
+
         setSuggestedProducts(res.data.products || []);
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
-      setLoading(false);
+      dispatch(setLoading(false));
     };
 
-    const debounceSearch = setTimeout(fetchProducts, 300); 
+
+    const debounceSearch = setTimeout(fetchProducts, 300);
     return () => clearTimeout(debounceSearch);
   }, [searchTerm]);
+
+  const handleSuggestionClick = (productName) => {
+    setSearchTerm(productName);
+    
+    setSearchTerm("");
+    setSuggestedProducts([]);
+
+    setTimeout(() => {
+      navigate(`/products?search=${encodeURIComponent(productName)}`);
+    }, 50);
+  };
+
+  useEffect(() => {
+    console.log("Updated suggestedProducts:", suggestedProducts);
+  }, [suggestedProducts]);
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
     }
+    setSuggestedProducts([]);
   };
-
 
   const closeMenuAndNavigate = (path) => {
     setActivePath(path);
@@ -414,6 +433,43 @@ const PageHeader = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </Paper>
+            {/* Search Suggestions */}
+            {suggestedProducts.length > 0 && searchTerm  && (
+              <Paper
+                sx={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  width: "100%",
+                  backgroundColor: "white",
+                  zIndex: 10,
+                  boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  borderRadius: "8px",
+                  marginTop: "5px",
+                }}
+              >
+                <List>
+                  {suggestedProducts.length > 0 &&
+                    suggestedProducts.map((product) => (
+                      <ListItem
+                        key={product.id}
+                        button
+                        onClick={() =>
+                          handleSuggestionClick(product.product_name)
+                        }
+                        sx={{ padding: "10px" }}
+                      >
+                        <ListItemText
+                          primary={product.product_name}
+                          sx={{ color: "#333", fontWeight: "bold" }}
+                        />
+                      </ListItem>
+                    ))}
+                </List>
+              </Paper>
+            )}
 
             {/* Last menu icons ................... */}
             <Box sx={{ display: { xs: "none", md: "block" } }}>
@@ -496,35 +552,30 @@ const PageHeader = () => {
 
                 {/* Mood Board.............  */}
 
-                <Box
-                  sx={{
-              
-                  }}
-                >
-                      <Link
-                  to={"/mood-board"}
-                  style={{
-                    textDecoration: "none",
-                    color: "black",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                
-                  }}
-                >
-                  <DesignServicesOutlinedIcon
-                    fontSize="medium"
-                    sx={{ color: "#e389eb", cursor: "pointer" }}
-                  />
-                  <Typography
-                    sx={{
-                      color: "#6f6a6a",
-                      fontFamily: "poppins",
-                      fontSize: "0.8rem",
+                <Box sx={{}}>
+                  <Link
+                    to={"/mood-board"}
+                    style={{
+                      textDecoration: "none",
+                      color: "black",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
                     }}
                   >
-                    Mood Board
-                  </Typography>
+                    <DesignServicesOutlinedIcon
+                      fontSize="medium"
+                      sx={{ color: "#e389eb", cursor: "pointer" }}
+                    />
+                    <Typography
+                      sx={{
+                        color: "#6f6a6a",
+                        fontFamily: "poppins",
+                        fontSize: "0.8rem",
+                      }}
+                    >
+                      Mood Board
+                    </Typography>
                   </Link>
                 </Box>
                 {/* <Link
@@ -551,7 +602,6 @@ const PageHeader = () => {
                   }}
                   onClick={() => setIsCalendarOpen(!isCalendarOpen)}
                 >
-                  
                   <CalendarMonthIcon
                     fontSize="medium"
                     sx={{ color: "#e389eb", cursor: "pointer" }}
@@ -565,7 +615,6 @@ const PageHeader = () => {
                   >
                     Calender
                   </Typography>
-                    
                 </Box>
                 {/* Account page................................. */}
                 {isAuthenticated ? (

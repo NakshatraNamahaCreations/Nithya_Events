@@ -1,74 +1,96 @@
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-  }
-  
-  .app {
-    display: flex;
-    height: 100vh;
-    background-color: #f1f1f1;
-  }
-  
-  /* Sidebar Palette */
-  .palette {
-    width: 250px;
-    padding: 20px;
-    background-color: #ffffff;
-    border-right: 2px solid #ccc;
-  }
-  
-  .palette h2 {
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  
-  .palette-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 15px;
-  }
-  
-  .icon {
-    width: 50px;
-    height: 50px;
-  }
-  
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
 
-  .add-btn {
-    background-color: #d2ead8;
-    border: none;
-    padding: 0.2rem 0.6rem;
-    border-radius: 0.2rem;
-  }
-  
-  .remove-btn {
-    background-color: #d2ead8;
-    border: none;
-    padding: 0.2rem 0.6rem;
-    border-radius: 0.2rem;
-  }
-  
-  /* Canvas Area */
+/* Sidebar Palette */
+.palette {
+  width: 250px;
+  margin-top: -30px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-right: 2px solid #ccc;
+}
+
+.palette h2 {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.icon {
+  width: 50px;
+  height: 50px;
+}
+
+.add-btn {
+  background-color: #d2ead8;
+  border: none;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.2rem;
+}
+
+.remove-btn {
+  background-color: #d2ead8;
+  border: none;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.2rem;
+}
+
+/* Canvas Area */
+.canvas {
+  flex: 1;
+  background-color: #f4f4f9;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Draggable Objects */
+.draggable-object {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  cursor: grab;
+}
+
+.object-img {
+  width: 100%;
+  height: 100%;
+}
+
+.palette-mobile {
+  display: flex;
+  overflow-x: auto;
+  margin-top: 16rem;
+}
+@media (max-width: 600px) {
   .canvas {
-    flex: 1;
-    background-color: #f4f4f9;
-    position: relative;
-    overflow: hidden;
+    top: 30%; /* Adjust position for mobile */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 50vh;
+    overflow: auto;
+    border: 2px solid #ccc; /* Optional: Adds a border for visibility */
   }
-  
-  /* Draggable Objects */
-  .draggable-object {
+
+  .palette-mobile {
+    display: flex;
+    overflow-y: auto;
+    gap: 10px;
+    padding: 10px;
+    // background: #ffffff;
     position: absolute;
-    width: 50px;
-    height: 50px;
-    cursor: grab;
-  }
-  
-  .object-img {
+    z-index: 1;
+    bottom: 0;
     width: 100%;
-    height: 100%;
   }
-  
+}

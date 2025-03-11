@@ -99,7 +99,7 @@ const CompanyDetails = () => {
       sx={{
         padding: 4,
         maxWidth: 700,
-        margin: "20px auto",
+        margin: "60px auto",
         backgroundColor: "#fff",
         borderRadius: 4,
         boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
@@ -134,20 +134,36 @@ const CompanyDetails = () => {
             </MenuItem>
             <MenuItem value="Partnership & LLP">Partnership & LLP</MenuItem>
             <MenuItem value="Proprietorship">Proprietorship</MenuItem>
+            <MenuItem value="Limited">Limited</MenuItem>
             <MenuItem value="Self/Others">Self/Others</MenuItem>
           </TextField>
         </Grid>
 
         <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Company Name"
-            name="company_name"
-            value={formData.company_name}
-            onChange={handleChange}
-            variant="outlined"
-            required
-          />
+          {
+            companyType ===  "Self/Others" ? (
+              <TextField
+              fullWidth
+              label="Name"
+              name="company_name"
+              value={formData.company_name}
+              onChange={handleChange}
+              variant="outlined"
+              required
+            />
+            ) : (
+              <TextField
+              fullWidth
+              label="Company Name"
+              name="company_name"
+              value={formData.company_name}
+              onChange={handleChange}
+              variant="outlined"
+              required
+            />
+            )
+          }
+      
         </Grid>
 
         {companyType !== "Self/Others" && (
@@ -181,6 +197,7 @@ const CompanyDetails = () => {
           "Private Limited & Limited",
           "Partnership & LLP",
           "Proprietorship",
+          "Limited"
         ].includes(companyType) && (
           <>
             <Grid item xs={12}>
@@ -272,7 +289,7 @@ const CompanyDetails = () => {
           </>
         )}
 
-        {companyType === "Private Limited & Limited" && (
+        {(companyType === "Private Limited & Limited" || companyType === "Partnership & LLP" || companyType === "Limited") && (
           <Grid item xs={12}>
             <TextField
               fullWidth
