@@ -66,6 +66,8 @@ const EventDetails = ({
     endTime: null,
     eventName: "",
     eventVenue: "",
+    venueSetupStartTime:null,
+    venueSetupEndTime:null,
     venueStartTime: null,
     venueEndTime: null,
     receiverName: "",

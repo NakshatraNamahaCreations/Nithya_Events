@@ -1,89 +1,161 @@
-import React from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-import "./styles.scss";
+import React, { useRef } from "react";
+import {
+  Box,
+  Typography,
+  Grid,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Divider,
+  Button,
+} from "@mui/material";
 
-const Invoice = ({ bookings, items, onClose }) => {
+const Invoice = ({ booking }) => {
+  const invoiceRef = useRef();
 
-  const downloadInvoice = () => {
-    const invoiceElement = document.getElementById("invoice");
-
-    html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgWidth = 190;
-      const pageHeight = 290;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let position = 10;
-
-      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
-      pdf.save(`Invoice_${bookings._id.slice(-6)}.pdf`);
-    });
+  // Function to Download Invoice
+  const handleDownloadInvoice = () => {
+    const content = invoiceRef.current.innerHTML;
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Invoice</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            table { width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+            th { background-color: #f1f1f1; }
+            .header-box { display: flex; justify-content: space-between; padding: 10px; }
+          </style>
+        </head>
+        <body>${content}</body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
   };
 
   return (
-    <div id="invoice" className="invoice-container">
-      <div className="header">
-        <div className="company-info">
-          <h2>KADAM VENTURES PRIVATE LIMITED</h2>
-          <p>No. 150 1st floor, Venkatarappa Road, Bengaluru-560051</p>
-          <p>Email: support@nithyaevents.com</p>
-          <p>GSTIN: 29AAPCK0912B1ZW</p>
-          <p>SAC CODE : CVWDCW</p>
-        </div>
-        <div className="invoice-info">
-          <p><strong>Invoice #:</strong> {`INV${bookings._id.slice(-6)}`}</p>
-          <p><strong>Event Name:</strong> {bookings.event_name || "N/A"}</p>
-          <p><strong>Ordered Date:</strong> {bookings.ordered_date || "N/A"}</p>
-        </div>
-      </div>
+    <Box sx={{ p: 3, maxWidth: "900px", margin: "auto" }}>
+      <Paper variant="outlined" sx={{ p: 3 }} ref={invoiceRef}>
+        {/* Header Section */}
+        <Grid container spacing={2}>
+          {/* Left Side: Company Details */}
+          <Grid item xs={8}>
+            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+              KADAGAM VENTURES PRIVATE LIMITED
+            </Typography>
+            <Typography variant="body2">
+              NO .34 1st Floor, Venkatappa Road, Tasker Town, Bengaluru - 560051
+            </Typography>
+            <Typography variant="body2">GSTIN: 29AADPI4078B1ZW</Typography>
+            <Typography variant="body2">SAC CODE: CWWDCW</Typography>
+          </Grid>
 
-      <table className="product-table">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Size</th>
-            <th>Qty</th>
-            <th>Price</th>
-            <th>Days</th>
-            <th>Amount</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item, index) => (
-            <tr key={index}>
-              <td>{item.name}</td>
-              <td>{item.dimension}</td>
-              <td>{item.quantity}</td>
-              <td>{item.price}</td>
-              <td>{bookings.number_of_days}</td>
-              <td>{item.price * item.quantity * bookings.number_of_days}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          {/* Right Side: Invoice Details */}
+          <Grid item xs={4}>
+            <Paper variant="outlined" sx={{ p: 2 }}>
+              <Typography variant="body2">
+                <b>Invoice #:</b> {booking.invoice_id}
+              </Typography>
+              <Typography variant="body2">
+                <b>Event Name:</b> {booking.event_name}
+              </Typography>
+              <Typography variant="body2">
+                <b>Ordered Date:</b> {booking.ordered_date}
+              </Typography>
+              <Typography variant="body2">
+                <b>Venue Name:</b> {booking.venue_name}
+              </Typography>
+              <Typography variant="body2">
+                <b>Venue Location:</b> {booking.event_location}
+              </Typography>
+              <Typography variant="body2">
+                <b>Event Date:</b> {booking.event_date}
+              </Typography>
+              <Typography variant="body2">
+                <b>Event Time:</b> {booking.event_time}
+              </Typography>
+              <Typography variant="body2">
+                <b>No of Days:</b> {booking.number_of_days}
+              </Typography>
+            </Paper>
+          </Grid>
+        </Grid>
+        <Divider sx={{ my: 2 }} />
 
-      <div className="terms">
-        <h3>Terms & Conditions</h3>
-        <ol>
-          <li>Payment Terms: Payment is due before delivery.</li>
-          <li>Reservation and Deposit: A 10% deposit is required.</li>
-          <li>Cancellation Policy: Cancellations must be made at least 2 days in advance.</li>
-          <li>Delivery and Pickup: Additional fees may apply.</li>
-          <li>Condition of Equipment: Return in original condition.</li>
-          <li>Liability: Customer assumes all liability for rented items.</li>
-        </ol>
-        <div className="signature">
-          <p>Signature</p>
-          <p>Sample</p>
-        </div>
-      </div>
+        {/* Customer Details */}
+        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+          To:
+        </Typography>
+        <Typography variant="body2">{booking.receiver_name}</Typography>
+        <Typography variant="body2">{booking.receiver_mobilenumber}</Typography>
+        <Typography variant="body2">{booking.event_location}</Typography>
+        <Divider sx={{ my: 2 }} />
 
-      <div className="actions">
-        <button onClick={onClose}>Back</button>
-        <button onClick={downloadInvoice}>Download</button>
-      </div>
-    </div>
+        {/* Product Table */}
+        <TableContainer component={Paper} sx={{ border: "1px solid #000" }}>
+          <Table>
+            <TableHead sx={{ backgroundColor: "#f1f1f1" }}>
+              <TableRow>
+                <TableCell><b>Product</b></TableCell>
+                <TableCell><b>Size</b></TableCell>
+                <TableCell><b>Qty</b></TableCell>
+                <TableCell><b>Price</b></TableCell>
+                <TableCell><b>Days</b></TableCell>
+                <TableCell><b>Amount</b></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {booking?.products?.map((product, index) => (
+                <TableRow key={index}>
+                  <TableCell>{product.name}</TableCell>
+                  <TableCell>{product.size}</TableCell>
+                  <TableCell>{product.quantity}</TableCell>
+                  <TableCell>₹{product.price}</TableCell>
+                  <TableCell>{booking.number_of_days}</TableCell>
+                  <TableCell>₹{product.quantity * product.price * booking.number_of_days}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Divider sx={{ my: 2 }} />
+
+        {/* Payment Summary */}
+        <Box sx={{ textAlign: "right", p: 2 }}>
+          <Typography variant="body2"><b>Total:</b> ₹{booking.cart_total}</Typography>
+          <Typography variant="body2"><b>TDS Charges (2%):</b> ₹{booking.tds_charges}</Typography>
+          <Typography variant="body2"><b>Amount After TDS Deduction:</b> ₹{booking.amount_after_tds}</Typography>
+          <Typography variant="body2"><b>CGST (9%):</b> ₹{booking.cgst}</Typography>
+          <Typography variant="body2"><b>SGST (9%):</b> ₹{booking.sgst}</Typography>
+          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+            Grand Total: ₹{booking.paid_amount}
+          </Typography>
+        </Box>
+        <Divider sx={{ my: 2 }} />
+
+        {/* Terms & Conditions */}
+        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+          Terms & Conditions
+        </Typography>
+        <Typography variant="body2">1. Payment is due upon receipt.</Typography>
+        <Typography variant="body2">2. A 100% deposit is required to secure your reservation.</Typography>
+        <Typography variant="body2">3. Cancellations must be made at least 2 days in advance.</Typography>
+
+        {/* Download Invoice Button */}
+        <Box sx={{ textAlign: "right", mt: 3 }}>
+          <Button variant="contained" onClick={handleDownloadInvoice}>
+            Download Invoice
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
   );
 };
 
