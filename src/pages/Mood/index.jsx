@@ -32,12 +32,16 @@ const Mood = () => {
       alert("Project name cannot be empty!");
       return;
     }
-    const newProject = { id: Date.now(), name: projectName };
-    const updatedProjects = [...projects, newProject]; 
+    const newProject = { id: Date.now(), name: projectName }; // Ensure project has an ID
+    const updatedProjects = [...projects, newProject];
     setProjects(updatedProjects);
-    localStorage.setItem(`projects_${userId}`, JSON.stringify(updatedProjects)); 
-    handleClose(); 
+    localStorage.setItem(`projects_${userId}`, JSON.stringify(updatedProjects));
+  
+    // Navigate to the new project details page after saving
+    navigate(`/moodDetails/${newProject.id}`); // Use the generated ID from newProject
+    handleClose();
   };
+  
 
   const handleProjectClick = (project) => {
     navigate(`/moodDetails/${project.id}`);

@@ -460,7 +460,7 @@ if(!userId){
             </Collapse>
           </Box>
 
-          <Box className="filter-group">
+          {/* <Box className="filter-group">
             <Box
               sx={{
                 display: "flex",
@@ -535,7 +535,7 @@ if(!userId){
                 </Box>
               </Box>
             </Collapse>
-          </Box>
+          </Box> */}
         </Box>
 
         <Box className="main-content">
@@ -733,11 +733,15 @@ if(!userId){
               </Card>
             ))}
           </Box>
+          <Box sx={{display:'flex', justifyContent:'center', marginTop:'2rem'}}>
+
+        
           <Pagination
             currentPage={currentPage}
             totalPages={Math.ceil(filteredItems.length / itemsPerPage)}
             onPageChange={handlePageChange}
           />
+        </Box>
         </Box>
       </Box>
     </>

@@ -44,7 +44,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         alignItems: "center",
         justifyContent: "center",
         gap: "0.5rem",
-        marginTop: "1rem",
+        margin:"0 auto",
         padding: "0.5rem",
       }}
       onClick={handleViewAll}

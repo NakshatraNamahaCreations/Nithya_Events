@@ -13,22 +13,77 @@ import Theater from "../../../assets/theatre.png";
 import Dinning from "../../../assets/dining.png";
 import Download from "../../../assets/moodDownload.png";
 import Save from "../../../assets/moodSave.png";
-import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { useParams } from "react-router-dom";
+import {
+  Box,
+  Button,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
 
 const MoodDetail = () => {
   const [project, setProject] = useState(null);
   const [objects, setObjects] = useState([]);
-    const canvasRef = useRef(null);
-  const { id } = useParams();   
+  const [isSaved, setIsSaved] = useState(false);
+  const canvasRef = useRef(null);
+  const { id } = useParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
+
+  const saveLayout = () => {
+    localStorage.setItem(`layout_${id}`, JSON.stringify(objects));
+    setIsSaved(true);
+    alert("Layout saved successfully!");
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (!isSaved) {
+        const confirmationMessage =
+          "You have unsaved changes. Do you really want to leave?";
+        e.returnValue = confirmationMessage; // Standard for most browsers
+        return confirmationMessage; // For older browsers
+      }
+    };
+
+    const handlePopState = (e) => {
+      if (!isSaved) {
+        const confirmation = window.confirm(
+          "You have unsaved changes. Do you really want to leave?"
+        );
+        if (confirmation) {
+          navigate("/mood-board"); // Navigate to the previous page if confirmed
+        } else {
+          e.preventDefault(); // Prevent the back navigation
+        }
+      } else {
+        navigate("/mood-board"); // Navigate without confirmation if the layout is saved
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [isSaved, navigate]);
+
+  const clearAllObjects = () => {
+    setObjects([]); // Clear all objects
+    setIsSaved(false); // Mark as unsaved since layout has been cleared
+    alert("All objects have been cleared!");
+  };
 
   useEffect(() => {
     // Retrieve projects from localStorage
     const userDetails = sessionStorage.getItem("userDetails");
     let userId = userDetails ? JSON.parse(userDetails)._id : null;
-    const savedProjects = JSON.parse(localStorage.getItem(`projects_${userId}`)) || [];
+    const savedProjects =
+      JSON.parse(localStorage.getItem(`projects_${userId}`)) || [];
 
     // Find the project by ID
     const selectedProject = savedProjects.find((p) => p.id.toString() === id);
@@ -36,28 +91,30 @@ const MoodDetail = () => {
 
     // Retrieve saved layout for the project
     if (selectedProject) {
-      const savedLayout = JSON.parse(localStorage.getItem(`layout_${id}`)) || [];
+      const savedLayout =
+        JSON.parse(localStorage.getItem(`layout_${id}`)) || [];
       setObjects(savedLayout);
     }
   }, [id]);
 
-  const saveLayout = () => {
-    localStorage.setItem(`layout_${id}`, JSON.stringify(objects));
-    alert("Layout saved successfully!");
-  };
+  // const saveLayout = () => {
+  //   localStorage.setItem(`layout_${id}`, JSON.stringify(objects));
+  //   alert("Layout saved successfully!");
+  // };
   const addObject = (type) => {
     const newObject = {
-      id: Date.now(),
+      id: Date.now(), // Use Date.now() to generate a unique id for each object
       type,
-      x: 100,
-      y: 100,
+      x: Math.floor(Math.random() * 300),
+      y: Math.floor(Math.random() * 300),
       rotation: 0,
     };
-    setObjects([...objects, newObject]);
+    setObjects((prevObjects) => [...prevObjects, newObject]);
   };
 
-  const removeObjectOfType = (type) => {
-    setObjects((prevObjects) => prevObjects.filter((obj) => obj.type !== type));
+  const removeObjectOfType = (id) => {
+    console.log("the id", id); // Log the id for testing
+    setObjects((prevObjects) => prevObjects.filter((obj) => obj.id !== id));
   };
 
   const handleRotate = (id) => {
@@ -96,8 +153,6 @@ const MoodDetail = () => {
   const allowDrop = (e) => {
     e.preventDefault(); // Prevent default behavior to allow dropping
   };
-
-
 
   const downloadLayout = () => {
     const link = document.createElement("a");
@@ -145,24 +200,47 @@ const MoodDetail = () => {
 
   return (
     <Box>
-          <div
+        {project && (
+    <Typography variant="h5" sx={{ marginTop: "3rem", marginBottom:'-2rem', textAlign:'center' }}>
+      {project.name} {/* Assuming project has a 'name' field */}
+    </Typography>
+  )}
+      <div
         className="controls"
-        style={{ display: "flex", gap: "10px", justifyContent: "end", backgroundColor:'#f4f4f9', marginTop:'2rem' }}
+        style={{
+          display: "flex",
+          gap: "10px",
+          justifyContent: "end",
+          marginTop: "3rem",
+        }}
       >
+        
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            cursor:'pointer'
+            cursor: "pointer",
+          }}
+          onClick={clearAllObjects} 
+        >
+          <Button sx={{ fontSize: "0.7rem", color: "#e226bf" }}>
+            Clear All
+          </Button>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: "pointer",
           }}
           onClick={saveLayout}
         >
           <img style={{ width: "30px" }} src={Save} alt="Save Image" />
-          <Typography sx={{ fontSize: "0.7rem" }} >
-            Save
-          </Typography>
+          <Typography sx={{ fontSize: "0.7rem" }}>Save</Typography>
         </Box>
         <Box
           sx={{
@@ -170,123 +248,133 @@ const MoodDetail = () => {
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            cursor:'pointer'
+            cursor: "pointer",
           }}
           onClick={downloadDesign}
         >
           <img style={{ width: "30px" }} src={Download} alt="Download Image" />
-          <Typography sx={{ fontSize: "0.7rem" }} >
-            Download
-          </Typography>
+          <Typography sx={{ fontSize: "0.7rem" }}>Download</Typography>
         </Box>
       </div>
-
-    <div
-      className="app"
-      style={{
-        // marginTop: "2rem",
-        position: "relative",
-        display: "flex",
-        justifyContent: "flex-end",
-      }}
-    >
-  
-
-      {isMobile && (
-        <Box>
-          <div className="palette-mobile">
-            <h2>Object Palette</h2>
-            {[
-              "chair",
-              "mic",
-              "spotlight1",
-              "spotlight",
-              "dinning",
-              "tablecloth",
-              "tribune",
-              "theater",
-            ].map((type) => (
-              <div key={type} className="palette-item">
-                <img src={renderIcon(type)} alt={type} className="icon" />
-                <button onClick={() => addObject(type)} className="add-btn">
-                  +
-                </button>
-                <button
-                  onClick={() => removeObjectOfType(type)}
-                  className="remove-btn"
-                >
-                  -
-                </button>
-              </div>
-            ))}
-          </div>
-        </Box>
-      )}
-
-      {!isMobile && (
-        <Box>
-          <div className="palette">
-            <h2>Object Palette</h2>
-            {[
-              "chair",
-              "mic",
-              "spotlight1",
-              "spotlight",
-              "dinning",
-              "tablecloth",
-              "tribune",
-              "theater",
-            ].map((type) => (
-              <div key={type} className="palette-item">
-                <img src={renderIcon(type)} alt={type} className="icon" />
-                <button onClick={() => addObject(type)} className="add-btn">
-                  +
-                </button>
-                <button
-                  onClick={() => removeObjectOfType(type)}
-                  className="remove-btn"
-                >
-                  -
-                </button>
-              </div>
-            ))}
-          </div>
-        </Box>
-      )}
-
 
       <div
-        className="canvas"
-        ref={canvasRef}
-        onDrop={handleDrop}
-        onDragOver={allowDrop}
+        className="app"
+        style={{
+          // marginTop: "2rem",
+          position: "relative",
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
       >
-        {objects.map((obj) => (
-          <div
-            key={obj.id}
-            className="draggable-object"
-            style={{
-              top: obj.y,
-              left: obj.x,
-              transform: `rotate(${obj.rotation}deg)`,
-              position: "absolute",
-            }}
-            draggable="true"
-            onDragStart={(e) => handleDragStart(obj.id, e)}
-            onContextMenu={(e) => {
-              e.preventDefault(); // Prevent default right-click
-              handleRotate(obj.id);
-            }}
-          >
-            <img
-              src={renderIcon(obj.type)}
-              alt={obj.type}
-              className="object-img"
-            />
-          </div>
-        ))}
+        
+        {isMobile && (
+          <Box>
+            <div className="palette-mobile">
+              <h2>Object Palette</h2>
+              {[
+                "chair",
+                "mic",
+                "spotlight1",
+                "spotlight",
+                "dinning",
+                "tablecloth",
+                "tribune",
+                "theater",
+              ].map((type) => (
+                <div key={type} className="palette-item">
+                  <img src={renderIcon(type)} alt={type} className="icon" />
+                  <button onClick={() => addObject(type)} className="add-btn">
+                    +
+                  </button>
+                  <button
+                    onClick={() => {
+                      const objectToRemove = objects.find(
+                        (obj) => obj.type === type
+                      );
+                      if (objectToRemove) {
+                        removeObjectOfType(objectToRemove.id);
+                      }
+                    }}
+                    className="remove-btn"
+                  >
+                    -
+                  </button>
+                </div>
+              ))}
+            </div>
+          </Box>
+        )}
+
+        {!isMobile && (
+          <Box>
+            <div className="palette">
+              <h2>Object Palette</h2>
+              {[
+                "chair",
+                "mic",
+                "spotlight1",
+                "spotlight",
+                "dinning",
+                "tablecloth",
+                "tribune",
+                "theater",
+              ].map((type) => (
+                <div key={type} className="palette-item">
+                  <img src={renderIcon(type)} alt={type} className="icon" />
+                  <button onClick={() => addObject(type)} className="add-btn">
+                    +
+                  </button>
+                  <button
+                    onClick={() => {
+                      const objectToRemove = objects.find(
+                        (obj) => obj.type === type
+                      );
+                      if (objectToRemove) {
+                        removeObjectOfType(objectToRemove.id);
+                      }
+                    }}
+                    className="remove-btn"
+                  >
+                    -
+                  </button>
+                </div>
+              ))}
+            </div>
+          </Box>
+        )}
+
+        <div
+          className="canvas"
+          ref={canvasRef}
+          onDrop={handleDrop}
+          onDragOver={allowDrop}
+        >
+          {objects.map((obj) => (
+            <div
+              key={obj.id}
+              className="draggable-object"
+              style={{
+                top: obj.y,
+                left: obj.x,
+                transform: `rotate(${obj.rotation}deg)`,
+                position: "absolute",
+              }}
+              draggable="true"
+              onDragStart={(e) => handleDragStart(obj.id, e)}
+              onContextMenu={(e) => {
+                e.preventDefault(); // Prevent default right-click
+                handleRotate(obj.id);
+              }}
+            >
+              <img
+                src={renderIcon(obj.type)}
+                alt={obj.type}
+                className="object-img"
+              />
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
     </Box>
   );
 };
