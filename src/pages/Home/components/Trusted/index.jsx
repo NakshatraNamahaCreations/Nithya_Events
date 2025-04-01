@@ -50,7 +50,7 @@ const Trusted = () => {
         </Typography>
         <Typography
           sx={{
-            fontSize: { xs: "1.5rem", md: "2rem" },
+            fontSize: { xs: "1.5rem", md: "1.6rem" },
             fontWeight: "bold",
             color: "#343a40",
             marginBottom: "1rem",
@@ -95,7 +95,7 @@ const Trusted = () => {
             >
               <Typography
                 sx={{
-                  fontSize: { xs: "1.2rem", md: "1.5rem" },
+                  fontSize: { xs: "1.2rem", md: "1.2rem" },
                   fontWeight: "bold",
                   color: "#fff",
                 }}
@@ -105,7 +105,7 @@ const Trusted = () => {
               <Typography
                 sx={{
                   color: "#dbe9ff",
-                  fontSize: { xs: "0.9rem", md: "1rem" },
+                  fontSize: { xs: "0.9rem", md: "0.8rem" },
                   marginTop: "0.5rem",
                   paddingBottom: "0.5rem",
                   borderBottom: "1px solid #dbe9ff",

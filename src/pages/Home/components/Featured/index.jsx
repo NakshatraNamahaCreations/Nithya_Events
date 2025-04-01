@@ -46,13 +46,12 @@ const Featured = () => {
   }
 
   const fetchFeaturedProducts = async () => {
-    try{
+    try {
       const res = await authService.featuredProducts();
       setFeaturedProduct(res.data.data);
+    } catch (error) {
+      getErrorMessage(error);
     }
-catch(error){
-  getErrorMessage(error);
-}
   };
 
   useEffect(() => {
@@ -88,15 +87,15 @@ catch(error){
   const fetchWishlist = async () => {
     dispatch(setLoading(true));
     // if (!userId) {
-      // toast.error("You need to login", {
-      //   position: "top-right",
-      //   autoClose: 2000,
-      //   hideProgressBar: false,
-      //   closeOnClick: true,
-      //   pauseOnHover: true,
-      //   draggable: true,
-      //   progress: undefined,
-      // });
+    // toast.error("You need to login", {
+    //   position: "top-right",
+    //   autoClose: 2000,
+    //   hideProgressBar: false,
+    //   closeOnClick: true,
+    //   pauseOnHover: true,
+    //   draggable: true,
+    //   progress: undefined,
+    // });
     //   dispatch(setLoading(false));
     //   return;
     // }
@@ -243,7 +242,7 @@ catch(error){
             fontWeight: "bold",
             color: "#343a40",
             textTransform: "uppercase",
-            fontSize: "1.5rem",
+            fontSize: "1.2rem",
           }}
         >
           Featured Products
@@ -277,9 +276,9 @@ catch(error){
               src={item.product_image}
               alt={item.product_name}
               sx={{
-                width: "100%",
-                height: "270px",
-                objectFit: "cover",
+                width: "94%",
+                height: "180px",
+                objectFit: "fill",
                 borderTopLeftRadius: "10px",
                 borderTopRightRadius: "10px",
               }}
@@ -291,7 +290,7 @@ catch(error){
                   variant="h6"
                   sx={{
                     fontWeight: "bold",
-                    fontSize: "1rem",
+                    fontSize: "0.9rem",
                     color: "#343a40",
                   }}
                 >
@@ -347,7 +346,7 @@ catch(error){
                   sx={{
                     fontWeight: "bold",
                     color: "#000",
-                    fontSize: "1rem",
+                    fontSize: "0.9rem",
                   }}
                 >
                   ₹{item.product_price}
@@ -359,7 +358,7 @@ catch(error){
                     sx={{
                       textDecoration: "line-through",
                       color: "red",
-                      fontSize: "1rem",
+                      fontSize: "0.9rem",
                       display: "flex",
                       alignItems: "center",
                     }}
@@ -395,7 +394,7 @@ catch(error){
                       boxShadow: "none",
                     },
                   }}
-                     onClick={() => handleProductClick(item._id)}
+                  onClick={() => handleProductClick(item._id)}
                 >
                   View More
                 </Button>

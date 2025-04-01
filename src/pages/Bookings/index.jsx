@@ -63,12 +63,12 @@ const Bookings = () => {
     setSelectedTab(newValue);
   };
   const filteredBookings = bookings.filter((booking) => {
-    const currentDate = new Date(); // Get current date
-    if (selectedTab === 0) return true; // All
+    const currentDate = new Date(); 
+    if (selectedTab === 0) return true; 
     // if (selectedTab === 1) return booking.payment_status === "pending";
     if (selectedTab === 1) {
       if (booking.order_status === "cancelled" || booking.order_status === "rescheduled") {
-        return false; // Don't show the booking
+        return false; 
       }
 
       const eventStartDate = new Date(booking.event_start_date);

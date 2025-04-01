@@ -29,7 +29,7 @@ const Toc = () => {
       <Typography
         variant="h6"
         gutterBottom
-        sx={{ textAlign: "center", fontWeight: "bold" }}
+        sx={{ textAlign: "center", fontWeight: "bold", mb:'2rem', mt:'2rem' }}
       >
         Terms and Conditions
       </Typography>

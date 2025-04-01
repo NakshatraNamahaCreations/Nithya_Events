@@ -767,11 +767,14 @@ const Products = () => {
               </Card>
             ))}
           </Box>
+
           <Pagination
             currentPage={currentPage}
             totalPages={Math.ceil(filteredItems.length / itemsPerPage)}
             onPageChange={handlePageChange}
           />
+ 
+
         </Box>
         <Modal
           open={open}

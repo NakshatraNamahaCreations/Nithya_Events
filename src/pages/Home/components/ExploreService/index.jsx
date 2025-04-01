@@ -27,10 +27,10 @@ const ExploreService = () => {
   ];
 
   return (
-    <Box sx={{ padding: "2rem", paddingLeft:'8rem' }}>
+    <Box sx={{ padding: "2rem", paddingLeft:{xs:'3rem', md: '8rem'} }}>
       <Typography
         sx={{
-          fontSize: "1.8rem",
+          fontSize: "1.4rem",
           fontWeight: "bold",
           color: "#343a40",
           marginBottom: "2rem",
@@ -87,7 +87,7 @@ const ExploreService = () => {
                 margin: "auto",
                 marginBottom: "1rem",
                 border: "1px solid #000000a3",
-                fontSize:'2rem'
+                fontSize:'1.2rem'
                 // boxShadow: "0px 0px 15px rgba(160, 32, 240, 0.4)",
               }}
             >

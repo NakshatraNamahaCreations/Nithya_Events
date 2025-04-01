@@ -45,8 +45,8 @@ const Calendar = ({ calendarClose }) => {
   const handleDateChange = (dates) => {
     setSelectedDates(dates);
 
-    let start = dates[0] || today; // Default to today if no start date
-    let end = dates[1] || start; // Default to start date if no end date
+    let start = dates[0] || today; 
+    let end = dates[1] || start; 
     let difference =
       Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
@@ -75,9 +75,9 @@ const Calendar = ({ calendarClose }) => {
       {/* HEADER */}
       <Box className="calendar-header">
         <EventIcon className="calendar-icon" />
-        <Typography variant="h6">Choose your Event Date</Typography>
+        <Typography variant="h6" sx={{fontSize:'1rem'}}>Choose your Event Date</Typography>
         <Box sx={{ display: "flex", gap: "0.3rem", alignItems: "center" }} mt={1}>
-          <Typography className="calendar-date">
+          <Typography className="calendar-date" sx={{fontSize:'0.8rem'}}>
             {selectedDates[0]?.toLocaleDateString("en-US", {
               month: "short",
               day: "2-digit",
@@ -92,7 +92,7 @@ const Calendar = ({ calendarClose }) => {
           </Typography>
           <Typography
             className="noofdays"
-            sx={{ color: "#d946ef", fontSize: "0.85rem", height: "30px" }}
+            sx={{ color: "#d946ef", fontSize: "0.75rem", height: "30px" }}
           >
             {numberOfDays} {numberOfDays > 1 ? "days" : "day"}
           </Typography>

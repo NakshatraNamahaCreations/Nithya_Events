@@ -79,20 +79,26 @@ const Faq = () => {
 
   return (
     <section id="faq">
-      <Typography variant="h6" sx={{textAlign:'center', fontSize:'1.8rem'}}>How It Works</Typography>
+      <Typography variant="h6" sx={{ textAlign: "center", fontSize: "1.8rem" }}>
+        How It Works
+      </Typography>
       <Box
         sx={{
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
           alignItems: "center",
-          gap: {xs:"1rem", sm:"2rem", md:"20rem"},
+          gap: { xs: "1rem", sm: "2rem", md: "20rem" },
           // maxWidth: "1200px",
           margin: "1rem",
           padding: "2rem 5rem",
-          justifyContent:'center'
+          justifyContent: "center",
         }}
       >
-        <img src={FaqImg} alt="Not found" style={{width:'45rem'}}  />
+        <img src={FaqImg} alt="Not found"   style={{
+      width: "100%", 
+      maxWidth: "45rem", 
+      height: "auto", 
+  }}/>
         {/* FAQ Section */}
         {/* <Box sx={{ flex: 1 }}>
           <Typography

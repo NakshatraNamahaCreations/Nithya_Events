@@ -326,7 +326,7 @@ const SingleService = () => {
               marginTop: "1rem",
             }}
           >
-            {console.log(service.Reviews)}
+         
             <Typography>{calculateAverageRating(service.Reviews)}</Typography>
             {/* <Typography variant="p" sx={{ fontSize: "0.8rem" }}>
               {service.Reviews?.length || 0} 
@@ -437,7 +437,7 @@ const SingleService = () => {
 
       {/* Tab Content */}
       {activeTab === 0 && (
-        <Box sx={{ marginTop: "2rem" }}>
+        <Box sx={{ marginTop: "2rem",display:{xs:'flex'}, flexDirection:{xs:'column'} }}>
           {services.map((serviceItem) => (
             <Card
               key={serviceItem._id}
@@ -447,6 +447,7 @@ const SingleService = () => {
                 alignItems: "center",
                 marginBottom: "1rem",
                 cursor: "pointer",
+                flexDirection:{xs:'column', md:'row'}
               }}
             >
               <CardMedia
@@ -503,26 +504,25 @@ const SingleService = () => {
                   + ₹{serviceItem?.taxes?.toLocaleString()} taxes & fees
                 </Typography>
                 <Button
-  variant="outlined"
-  sx={{
-    borderColor: "red",
-    color: "red",
-    fontWeight: "bold",
-    marginTop: "10px",
-  }}
-  onClick={() => {
-    setSelectedService(serviceItem);
+                  variant="outlined"
+                  sx={{
+                    borderColor: "red",
+                    color: "red",
+                    fontWeight: "bold",
+                    marginTop: "10px",
+                  }}
+                  onClick={() => {
+                    setSelectedService(serviceItem);
 
-    if (service?.profession === "Hotels") {
-      setOpenBook(true); 
-    } else {
-      handleAddToCart(); 
-    }
-  }}
->
-  Book Now
-</Button>
-
+                    if (service?.profession === "Hotels") {
+                      setOpenBook(true);
+                    } else {
+                      handleAddToCart();
+                    }
+                  }}
+                >
+                  Book Now
+                </Button>
               </Grid>
             </Card>
           ))}
@@ -688,7 +688,9 @@ const SingleService = () => {
           />
 
           {/* Guest Section */}
-          <Typography variant="h6" sx={{marginBottom:'1rem'}}>Guests</Typography>
+          <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
+            Guests
+          </Typography>
           <TextField
             fullWidth
             type="number"

@@ -143,9 +143,9 @@ const Footer = () => {
 
         <Box className="location">
           <LocationOn />
-          <span>Bengaluru, India</span>
+          <span style={{fontSize:'0.9rem'}}>Bengaluru, India</span>
         </Box>
-        <p>© 2025 | copyrights its Kadagam Ventures Private Limited</p>
+        <p style={{fontSize:'0.7rem'}}>© 2025 | copyrights its Kadagam Ventures Private Limited</p>
       </Box>
 
 

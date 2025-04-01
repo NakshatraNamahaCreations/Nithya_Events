@@ -25,27 +25,29 @@ import {
   TextField,
   Toolbar,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 // import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import EditCalendarOutlinedIcon from "@mui/icons-material/EditCalendarOutlined";
-import FmdGoodOutlinedIcon from "@mui/icons-material/FmdGoodOutlined";
-import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-import CloseIcon from "@mui/icons-material/Close";
-import { Add } from "@mui/icons-material";
-import RemoveIcon from "@mui/icons-material/Remove";
+// import FmdGoodOutlinedIcon from "@mui/icons-material/FmdGoodOutlined";
+// import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
+// import CloseIcon from "@mui/icons-material/Close";
+// import { Add } from "@mui/icons-material";
+// import RemoveIcon from "@mui/icons-material/Remove";
 
 // Custom Components
 import { useDispatch, useSelector } from "react-redux";
 import { formatCurrencyIntl, getCurrentCity } from "../../utils/helperFunc";
 import { logout } from "../../redux/slice/authSlice";
-import {
-  quantityDecrement,
-  quantityIncrement,
-  removeFromCart,
-} from "../../redux/slice/CartSlice";
+// import {
+//   quantityDecrement,
+//   quantityIncrement,
+//   removeFromCart,
+// } from "../../redux/slice/CartSlice";
 
 // Assests
 import Calenders from "../../assets/Calenders.png";
@@ -101,6 +103,8 @@ const PageHeader = () => {
   const isActive = (path) => location.pathname === path;
   const dispatch = useDispatch();
   const totalItems = [...cartItems, ...techniciansItems, ...serviceItems];
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const menuItems = [
     {
@@ -137,10 +141,10 @@ const PageHeader = () => {
 
   useEffect(() => {
     if (!searchTerm.trim()) {
-      setSuggestedProducts([]); 
+      setSuggestedProducts([]);
       return;
     }
-  
+
     const fetchProducts = async () => {
       // setLoading(true);
       dispatch(setLoading(true));
@@ -156,14 +160,13 @@ const PageHeader = () => {
       dispatch(setLoading(false));
     };
 
-
     const debounceSearch = setTimeout(fetchProducts, 300);
     return () => clearTimeout(debounceSearch);
   }, [searchTerm]);
 
   const handleSuggestionClick = (productName) => {
     setSearchTerm(productName);
-    
+
     setSearchTerm("");
     setSuggestedProducts([]);
 
@@ -171,10 +174,6 @@ const PageHeader = () => {
       navigate(`/products?search=${encodeURIComponent(productName)}`);
     }, 50);
   };
-
-  useEffect(() => {
-    console.log("Updated suggestedProducts:", suggestedProducts);
-  }, [suggestedProducts]);
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
@@ -239,17 +238,19 @@ const PageHeader = () => {
           position="static"
           sx={{
             background: "white",
-            width: "100% !important",
+            width:'100% ', 
           }}
         >
           <Toolbar
             sx={{
               display: "flex",
-              gap: "2rem",
               justifyContent: "space-between",
+              alignItems: "center",
+              padding: "0.5rem 1rem", // Add padding to control spacing
+              minHeight: "60px", // Ensures uniform height
             }}
           >
-            <Box sx={{ display: "flex", gap: "3rem" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
               {/* <Typography
                 variant="h5"
                 component={Link}
@@ -381,60 +382,78 @@ const PageHeader = () => {
 ;
     justify-content: center;
     align-items: center; */}
-              <Typography
-                variant="p"
+              <Box
                 sx={{
-                  fontWeight: "400",
-                  color: "black",
-                  fontSize: { xs: "0.575rem", md: "0.9075rem" },
-                  justifyContent: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                  fontSize: "0.8rem",
                 }}
-                // sx={{ display: { xs: "none", md: "block" } }}
               >
-                {currLocation.city
-                  ? `${currLocation.city}, ${currLocation.town}`
-                  : "Fetching location..."}
-              </Typography>
+                <Typography
+                  variant="p"
+                  sx={{ color: "black", fontSize: "0.85rem" }}
+                >
+                  Your Location
+                </Typography>
+                <Typography
+                  variant="p"
+                  sx={{
+                    fontWeight: "400",
+                    color: "black",
+                    fontSize: { xs: "0.575rem", md: "0.75rem" },
+                    justifyContent: "center",
+                  }}
+                  // sx={{ display: { xs: "none", md: "block" } }}
+                >
+                  {currLocation.city
+                    ? `${currLocation.city}, ${currLocation.town}`
+                    : "Fetching location..."}
+                </Typography>
+              </Box>
             </Box>
 
             {/* Search Bar.................. */}
+            {!isMobile && (
+              <>
+                <Paper
+                  component="form"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    width: { xs: "100%", md: "32%" },
+                    borderRadius: "50px",
+                    boxShadow: "none",
+                    border: "1px solid #e0e0e0",
+                    backgroundColor: "#f4f4f4",
+                  }}
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSearch();
+                  }}
+                >
+                  <SearchIcon sx={{ color: "#9e9e9e", marginLeft: "8px" }} />
 
-            <Paper
-              component="form"
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                width: { xs: "100%", md: "32%" },
-                borderRadius: "50px",
-                boxShadow: "none",
-                border: "1px solid #e0e0e0",
-                backgroundColor: "#f4f4f4",
-              }}
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSearch();
-              }}
-            >
-              <SearchIcon sx={{ color: "#9e9e9e", marginLeft: "8px" }} />
+                  <InputBase
+                    sx={{
+                      flex: 1,
+                      color: "#757575",
+                      height: "50px",
+                      p: "2px 10px",
+                      fontWeight: "500",
+                      fontSize: "18px",
+                      backgroundColor: "transparent",
+                    }}
+                    placeholder='Search "Products"'
+                    inputProps={{ "aria-label": "search products" }}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </Paper>
+              </>
+            )}
 
-              <InputBase
-                sx={{
-                  flex: 1,
-                  color: "#757575",
-                  height: "50px",
-                  p: "2px 10px",
-                  fontWeight: "500",
-                  fontSize: "18px",
-                  backgroundColor: "transparent",
-                }}
-                placeholder='Search "Products"'
-                inputProps={{ "aria-label": "search products" }}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </Paper>
             {/* Search Suggestions */}
-            {suggestedProducts.length > 0 && searchTerm  && (
+            {suggestedProducts.length > 0 && searchTerm && (
               <Paper
                 sx={{
                   position: "absolute",

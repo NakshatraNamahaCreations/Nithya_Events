@@ -841,10 +841,11 @@ const navigate = useNavigate();
               />
             </Grid>
             <Grid item xs={6}>
-              <TextField
-                label={<Typography
+              <TextField type="number"
+                label={<Typography 
                   component="span"
                   sx={{ color: '#c026d3', fontSize: '0.8rem' }}
+                
                 >
                   Receiver Mobile <span style={{ color: 'red' }}>*</span>
                 </Typography>}

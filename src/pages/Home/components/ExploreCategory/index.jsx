@@ -45,13 +45,13 @@ const ExploreCategory = () => {
         <Typography
           variant="h4"
           className="small-title"
-          sx={{ color: "#1a365d", fontWeight: 600 }}
+          sx={{ color: "#1a365d", fontWeight: 600, fontSize:'1.5rem' }}
         >
           Categories
         </Typography>
       </Box>
 
-      <Grid container spacing={3} justifyContent="center">
+      <Grid container spacing={3} justifyContent="center" sx={{display:'flex', flexDirection:{xs:'column', md:'row'}}}>
         {categories.map((category, index) => (
           <Grid item lg={category.cols} key={index}>
             <Card
@@ -62,7 +62,7 @@ const ExploreCategory = () => {
               <CardContent className="card-content">
                 <Typography
                   variant="h5"
-                  style={{ fontSize: '2.3rem', fontWeight: '600', color: '#858585' }}
+                  style={{ fontSize: '1.6rem', fontWeight: '600', color: '#858585' }}
                   className="category-name"
                 >
                   {category.title}

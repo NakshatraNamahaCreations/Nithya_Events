@@ -1,4 +1,5 @@
 import { Box } from "@mui/material";
+// import Loader from "../../assets/loading2.gif";
 import Loader from "../../assets/loading2.gif";
 
 const Loading = ({ loading }) => {
