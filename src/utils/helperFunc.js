@@ -104,11 +104,39 @@ export const formatDate = (dateString, formatType = "YYYY-MM-DD HH:mm A") => {
   return new Intl.DateTimeFormat("en-US", options).format(date);
 };
 
+// export const formatTicketDate = (dateStr) => {
+//   const date = new Date(dateStr);
+
+//   const options = {
+//     year: "numeric",
+//     month: "short",
+//     day: "numeric",
+//   };
+
+//   // return date.toLocaleString("en-US", options);
+//   return new Intl.DateTimeFormat("en-GB", options).format(date);
+// };
+export const formatTicketDate  = (dateStr) => {
+  const date = new Date(dateStr);
+
+  // const options = {
+  //   year:'numeric',
+  //   month:'numeric',
+  //   day:'numeric'
+  // }
+
+  const day = String(date.getDate()).padStart(2,'1');
+  const month = String(date.getMonth() + 1).padStart(2,'0');
+  const year = date.getFullYear();
+
+  return `${day}/${month}/${year}`;
+  // return new Intl.DateTimeFormat('en-GB', options).format(date);
+}
+
 export const formatProperDate = (dateString) => {
   const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 };
-

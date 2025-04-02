@@ -66,6 +66,7 @@ import RaiseTicket from "./pages/RaiseTicket";
 import MoodDetail from "./pages/Mood/MoodDetail";
 import GetTickets from "./pages/RaiseTicket/GetTickets";
 import Phonepe from "./components/Phonepe";
+import TicketDetails from "./pages/RaiseTicket/GetTickets/Components/TicketDetails";
 
 function App() {
   const loading = useSelector((state) => state.loader.loading);
@@ -149,6 +150,14 @@ function App() {
               element={
                 // <PublicRoute isAuthenticated={isAuthenticated}>
                 <RaiseTicket />
+                //  </PublicRoute>
+              }
+            />
+            <Route
+              path="/ticket-details"
+              element={
+                // <PublicRoute isAuthenticated={isAuthenticated}>
+                <TicketDetails />
                 //  </PublicRoute>
               }
             />

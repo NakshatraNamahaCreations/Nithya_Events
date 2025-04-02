@@ -202,7 +202,7 @@ const MoodDetail = () => {
     <Box>
         {project && (
     <Typography variant="h5" sx={{ marginTop: "3rem", marginBottom:'-2rem', textAlign:'center' }}>
-      {project.name} {/* Assuming project has a 'name' field */}
+      {project.name} 
     </Typography>
   )}
       <div

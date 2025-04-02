@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, Typography, Box, Chip, CircularProgress, Divider } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const GetTickets = () => {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const userDetails = sessionStorage.getItem("userDetails");
 
@@ -18,7 +20,9 @@ const GetTickets = () => {
       console.error("Error in userDetails from sessionStorage");
     }
   }
-
+const handleNavigate = (ticket) => {
+  navigate("/ticket-details",{state:{ticket}});
+}
   useEffect(() => {
     const fetchTickets = async () => {
       try {
@@ -68,11 +72,13 @@ const GetTickets = () => {
             boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
             overflow: 'hidden',
             transition: '0.3s',
+            cursor:'pointer',
             '&:hover': {
               transform: 'scale(1.02)',
               boxShadow: '0px 6px 15px rgba(0, 0, 0, 0.15)',
             },
           }}
+          onClick={() => handleNavigate(ticket)}
         >
           {/* Gradient Header */}
           <Box
