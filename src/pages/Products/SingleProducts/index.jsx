@@ -26,7 +26,6 @@ import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlin
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 
-
 // Assests
 import ProfileImg1 from "../../../assets/profileImg1.jpg";
 // import Replace from "../../../assets/replace.png";
@@ -214,7 +213,6 @@ const SingleProducts = () => {
     // }
 
     if (product) {
-
       dispatch(
         addToCart({
           orderId: Date.now().toString(),
@@ -310,19 +308,29 @@ const SingleProducts = () => {
     console.log(id);
   };
 
-  const handleClick = async () => {
-      if(!userId){
-          toast.error("You need to login", {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          });
-          return
-        }
+  const handleClick = async (item) => {
+    const isInWishlist = wishlist.some((id) => String(id) === String(item._id));
+    console.log("the check", isInWishlist);
+
+    if (!userId) {
+      toast.error("You need to login", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
+    if (isInWishlist) {
+      toast.error("This item is already in your wishlist!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      return;
+    }
     const payload = {
       product_name: product?.product_name,
       product_id: product?._id,
@@ -392,11 +400,124 @@ const SingleProducts = () => {
       });
     }
   };
+  const fetchWishlist = async () => {
+    if (!userId) {
+      console.log("No user ID, can't fetch wishlist.");
+      return;
+    }
 
-    const handleWishlistClick = async (item) => {
-      const isInWishlist = wishlist.includes(item._id);
-      if (!userId) {
-        toast.error("You need to login", {
+    try {
+      const res = await axios.get(
+        `https://api.nithyaevent.com/api/wishlist/get-my-wishlist/${userId}`,
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      // Debug the response
+      console.log("Fetched wishlist response:", res);
+
+      if (res.data?.wishlist && Array.isArray(res.data.wishlist)) {
+        const wishlistItems = res.data.wishlist.map((item) => item.product_id);
+        setWishlist(wishlistItems);
+      } else {
+        setWishlist([]); 
+      }
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+      // toast.error("Failed to fetch wishlist. Please try again.");
+    }
+  };
+
+  const handleWishlistClick = async (item) => {
+    const isInWishlist = wishlist.includes(item._id);
+    if (!userId) {
+      toast.error("You need to login", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
+    // const wishlistId = productList.find((w) => w.product_id === item._id);
+    if (isInWishlist) {
+      toast.error("This item is already in your wishlist!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      return;
+    }
+    try {
+      // if (!isInWishlist) {
+
+      await axios.post(
+        "https://api.nithyaevent.com/api/wishlist/add-wishlist",
+        {
+          product_name: item.product_name,
+          product_id: item._id,
+          product_image: item.product_image[0],
+          product_price: item.product_price,
+          mrp_price: item.mrp_price,
+          discount: item.discount,
+          user_id: userId,
+        },
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      setWishlist((prev) => [...prev, item._id]);
+      toast.success("Item added to cart!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      // setModalType("success");
+      // setModalMessage("The product has been successfully added to your wishlist.");
+      // setOpen(true);
+      // setTimeout(() => {
+      //   setOpen(false);
+      // }, 1800);
+      // }
+      // else {
+
+      //   await axios.delete(
+      //     `https://api.nithyaevent.com/api/wishlist/remove-wishlist-list/${wishlistId._id}`
+      //   );
+
+      //   setWishlist((prev) => prev.filter((id) => id !== item._id));
+
+      //      toast.error("Failed to add item to cart. Try again!", {
+      //           position: "top-right",
+      //           autoClose: 2000,
+      //           hideProgressBar: false,
+      //           closeOnClick: true,
+      //           pauseOnHover: true,
+      //           draggable: true,
+      //           progress: undefined,
+      //         });
+      //   // setModalType("success");
+      //   // setModalMessage("The product has been successfully deleted from your wishlist.");
+      //   // setOpen(true);
+      //   // setTimeout(() => {
+      //   //   setOpen(false);
+      //   // }, 1800);
+      // }
+    } catch (error) {
+      let errorMessage = "Something went wrong. Please try again.";
+
+      if (error.response && error.response.data?.message) {
+        errorMessage = error.response.data.message.includes(
+          "Product already exists"
+        )
+          ? "This product is already in your wishlist!"
+          : `Error: ${error.response.data.message}`;
+
+        toast.error(errorMessage, {
           position: "top-right",
           autoClose: 2000,
           hideProgressBar: false,
@@ -405,104 +526,30 @@ const SingleProducts = () => {
           draggable: true,
           progress: undefined,
         });
+
         return;
       }
-      // const wishlistId = productList.find((w) => w.product_id === item._id);
-      try {
-        // if (!isInWishlist) {
-  
-        await axios.post(
-          "https://api.nithyaevent.com/api/wishlist/add-wishlist",
-          {
-            product_name: item.product_name,
-            product_id: item._id,
-            product_image: item.product_image[0],
-            product_price: item.product_price,
-            mrp_price: item.mrp_price,
-            discount: item.discount,
-            user_id: userId,
-          },
-          { headers: { "Content-Type": "application/json" } }
-        );
-  
-        setWishlist((prev) => [...prev, item._id]);
-        toast.success("Item added to cart!", {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        // setModalType("success");
-        // setModalMessage("The product has been successfully added to your wishlist.");
-        // setOpen(true);
-        // setTimeout(() => {
-        //   setOpen(false);
-        // }, 1800);
-        // }
-        // else {
-  
-        //   await axios.delete(
-        //     `https://api.nithyaevent.com/api/wishlist/remove-wishlist-list/${wishlistId._id}`
-        //   );
-  
-        //   setWishlist((prev) => prev.filter((id) => id !== item._id));
-  
-        //      toast.error("Failed to add item to cart. Try again!", {
-        //           position: "top-right",
-        //           autoClose: 2000,
-        //           hideProgressBar: false,
-        //           closeOnClick: true,
-        //           pauseOnHover: true,
-        //           draggable: true,
-        //           progress: undefined,
-        //         });
-        //   // setModalType("success");
-        //   // setModalMessage("The product has been successfully deleted from your wishlist.");
-        //   // setOpen(true);
-        //   // setTimeout(() => {
-        //   //   setOpen(false);
-        //   // }, 1800);
-        // }
-      } catch (error) {
-        let errorMessage = "Something went wrong. Please try again.";
-  
-        if (error.response && error.response.data?.message) {
-          errorMessage = error.response.data.message.includes(
-            "Product already exists"
-          )
-            ? "This product is already in your wishlist!"
-            : `Error: ${error.response.data.message}`;
-  
-          toast.error(errorMessage, {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          });
-  
-          return;
-        }
-  
-        toast.error("Failed to add item to cart. Try again!", {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-      }
-    };
+
+      toast.error("Failed to add item to cart. Try again!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+  };
+  useEffect(() => {
+    if (userId) {
+      console.log("Fetching wishlist for user:", userId);
+      fetchWishlist(); // Ensure this is being called properly
+    }
+  }, [userId]); // Make sure this runs when `userId` changes
 
   return (
-    <>
+    <Box sx={{marginTop:'2rem'}}>
       <ToastContainer />
       {showProduct && (
         <Box className="product-container">
@@ -752,53 +799,7 @@ const SingleProducts = () => {
               {/* Coupons */}
 
               <Coupon />
-              {/* <Box
-                sx={{
-                  textAlign: "center",
-                  padding: "1.2rem",
-                  backgroundColor: "#f5f5f5",
-                  borderRadius: "12px",
-                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                  maxWidth: "800px",
-                  margin: "auto",
-                  border: "2px solid #ff6f61",
-                  "@media(min-width:1800px)": {
-                    maxWidth: "700px",
-                  },
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "#333",
-                    marginBottom: "1rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <ReplayIcon sx={{ fontSize: "1.2rem", color: "#ff6f61" }} />
-                  10 Days Return Policy
-                </Typography>
-                <Typography
-                  variant="p"
-                  sx={{
-                    color: "#555",
-                    maxWidth: "600px",
-                    margin: "0 auto",
-                    fontSize: "0.8rem",
-                    lineHeight: "1.6",
-                  }}
-                >
-                  Enjoy worry-free shopping with our{" "}
-                  <strong>10-day return policy</strong>! If you're not
-                  completely satisfied, we ensure a{" "}
-                  <strong>smooth, quick, and hassle-free return process</strong>{" "}
-                  for your convenience.
-                </Typography>
-              </Box> */}
+
               <Box
                 sx={{ display: "flex", justifyContent: "center", gap: "1rem" }}
               >
@@ -811,16 +812,27 @@ const SingleProducts = () => {
                   <ShoppingBagOutlinedIcon sx={{ marginRight: "8px" }} />
                   Add to Cart
                 </Button>
-          
-                <Button
-                  variant="outlined"
-                  color="red"
-                  className="addToWishlist"
-                  onClick={() => handleClick(product._id)}
-                >
-                  <FavoriteBorderOutlinedIcon sx={{ marginRight: "8px" }} />
-                  Add to Wishlist
-                </Button>
+                {wishlist.includes(product._id) ? (
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => navigate("/wishlist")}
+                    sx={{ fontWeight: "bold", height:'48px', marginTop:'2rem' }}
+                  >
+                    <FavoriteOutlinedIcon sx={{ marginRight: "8px" }} />
+                    View Wishlist
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outlined"
+                    color="red"
+                    className="addToWishlist"
+                    onClick={() => handleClick(product)}
+                  >
+                    <FavoriteBorderOutlinedIcon sx={{ marginRight: "8px" }} />
+                    Add to Wishlist
+                  </Button>
+                )}
               </Box>
             </Box>
           </Box>
@@ -833,7 +845,7 @@ const SingleProducts = () => {
             scrollButtons="auto"
             allowScrollButtonsMobile
             sx={{
-              color:'red',
+              color: "red",
               background:
                 "linear-gradient(rgb(255, 255, 255), rgb(245 232 247))",
               padding: "0.8rem 5rem",
@@ -856,7 +868,10 @@ const SingleProducts = () => {
             <Tab label="Reviews" />
           </Tabs>
 
-          <Box className="tab-content" sx={{ padding: "0rem 7rem" }}>
+          <Box
+            className="tab-content"
+            sx={{ padding: "0rem 7rem", gap: "30rem" }}
+          >
             {/* {activeTab === 0 && (
               <Box className="about-section">
                 <Box className="specification-detail-container">
@@ -901,7 +916,7 @@ const SingleProducts = () => {
             )} */}
 
             {activeTab === 0 && (
-              <Box sx={{ display: "flex" }}>
+              <Box sx={{ display: "flex", gap: "3rem" }}>
                 <Box className="Product-detail-container">
                   <Typography
                     variant="p"
@@ -982,7 +997,11 @@ const SingleProducts = () => {
 
             {activeTab === 1 && (
               <Box>
-                <Review onSubmit={handleReviewSubmit} productId={productId} userId={userId}/>
+                <Review
+                  onSubmit={handleReviewSubmit}
+                  productId={productId}
+                  userId={userId}
+                />
               </Box>
             )}
           </Box>
@@ -1189,6 +1208,7 @@ const SingleProducts = () => {
               {/* Technician List */}
               <Technician
                 selectedTechnicians={technicians}
+                setSelectedTechnicians={setTechnicians}
                 onSelectTechnician={setTechnicians}
                 productCategory={product.product_category}
               />
@@ -1215,7 +1235,7 @@ const SingleProducts = () => {
           </Modal>
         </Box>
       )}
-    </>
+    </Box>
   );
 };
 

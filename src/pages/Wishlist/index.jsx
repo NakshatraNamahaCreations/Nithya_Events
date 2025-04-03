@@ -68,20 +68,20 @@ const Wishlist = () => {
           ? "This product is already in your wishlist!"
           : `Error: ${error.response.data.message}`;
 
-        toast.error(errorMessage, {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
+        // toast.error(errorMessage, {
+        //   position: "top-right",
+        //   autoClose: 2000,
+        //   hideProgressBar: false,
+        //   closeOnClick: true,
+        //   pauseOnHover: true,
+        //   draggable: true,
+        //   progress: undefined,
+        // });
 
-        return; // ✅ This stops the second toast from executing
+        return; 
       }
 
-      // This will only run if the first condition is not met
+   
       toast.error("Failed to add item to cart. Try again!", {
         position: "top-right",
         autoClose: 2000,
@@ -124,6 +124,7 @@ const Wishlist = () => {
         progress: undefined,
       });
       dispatch(setLoading(false));
+      navigate("/wishlist");
       // setTimeout(() => {
       //   setOpen(false);
       // }, 1800);

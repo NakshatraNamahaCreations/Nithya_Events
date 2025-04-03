@@ -327,7 +327,7 @@ const Review = ({ onSubmit, productId, userId }) => {
             sx={{ alignSelf: "center", marginBottom: "1rem" }}
           />
 
-          <TextField
+          {/* <TextField
             label="Review Title"
             variant="outlined"
             fullWidth
@@ -337,7 +337,7 @@ const Review = ({ onSubmit, productId, userId }) => {
               backgroundColor: "#fafafa",
               borderRadius: "8px",
             }}
-          />
+          /> */}
 
           <TextField
             label="Review Content"

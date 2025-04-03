@@ -18,6 +18,7 @@ const Technician = ({
   productCategory,
   onSelectTechnician,
   selectedTechnicians,
+  setSelectedTechnicians
 }) => {
   const [technicians, setTechnicians] = useState([]);
   const [filteredTechnicians, setFilteredTechnicians] = useState([]);
@@ -46,6 +47,8 @@ const Technician = ({
         (tech) => tech.category === productCategory
       );
       setFilteredTechnicians(filtered);
+      setSelectedTechnicians([]); // Don't pre-select any
+
     }
   }, [productCategory, technicians]);
 

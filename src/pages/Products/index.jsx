@@ -81,6 +81,7 @@ const Products = () => {
   const [selectedDiscount, setSelectedDiscount] = useState([0, 100]);
   const breadcrumbPaths = [{ label: "Home", link: "/" }, { label: "Products" }];
   const location = useLocation();
+  const [animate, setAnimate] = useState(false);
 
   const userDetail = sessionStorage.getItem("userDetails");
   let userId = null;
@@ -131,6 +132,8 @@ const Products = () => {
       if (res.data?.wishlist && Array.isArray(res.data.wishlist)) {
         const wishlistItems = res.data.wishlist.map((item) => item.product_id);
         setWishlist(wishlistItems);
+        console.log("the wishlist items", wishlist);
+        
       } else {
         setWishlist([]);
       }
@@ -166,6 +169,8 @@ const Products = () => {
     }
   }, [location.search, products]);
   const handleWishlistClick = async (item) => {
+    console.log("the items", item);
+    
     const isInWishlist = wishlist.includes(item._id);
     if (!userId) {
       toast.error("You need to login", {
@@ -177,12 +182,19 @@ const Products = () => {
         draggable: true,
         progress: undefined,
       });
+
       return;
     }
     const wishlistId = productList.find((w) => w.product_id === item._id);
     try {
       // if (!isInWishlist) {
-
+        if (isInWishlist) {
+          toast.error("This item is already in your wishlist!", {
+            position: "top-right",
+            autoClose: 2000,
+          });
+          return;
+        }
       await axios.post(
         "https://api.nithyaevent.com/api/wishlist/add-wishlist",
         {
@@ -207,6 +219,8 @@ const Products = () => {
         draggable: true,
         progress: undefined,
       });
+  
+    } catch (error) {
       // setModalType("success");
       // setModalMessage("The product has been successfully added to your wishlist.");
       // setOpen(true);
@@ -218,7 +232,7 @@ const Products = () => {
 
       //   await axios.delete(
       //     `https://api.nithyaevent.com/api/wishlist/remove-wishlist-list/${wishlistId._id}`
-      //   ); 
+      //   );
 
       //   setWishlist((prev) => prev.filter((id) => id !== item._id));
 
@@ -238,7 +252,7 @@ const Products = () => {
       //   //   setOpen(false);
       //   // }, 1800);
       // }
-    } catch (error) {
+      // }
       let errorMessage = "Something went wrong. Please try again.";
 
       if (error.response && error.response.data?.message) {
@@ -662,15 +676,26 @@ const Products = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         handleWishlistClick(item);
+                        setAnimate(true);
                       }}
                       sx={{ color: "#c026d3", position: "relative" }}
                     >
                       {wishlist.includes(item._id) ? (
                         <FavoriteOutlinedIcon
-                          style={{ position: "absolute" }}
+                          className={animate ? "animate-pop" : ""}
+                          style={{
+                            position: "absolute",
+                            transition: "transform 0.3s",
+                          }}
                         />
                       ) : (
-                        <FavoriteBorderIcon style={{ position: "absolute" }} />
+                        <FavoriteBorderIcon
+                          className={animate ? "animate-pop" : ""}
+                          style={{
+                            position: "absolute",
+                            transition: "transform 0.3s",
+                          }}
+                        />
                       )}
                     </Button>
                   </Box>
@@ -773,8 +798,6 @@ const Products = () => {
             totalPages={Math.ceil(filteredItems.length / itemsPerPage)}
             onPageChange={handlePageChange}
           />
- 
-
         </Box>
         <Modal
           open={open}

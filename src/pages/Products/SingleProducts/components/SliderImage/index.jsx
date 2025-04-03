@@ -29,6 +29,7 @@ const SliderImage = ({
       }}
     >
       {/* Left Arrow */}
+      {productImages.length > 1 && (
       <IconButton
         onClick={() => scrollThumbnails("left")}
         sx={{
@@ -41,6 +42,7 @@ const SliderImage = ({
       >
         <ArrowBackIosIcon fontSize="small" />
       </IconButton>
+      )}
 
       {/* Thumbnails */}
       <Box
@@ -106,18 +108,22 @@ const SliderImage = ({
       </Box>
 
       {/* Right Arrow */}
-      <IconButton
-        onClick={() => scrollThumbnails("right")}
-        sx={{
-          position: "absolute",
-          right: "-25px",
-          zIndex: 2,
-          backgroundColor: "rgba(255, 255, 255, 0.7)",
-          "&:hover": { backgroundColor: "rgba(255, 255, 255, 1)" },
-        }}
-      >
-        <ArrowForwardIosIcon fontSize="small" />
-      </IconButton>
+
+      {productImages.length > 1 && (
+  <IconButton
+  onClick={() => scrollThumbnails("right")}
+  sx={{
+    position: "absolute",
+    right: "-25px",
+    zIndex: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    "&:hover": { backgroundColor: "rgba(255, 255, 255, 1)" },
+  }}
+>
+  <ArrowForwardIosIcon fontSize="small" />
+</IconButton>
+       )}
+    
     </Box>
   );
 };

@@ -32,13 +32,13 @@ const Mood = () => {
       alert("Project name cannot be empty!");
       return;
     }
-    const newProject = { id: Date.now(), name: projectName }; // Ensure project has an ID
+    const newProject = { id: Date.now(), name: projectName };
     const updatedProjects = [...projects, newProject];
     setProjects(updatedProjects);
     localStorage.setItem(`projects_${userId}`, JSON.stringify(updatedProjects));
   
-    // Navigate to the new project details page after saving
-    navigate(`/moodDetails/${newProject.id}`); // Use the generated ID from newProject
+
+    navigate(`/moodDetails/${newProject.id}`);
     handleClose();
   };
   
@@ -103,9 +103,9 @@ const Mood = () => {
         <Typography variant="h6" sx={{ mb: 3 }}>Saved Projects:</Typography>
 
         {projects.length > 0 ? (
-          <Grid container spacing={2} justifyContent="center">
+          <Grid container spacing={2} justifyContent="center" sx={{display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
             {projects.map((proj, index) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={proj.id}>
+              <Grid item xs={12} sm={6} md={4} lg={3} key={proj.id} >
                 <Card
                   sx={{
                     width: "250px", height: "60px",

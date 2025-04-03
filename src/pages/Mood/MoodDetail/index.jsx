@@ -200,11 +200,14 @@ const MoodDetail = () => {
 
   return (
     <Box>
-        {project && (
-    <Typography variant="h5" sx={{ marginTop: "3rem", marginBottom:'-2rem', textAlign:'center' }}>
-      {project.name} 
-    </Typography>
-  )}
+      {project && (
+        <Typography
+          variant="h5"
+          sx={{ marginTop: "3rem", marginBottom: "-2rem", textAlign: "center" }}
+        >
+          {project.name}
+        </Typography>
+      )}
       <div
         className="controls"
         style={{
@@ -214,7 +217,6 @@ const MoodDetail = () => {
           marginTop: "3rem",
         }}
       >
-        
         <Box
           sx={{
             display: "flex",
@@ -223,7 +225,7 @@ const MoodDetail = () => {
             alignItems: "center",
             cursor: "pointer",
           }}
-          onClick={clearAllObjects} 
+          onClick={clearAllObjects}
         >
           <Button sx={{ fontSize: "0.7rem", color: "#e226bf" }}>
             Clear All
@@ -266,7 +268,6 @@ const MoodDetail = () => {
           justifyContent: "flex-end",
         }}
       >
-        
         {isMobile && (
           <Box>
             <div className="palette-mobile">
@@ -286,6 +287,12 @@ const MoodDetail = () => {
                   <button onClick={() => addObject(type)} className="add-btn">
                     +
                   </button>
+                  <Typography
+                    sx={{ minWidth: "20px", textAlign: "center", color: "red" }}
+                  >
+                    {" "}
+                    {objects.filter((obj) => obj.type === type).length}
+                  </Typography>
                   <button
                     onClick={() => {
                       const objectToRemove = objects.find(
@@ -324,6 +331,7 @@ const MoodDetail = () => {
                   <button onClick={() => addObject(type)} className="add-btn">
                     +
                   </button>
+                  {objects.filter((obj) => obj.type === type).length}
                   <button
                     onClick={() => {
                       const objectToRemove = objects.find(

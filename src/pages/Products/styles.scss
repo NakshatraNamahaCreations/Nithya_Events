@@ -134,3 +134,14 @@
   color: #f44336;
   font-size: 0.9rem;
 }
+
+
+@keyframes pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.animate-pop {
+  animation: pop 0.3s ease-in-out;
+}
