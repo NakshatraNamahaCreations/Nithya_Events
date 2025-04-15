@@ -310,8 +310,7 @@ const SingleProducts = () => {
 
   const handleClick = async (item) => {
     const isInWishlist = wishlist.some((id) => String(id) === String(item._id));
-    console.log("the check", isInWishlist);
-
+  
     if (!userId) {
       toast.error("You need to login", {
         position: "top-right",
@@ -320,10 +319,10 @@ const SingleProducts = () => {
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
-        progress: undefined,
       });
       return;
     }
+  
     if (isInWishlist) {
       toast.error("This item is already in your wishlist!", {
         position: "top-right",
@@ -331,18 +330,19 @@ const SingleProducts = () => {
       });
       return;
     }
+  
     const payload = {
-      product_name: product?.product_name,
-      product_id: product?._id,
-      product_image: product?.product_image[0],
-      product_price: product?.product_price,
-      mrp_price: product?.mrp_price,
-      discount: product?.discount,
+      product_name: item?.product_name,
+      product_id: item?._id,
+      product_image: item?.product_image[0],
+      product_price: item?.product_price,
+      mrp_price: item?.mrp_price,
+      discount: item?.discount,
       user_id: userId,
     };
-
+  
     try {
-      const res = await axios.post(
+      await axios.post(
         "https://api.nithyaevent.com/api/wishlist/add-wishlist",
         payload,
         {
@@ -351,55 +351,31 @@ const SingleProducts = () => {
           },
         }
       );
-      // setModalType("success");
-      // setModalMessage("The product has been successfully added to your wishlist.");
-      // setOpen(true);
-      // setTimeout(() => {
-      //   setOpen(false);
-      // }, 1800);
+  
       toast.success("Item has been added to the wishlist!", {
         position: "top-right",
         autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
       });
+  
+      // ✅ Update wishlist state immediately
+      setWishlist((prevWishlist) => [...prevWishlist, item._id]);
+  
     } catch (error) {
       let errorMessage = "Something went wrong. Please try again.";
-
+  
       if (error.response && error.response.data?.message) {
-        errorMessage = error.response.data.message.includes(
-          "Product already exists"
-        )
+        errorMessage = error.response.data.message.includes("Product already exists")
           ? "This product is already in your wishlist!"
           : `Error: ${error.response.data.message}`;
-
-        toast.error(errorMessage, {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-
-        return;
       }
-
-      toast.error("Failed to add item to cart. Try again!", {
+  
+      toast.error(errorMessage, {
         position: "top-right",
         autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
       });
     }
   };
+  
   const fetchWishlist = async () => {
     if (!userId) {
       console.log("No user ID, can't fetch wishlist.");
@@ -543,7 +519,7 @@ const SingleProducts = () => {
   };
   useEffect(() => {
     if (userId) {
-      console.log("Fetching wishlist for user:", userId);
+
       fetchWishlist(); // Ensure this is being called properly
     }
   }, [userId]); // Make sure this runs when `userId` changes
@@ -618,9 +594,9 @@ const SingleProducts = () => {
                     variant="body2"
                     sx={{ color: "text.secondary" }}
                   >
-                    <Typography variant="p" sx={{ fontSize: "1rem" }}>
+                    {/* <Typography variant="p" sx={{ fontSize: "1rem" }}>
                       Brand: {product.brand}
-                    </Typography>
+                    </Typography> */}
                   </Typography>
                 </Box>
                 {/* <Box className="Price-point">
@@ -679,7 +655,7 @@ const SingleProducts = () => {
                         ) / product.Reviews.length
                       ).toFixed(1)
                       : 0}{" "}
-                    ⭐
+                    
                   </Typography> */}
 
                   {/* <Typography className="Rating-num">
@@ -801,7 +777,7 @@ const SingleProducts = () => {
               <Coupon />
 
               <Box
-                sx={{ display: "flex", justifyContent: "center", gap: "1rem" }}
+                sx={{ display: "flex", justifyContent: "center", gap: "1rem", alignItems:"baseline" }}
               >
                 <Button
                   color="white"
@@ -812,12 +788,15 @@ const SingleProducts = () => {
                   <ShoppingBagOutlinedIcon sx={{ marginRight: "8px" }} />
                   Add to Cart
                 </Button>
-                {wishlist.includes(product._id) ? (
+                {wishlist.some((id) => String(id) === String(product._id)) ? (
                   <Button
                     variant="outlined"
                     color="secondary"
                     onClick={() => navigate("/wishlist")}
-                    sx={{ fontWeight: "bold", height:'48px', marginTop:'2rem' }}
+                    // height: 37px;
+                    // margin-top: 2rem;
+                    // width: 18rem;
+                    sx={{ fontWeight: "bold", height:'37px', marginTop:'2rem', width:"18rem" }}
                   >
                     <FavoriteOutlinedIcon sx={{ marginRight: "8px" }} />
                     View Wishlist

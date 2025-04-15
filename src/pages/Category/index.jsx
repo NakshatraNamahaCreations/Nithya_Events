@@ -581,7 +581,6 @@ const Category = () => {
                   <FormControl
                     sx={{
                       minWidth: 220,
-                      backgroundColor: "#F5F5F5",
                       borderRadius: "10px",
                       padding: "0.5rem",
                     }}
@@ -592,7 +591,6 @@ const Category = () => {
                       displayEmpty
                       sx={{
                         borderRadius: "10px",
-                        backgroundColor: "#F5F5F5",
                         color: "#000",
                         fontWeight: "bold",
                         height: "45px",
@@ -629,6 +627,7 @@ const Category = () => {
                       alt={item.product_name}
                       className="product-image"
                     />
+                    {/* Message Nithya Events on WhatsApp. https://wa.me/919980137001  */}
                     <CardContent>
                       <Box
                         sx={{
@@ -673,14 +672,14 @@ const Category = () => {
                         </Button>
                       </Box>
 
-                      <Typography
+                      {/* <Typography
                         variant="p"
                         sx={{
                           color: "#6c757d",
                         }}
                       >
                         {item.brand}
-                      </Typography>
+                      </Typography> */}
                       <Box
                         sx={{
                           display: "flex",
@@ -749,7 +748,7 @@ const Category = () => {
                           margin: "0 auto",
                         }}
                       >
-                        <Button
+                        {/* <Button
                           variant="outlined"
                           size="small"
                           sx={{
@@ -767,7 +766,7 @@ const Category = () => {
                           }}
                         >
                           View More
-                        </Button>
+                        </Button> */}
                       </Box>
                     </CardContent>
                   </Card>

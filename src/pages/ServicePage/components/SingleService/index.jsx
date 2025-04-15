@@ -513,7 +513,7 @@ const SingleService = () => {
                   }}
                   onClick={() => {
                     setSelectedService(serviceItem);
-
+                    
                     if (service?.profession === "Hotels") {
                       setOpenBook(true);
                     } else {

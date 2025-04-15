@@ -1,40 +1,36 @@
 import { Box, Button, Typography } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import HomeWorkIcon from "@mui/icons-material/HomeWork";
-import HotelIcon from "@mui/icons-material/Hotel";
-import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-import {
-  DesignServicesOutlined,
-  VideoLibraryOutlined,
-} from "@mui/icons-material";
+import axios from "axios";
 import "./styles.scss";
+import authService from "../../../../api/ApiService";
 
 const ExploreService = () => {
   const navigate = useNavigate();
+  const [services, setServices] = useState([]);
+
+  const fetchServices = async () => {
+    try {
+      const res = await authService.getAllServices();
+      setServices(res.data.data);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    }
+  };
 
   useEffect(() => {
-    
+    fetchServices();
   }, []);
 
-  const services = [
-    { id: 1, name: "Resort", icon: <HomeWorkIcon style={ {fontSize:'2.5rem'}} /> },
-    { id: 2, name: "Rooms", icon: <PeopleAltIcon style={ {fontSize:'2.5rem'}}  /> },
-    { id: 3, name: "Hotels", icon: <HotelIcon style={ {fontSize:'2.5rem'}}  /> },
-    { id: 4, name: "Freelancer", icon: <PeopleAltIcon style={ {fontSize:'2.5rem'}}  /> },
-    { id: 5, name: "Photographers", icon: <VideoLibraryOutlined style={ {fontSize:'2.5rem'}}  /> },
-    { id: 6, name: "Stage Designers", icon: <DesignServicesOutlined style={ {fontSize:'2.5rem'}}     /> },
-  ];
-
   return (
-    <Box sx={{ padding: "2rem", paddingLeft:{xs:'3rem', md: '8rem'} }}>
+    <Box sx={{ padding: "2rem", paddingLeft: { xs: "3rem", md: "8rem" } }}>
       <Typography
         sx={{
           fontSize: "1.4rem",
           fontWeight: "bold",
           color: "#343a40",
           marginBottom: "2rem",
-          textTransform:'uppercase'
+          textTransform: "uppercase",
         }}
       >
         Services
@@ -49,72 +45,62 @@ const ExploreService = () => {
             md: "repeat(3, 1fr)",
           },
           gap: "1.5rem",
-          // padding:'2rem 8rem'
         }}
       >
-        {services.map((service) => (
+        {services.slice(0, 6).map((service) => (
           <Box
-            key={service.id}
+            key={service._id}
+            onClick={() => navigate(`/service/${service.service_name}`)}
             sx={{
-              // background: "#bee3f8",
               borderRadius: "12px",
-              // boxShadow: "0px 5px 15px rgba(160, 32, 240, 0.3)",
-              // border: "1px solid #1e1d1d85",
-              padding: "2rem",
-              textAlign: "center",
+              overflow: "hidden",
+              boxShadow: "0px 4px 12px rgba(0,0,0,0.05)",
+              backgroundColor: "#fff",
               cursor: "pointer",
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-              background:'linear-gradient(rgb(255, 255, 255), rgb(243 213 250));',
-              color: "#6a0dad",
-              boxShadow: "rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px",
-              width:'21rem',
+              transition: "transform 0.3s ease",
+              maxWidth: "280px",
+              width: "100%",
               "&:hover": {
-                transform: "scale(1.05)",
-                // boxShadow: "0px 8px 20px rgba(160, 32, 240, 0.5)",
+                transform: "translateY(-5px)",
               },
             }}
-            onClick={() => navigate(`/service/${service.name}`)}
           >
-            <Box
-              sx={{
-                // background: "#e39beb",
-                width: "70px",
-                height: "70px",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "auto",
-                marginBottom: "1rem",
-                border: "1px solid #000000a3",
-                fontSize:'1.2rem'
-                // boxShadow: "0px 0px 15px rgba(160, 32, 240, 0.4)",
-              }}
-            >
-              {service.icon}
+            <Box sx={{ position: "relative", height: "370px" }}>
+              <img
+                src={service.service_image}
+                alt={service.service_name}
+                style={{
+                  width: "100%",
+                  // height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+              {/* <Box
+        sx={{
+          position: "absolute",
+          top: 8,
+          left: 8,
+          backgroundColor: "limegreen",
+          color: "white",
+          padding: "2px 8px",
+          borderRadius: "8px",
+          fontSize: "0.7rem",
+          fontWeight: "bold",
+        }}
+      >
+        Available
+      </Box> */}
             </Box>
-            <Typography
-              sx={{
-                fontWeight: "bold",
-                fontSize: "1.2rem",
-                marginBottom: "0.5rem",
-              }}
-            >
-              {service.name}
-            </Typography>
           </Box>
         ))}
       </Box>
+
       <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          marginTop: "3rem",
-        }}
+        sx={{ display: "flex", justifyContent: "center", marginTop: "3rem" }}
       >
         <Button
           variant="outlined"
-          onClick={() => navigate("/services")  }
+          onClick={() => navigate("/services")}
           sx={{
             textTransform: "capitalize",
             fontWeight: "bold",
@@ -132,28 +118,6 @@ const ExploreService = () => {
           View All
         </Button>
       </Box>
- {/* <Box sx={{textAlign:'center'}}>
- <Button
-        variant="contained"
-        onClick={() => navigate("/services")}
-        sx={{
-          marginTop: "2rem",
-          padding: "0.7rem 2rem",
-          fontWeight: "bold",
-          fontSize: "1rem",
-          background: "purple",
-          color: "#fff",
-          borderRadius: "8px",
-          "&:hover": {
-            background: "linear-gradient(90deg, #6a0dad, #8a2be2)",
-          },
-        }}
-      >
-        View All
-      </Button>
-
- </Box> */}
-
     </Box>
   );
 };

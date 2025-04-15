@@ -1,5 +1,5 @@
 .service-page {
-  background-color: #f8f9fa;
+  // background-color: #f8f9fa;
   min-height: 100vh;
   padding: 4rem;
 
@@ -25,10 +25,10 @@
   .services-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    gap:  5.5rem;
 
     .service-card {
-      background: linear-gradient(rgb(255, 255, 255), rgb(243 213 250));
+      // background: linear-gradient(rgb(255, 255, 255), rgb(243 213 250));
       border: 1px solid #ddd;
       border-radius: 10px;
       padding: 1.5rem;

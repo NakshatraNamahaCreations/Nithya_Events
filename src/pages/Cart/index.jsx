@@ -105,10 +105,9 @@ const Cart = () => {
       getErrorMessage(error);
     }
   };
-  
-  const getWishlist = async() => {
-    try{
 
+  const getWishlist = async () => {
+    try {
       const res = await axios.get(
         `${config.BASEURL}/wishlist/get-my-wishlist/${userId}`,
         { headers: { "Content-Type": "application/json" } }
@@ -117,15 +116,13 @@ const Cart = () => {
         const wishlistItems = res.data.wishlist.map((item) => item.product_id);
         setWishlist(wishlistItems);
         console.log(wishlist);
-        
       } else {
         setWishlist([]);
       }
-    }
-    catch(error){
+    } catch (error) {
       getErrorMessage(error);
     }
-  }
+  };
 
   const handleWishlistClick = async (item) => {
     // const isInWishlist = wishlist.includes(item._id);
@@ -161,7 +158,7 @@ const Cart = () => {
       );
 
       setWishlist((prev) => [...prev, item.id]);
-    
+
       toast.success("Item added to cart!", {
         position: "top-right",
         autoClose: 2000,
@@ -171,9 +168,9 @@ const Cart = () => {
         draggable: true,
         progress: undefined,
       });
-    setTimeout(() => {
-      dispatch(removeFromCart(item.id))
-    },1000)
+      setTimeout(() => {
+        dispatch(removeFromCart(item.id));
+      }, 1000);
       // setModalType("success");
       // setModalMessage("The product has been successfully added to your wishlist.");
       // setOpen(true);
@@ -305,7 +302,7 @@ const Cart = () => {
 
   return (
     <Box sx={{ padding: "2rem" }}>
-      <ToastContainer/>
+      <ToastContainer />
       <BreadCrumb paths={breadcrumbPaths} />
 
       <Typography
@@ -401,7 +398,6 @@ const Cart = () => {
                               </IconButton>
                               <Button
                                 onClick={(e) => {
-                                 
                                   handleWishlistClick(item);
                                 }}
                                 sx={{ color: "#c026d3", position: "relative" }}
@@ -574,7 +570,9 @@ const Cart = () => {
                               <AddIcon />
                             </IconButton>
                           </TableCell>
-                          <TableCell>₹{item.totalPrice?.toFixed(2)* item.quantity}</TableCell>
+                          <TableCell>
+                            ₹{item.totalPrice?.toFixed(2) * item.quantity}
+                          </TableCell>
                           <TableCell>
                             <Box
                               sx={{

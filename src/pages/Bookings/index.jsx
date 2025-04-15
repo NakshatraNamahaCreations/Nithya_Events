@@ -148,7 +148,7 @@ const Bookings = () => {
                     ORDER PLACED: {formatProperDate(booking.createdAt)}
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    TOTAL: ₹{booking.paid_amount || "N/A"}
+                    TOTAL: ₹{Math.floor(booking.paid_amount || "N/A")}
                   </Typography>
 
                 </Box>

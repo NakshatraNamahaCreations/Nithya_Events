@@ -78,10 +78,9 @@ const Wishlist = () => {
         //   progress: undefined,
         // });
 
-        return; 
+        return;
       }
 
-   
       toast.error("Failed to add item to cart. Try again!", {
         position: "top-right",
         autoClose: 2000,
@@ -171,7 +170,6 @@ const Wishlist = () => {
                     backgroundColor: "#fff",
                     cursor: "pointer",
                   }}
-                  onClick={() => navigate(`/products/${item?.product_id}`)}
                 >
                   <Box
                     sx={{
@@ -179,10 +177,11 @@ const Wishlist = () => {
                       justifyContent: "center",
                       alignItems: "center",
                     }}
+                    onClick={() => navigate(`/products/${item?.product_id}`)}
                   >
                     <Box
                       component="img"
-                      src={item.product_image}
+                      src={item.product_image[0]}
                       alt={item.product_name}
                       sx={{
                         display: "flex",
@@ -202,6 +201,7 @@ const Wishlist = () => {
                     <Typography
                       variant="p"
                       sx={{ color: "#333" }}
+                      onClick={() => navigate(`/products/${item?.product_id}`)}
                     >
                       {item.product_name.slice(0, 23)}
                     </Typography>
@@ -221,38 +221,14 @@ const Wishlist = () => {
                         alignItems: "center",
                         gap: "0.5rem",
                       }}
+                      onClick={() => navigate(`/products/${item?.product_id}`)}
                     >
                       <Typography
                         variant="p"
-                        sx={{  color: "#000", fontWeight:'bold' }}
+                        sx={{ color: "#000", fontWeight: "bold" }}
                       >
                         ₹{item.product_price}
                       </Typography>
-                      {/* <Typography
-                        variant="body2"
-                        sx={{
-                          textDecoration: "line-through",
-                          color: "#b12704",
-                          fontSize: "1rem",
-                        }}
-                      >
-                        ₹
-                        {(
-                          item.product_price /
-                          (1 - item.discount / 100)
-                        ).toFixed(0)}
-                      </Typography> */}
-                      {/* <Typography
-                        variant="body2"
-                        sx={{
-                          backgroundColor: "#c026d3",
-                          color: "#fff",
-                          padding: "2px 6px",
-                          borderRadius: "4px",
-                        }}
-                      >
-                        {item.discount}% Off
-                      </Typography> */}
                     </Box>
 
                     {/* Buttons - Add to Cart & Remove */}
@@ -289,7 +265,16 @@ const Wishlist = () => {
               </Grid>
             ))
           ) : (
-            <Typography sx={{display:'flex', justifyContent:'center',textAlign:'center', marginTop:'3rem'}}>No items in your wishlist.</Typography>
+            <Typography
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                textAlign: "center",
+                marginTop: "3rem",
+              }}
+            >
+              No items in your wishlist.
+            </Typography>
           )}
         </Grid>
       </Box>

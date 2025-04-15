@@ -81,7 +81,7 @@ const Products = () => {
   const [selectedDiscount, setSelectedDiscount] = useState([0, 100]);
   const breadcrumbPaths = [{ label: "Home", link: "/" }, { label: "Products" }];
   const location = useLocation();
-  const [animate, setAnimate] = useState(false);
+  const [animate, setAnimate] = useState(null);
 
   const userDetail = sessionStorage.getItem("userDetails");
   let userId = null;
@@ -208,7 +208,7 @@ const Products = () => {
         },
         { headers: { "Content-Type": "application/json" } }
       );
-
+setAnimate(item._id)
       setWishlist((prev) => [...prev, item._id]);
       toast.success("Item added to cart!", {
         position: "top-right",
@@ -219,6 +219,9 @@ const Products = () => {
         draggable: true,
         progress: undefined,
       });
+      setTimeout(() => {
+        setAnimateProductId(null);
+      }, 500);
   
     } catch (error) {
       // setModalType("success");
@@ -598,7 +601,7 @@ const Products = () => {
                 marginBottom: "1rem",
               }}
             >
-              <Typography
+              {/* <Typography
                 variant="h4"
                 sx={{
                   fontWeight: "bold",
@@ -607,12 +610,11 @@ const Products = () => {
                 }}
               >
                 Sort By:
-              </Typography>
+              </Typography> */}
 
               <FormControl
                 sx={{
                   minWidth: 220,
-                  backgroundColor: "#F5F5F5",
                   borderRadius: "10px",
                   padding: "0.5rem",
                 }}
@@ -623,16 +625,13 @@ const Products = () => {
                   displayEmpty
                   sx={{
                     borderRadius: "10px",
-                    backgroundColor: "#F5F5F5",
                     color: "#000",
                     fontWeight: "bold",
                     height: "45px",
                     boxShadow: "none",
                     outline: "none",
                     border: "1px solid #ddd",
-                    "&:hover": {
-                      backgroundColor: "#e0e0e0",
-                    },
+                 
                   }}
                 >
                   <MenuItem value="default">Default</MenuItem>
@@ -676,17 +675,18 @@ const Products = () => {
                       onClick={(e) => {
                         e.stopPropagation();
                         handleWishlistClick(item);
-                        setAnimate(true);
+                    
                       }}
                       sx={{ color: "#c026d3", position: "relative" }}
                     >
                       {wishlist.includes(item._id) ? (
                         <FavoriteOutlinedIcon
-                          className={animate ? "animate-pop" : ""}
-                          style={{
-                            position: "absolute",
-                            transition: "transform 0.3s",
-                          }}
+                        className={animate === item._id ? "animate-pop" : ""}
+                        style={{
+                          position: "absolute",
+                          transition: "transform 0.3s",
+                        }}
+                     
                         />
                       ) : (
                         <FavoriteBorderIcon
@@ -700,14 +700,14 @@ const Products = () => {
                     </Button>
                   </Box>
 
-                  <Typography
+                  {/* <Typography
                     variant="p"
                     sx={{
                       color: "#6c757d",
                     }}
                   >
                     {item.brand}
-                  </Typography>
+                  </Typography> */}
                   <Box
                     sx={{ display: "flex", gap: "1rem", marginTop: "0.2rem" }}
                   >
@@ -768,7 +768,7 @@ const Products = () => {
                       margin: "0 auto",
                     }}
                   >
-                    <Button
+                    {/* <Button
                       variant="outlined"
                       size="small"
                       sx={{
@@ -786,7 +786,7 @@ const Products = () => {
                       }}
                     >
                       View More
-                    </Button>
+                    </Button> */}
                   </Box>
                 </CardContent>
               </Card>

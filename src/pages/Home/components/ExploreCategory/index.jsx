@@ -39,6 +39,7 @@ const categories = [
     img: Lights,
     cols: 3,
     left: "0rem",
+    shopNow: true,
     width: "15rem",
     height: "198px",
     top: "0rem",
@@ -50,6 +51,7 @@ const categories = [
     cols: 3,
     left: "0rem",
     width: "15rem",
+    shopNow: true,
     height: "308px",
     top: "6.5rem",
   },
@@ -59,6 +61,7 @@ const categories = [
     img: Fabrication,
     cols: 3,
     left: "0rem",
+    shopNow: true,
     width: "12rem",
     height: "198px",
     top: "-2rem",
@@ -68,6 +71,7 @@ const categories = [
     color: "#e3f2e6",
     img: Video,
     cols: 3,
+    shopNow: true,
     left: "0rem",
     width: "12rem",
     height: "198px",
@@ -139,15 +143,7 @@ const ExploreCategory = () => {
                 >
                   {category.title}
                 </Typography>
-                {category.shopNow && (
-                  <Button
-                    variant="contained"
-                    style={{ backgroundColor: "black", marginTop: "3rem" }}
-                    className="shop-now-button"
-                  >
-                    Shop Now →
-                  </Button>
-                )}
+          
                 <div className="image-container">
                   <img
                     src={category.img}
@@ -161,6 +157,15 @@ const ExploreCategory = () => {
                     className="category-image"
                   />
                 </div>
+                {category.shopNow && (
+                  <Button
+                    variant="contained"
+                    style={{ backgroundColor: "black", marginTop: "3rem" }}
+                    className="shop-now-button"
+                  >
+                    Rent Now →
+                  </Button>
+                )}
               </CardContent>
             </Card>
 

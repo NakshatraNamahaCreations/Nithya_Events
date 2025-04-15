@@ -35,7 +35,7 @@ const ServiceDetails = () => {
   const [searchedText, setSearchedText] = useState("");
   const [selectedRatings, setSelectedRatings] = useState([]); // Stores selected rating filters
 
-  const itemsPerPage = 6;
+  const itemsPerPage = 8;
 
   const [openSections, setOpenSections] = useState({
     categories: true,

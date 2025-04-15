@@ -48,13 +48,19 @@ const SliderImage = ({
       <Box
         ref={scrollRef}
         sx={{
-          display: "flex",
+       
           overflowX: "auto",
           scrollBehavior: "smooth",
           width: "280px",
           gap: "10px",
           padding: "8px",
           "&::-webkit-scrollbar": { display: "none" },
+          ...(productImages.length > 0 && {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }),
+
         }}
       >
         {productImages?.map((img, index) => (
@@ -68,6 +74,7 @@ const SliderImage = ({
               height: "60px",
               borderRadius: "8px",
               objectFit: "cover",
+    
               cursor: "pointer",
               border:
                 mainImage === img ? "3px solid #1976d2" : "1px solid #ddd",

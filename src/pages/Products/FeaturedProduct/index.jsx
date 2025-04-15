@@ -572,7 +572,6 @@ const FeaturedProduct = () => {
               <FormControl
                 sx={{
                   minWidth: 220,
-                  backgroundColor: "#F5F5F5",
                   borderRadius: "10px",
                   padding: "0.5rem",
                 }}
@@ -583,16 +582,13 @@ const FeaturedProduct = () => {
                   displayEmpty
                   sx={{
                     borderRadius: "10px",
-                    backgroundColor: "#F5F5F5",
                     color: "#000",
                     fontWeight: "bold",
                     height: "45px",
                     boxShadow: "none",
                     outline: "none",
                     border: "1px solid #ddd",
-                    "&:hover": {
-                      backgroundColor: "#e0e0e0",
-                    },
+      
                   }}
                 >
                   <MenuItem value="default">Default</MenuItem>
@@ -646,14 +642,14 @@ const FeaturedProduct = () => {
                     </Button>
                   </Box>
 
-                  <Typography
+                  {/* <Typography
                     variant="p"
                     sx={{
                       color: "#6c757d",
                     }}
                   >
                     {item.brand}
-                  </Typography>
+                  </Typography> */}
                   <Box
                     sx={{ display: "flex", gap: "1rem", marginTop: "0.2rem" }}
                   >
@@ -714,7 +710,7 @@ const FeaturedProduct = () => {
                       margin: "0 auto",
                     }}
                   >
-                    <Button
+                    {/* <Button
                       variant="outlined"
                       size="small"
                       sx={{
@@ -733,7 +729,7 @@ const FeaturedProduct = () => {
                       onClick={() => handleOpen(item._id)}
                     >
                       View More
-                    </Button>
+                    </Button> */}
                   </Box>
                 </CardContent>
               </Card>

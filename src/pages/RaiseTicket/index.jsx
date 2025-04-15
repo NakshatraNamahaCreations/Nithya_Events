@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Box,
   Button,
@@ -17,8 +17,7 @@ import {
 } from "@mui/material";
 import { Star } from "@mui/icons-material";
 import axios from "axios";
-import authService from "../../api/ApiService"; 
-
+import authService from "../../api/ApiService";
 
 const reasonList = [
   { id: 1, reason: "Performance or quality not adequate" },
@@ -37,6 +36,7 @@ const RaiseTicket = () => {
   const [comment, setComment] = useState("");
   const [attachment, setAttachment] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBookingProducts = async () => {
@@ -53,7 +53,9 @@ const RaiseTicket = () => {
   }, [bookingId]);
 
   let userDetail = sessionStorage.getItem("userDetails");
-  let userId = null, userName = "", userEmail = "";
+  let userId = null,
+    userName = "",
+    userEmail = "";
   if (userDetail) {
     try {
       const userDetails = JSON.parse(userDetail);
@@ -64,7 +66,7 @@ const RaiseTicket = () => {
       console.error("Error parsing userDetails from sessionStorage:", error);
     }
   }
-  
+
   const handleSubmit = async () => {
     if (!selectedProduct || !selectedReason) {
       alert("Please select a product and a reason.");
@@ -86,11 +88,16 @@ const RaiseTicket = () => {
     }
 
     try {
-      const res = await axios.post("https://api.nithyaevent.com/api/ticket/create-ticket", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.post(
+        "https://api.nithyaevent.com/api/ticket/create-ticket",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       alert("Ticket submitted successfully!");
-      console.log("Ticket submitted successfully", res.data);
+
+      navigate("/my-tickets");
     } catch (error) {
       console.error("Error submitting ticket", error);
       alert("Failed to raise a ticket. Please try again.");
@@ -98,7 +105,10 @@ const RaiseTicket = () => {
   };
 
   return (
-    <Paper elevation={3} sx={{ maxWidth: 500, p: 3, mx: "auto", mt: 8, mb:10  }}>
+    <Paper
+      elevation={3}
+      sx={{ maxWidth: 500, p: 3, mx: "auto", mt: 8, mb: 10 }}
+    >
       <Typography variant="h5" gutterBottom>
         Raise a Ticket
       </Typography>
@@ -115,7 +125,9 @@ const RaiseTicket = () => {
             <RadioGroup
               value={selectedProduct?.id || ""}
               onChange={(e) => {
-                const product = products.find(item => item.id === e.target.value);
+                const product = products.find(
+                  (item) => item.id === e.target.value
+                );
                 setSelectedProduct(product);
               }}
             >
@@ -138,7 +150,9 @@ const RaiseTicket = () => {
                 <RadioGroup
                   value={selectedReason?.id || ""}
                   onChange={(e) => {
-                    const selected = reasonList.find(item => item.id === parseInt(e.target.value));
+                    const selected = reasonList.find(
+                      (item) => item.id === parseInt(e.target.value)
+                    );
                     setSelectedReason(selected);
                   }}
                 >
@@ -161,7 +175,10 @@ const RaiseTicket = () => {
                             onChange={(e) => setComment(e.target.value)}
                           />
                           <Box sx={{ mt: 2 }}>
-                            <Typography variant="body1">Attachment: <Star sx={{ color: "red", fontSize:'0.7rem' }}/></Typography>
+                            <Typography variant="body1">
+                              Attachment:{" "}
+                              <Star sx={{ color: "red", fontSize: "0.7rem" }} />
+                            </Typography>
                             <Input
                               type="file"
                               fullWidth
@@ -180,7 +197,7 @@ const RaiseTicket = () => {
           <Button
             variant="contained"
             fullWidth
-            sx={{ mt: 3, background:'c026d3' }}
+            sx={{ mt: 3, background: "c026d3" }}
             onClick={handleSubmit}
             disabled={!selectedProduct || !selectedReason || !attachment}
           >

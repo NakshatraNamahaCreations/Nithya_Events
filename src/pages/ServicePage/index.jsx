@@ -112,22 +112,73 @@ const ServicePage = () => {
         />
       </Box>
 
-      <Box className="services-grid">
+      <Box
+        className="services-grid"
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: "1.5rem",
+          padding: "2rem 1rem",
+          marginLeft:'2rem'
+        }}
+      >
         {filteredServices.map((service) => (
           <Box
             key={service._id}
-            className="service-card"
             onClick={() => handleService(service.service_name)}
-            sx={{ cursor: "pointer" }}
+            sx={{
+              borderRadius: "16px",
+              overflow: "hidden",
+              boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
+              // backgroundColor: "#fff",
+              cursor: "pointer",
+              transition: "transform 0.3s ease",
+              maxWidth: "240px",
+              // width: "100%",
+              //  display:'flex',
+              //  justifyContent:'center',
+              "&:hover": {
+                transform: "translateY(-6px)",
+              },
+            }}
           >
-            <Box className="icon-container">
-              {getServiceIcon(service.service_name)}
+            {/* Image + Label */}
+            <Box sx={{ position: "relative", height: "300px" }}>
+              <img
+                src={service.service_image}
+                alt={service.service_name}
+                style={{
+                  width: "100%",
+                  // height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+              {/* <Box
+      sx={{
+        position: "absolute",
+        top: 10,
+        left: 10,
+        backgroundColor: service.isActive ? "limegreen" : "#ccc",
+        color: "#fff",
+        padding: "3px 10px",
+        borderRadius: "12px",
+        fontSize: "0.75rem",
+        fontWeight: "bold",
+      }}
+    >
+      {service.isActive ? "Available" : "Unavailable"}
+    </Box> */}
             </Box>
-            <h3>{service.service_name}</h3>
-            <p>
-              <strong>Status:</strong>{" "}
-              {service.isActive ? "Active" : "Inactive"}
-            </p>
+
+            {/* Title Section Below Image */}
+            <Box
+              sx={{
+                padding: "0.9rem 1rem",
+                backgroundColor: "#fff",
+                textAlign: "center",
+              }}
+            ></Box>
           </Box>
         ))}
       </Box>

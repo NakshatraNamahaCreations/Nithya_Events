@@ -8,6 +8,7 @@ const TicketDetails = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const ticket = state?.ticket;
+console.log("the tickets",ticket);
 
   if (!ticket) {
     return (
@@ -111,6 +112,38 @@ const TicketDetails = () => {
             <strong>Created On:</strong> {formatTicketDate(ticket.createdAt)}
           </Typography>
         </Box>
+        {Array.isArray(ticket.attachment_file)
+  ? ticket.attachment_file.map((file, index) => (
+      <Box
+        key={index}
+        component="img"
+        src={file}
+        alt={`attachment-${index + 1}`}
+        sx={{
+          width: "100%",
+          maxHeight: 250,
+          objectFit: "cover",
+          borderRadius: 2,
+          mb: 2,
+        }}
+      />
+    ))
+  : ticket.attachment_file && (
+      <Box
+        component="img"
+        src={ticket.attachment_file}
+        alt="attachment"
+        sx={{
+          width: "40%",
+          maxHeight: 250,
+          objectFit: "cover",
+          borderRadius: 2,
+          mb: 2,
+        }}
+      />
+    )}
+
+
       </Paper>
     </Box>
   );

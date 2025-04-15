@@ -87,24 +87,23 @@ const BookingDetails = () => {
   // const [companyDetails, setCompanyDetails] = useState({})
   const [panNumber, setPanNumber] = useState("");
   const [gstNumber, setGstNumber] = useState("");
-const navigate = useNavigate();
-const userDetail = sessionStorage.getItem("userDetails");
+  const navigate = useNavigate();
+  const userDetail = sessionStorage.getItem("userDetails");
 
-let userName = null;
-let userMobile = null;
-let userId = null;
+  let userName = null;
+  let userMobile = null;
+  let userId = null;
 
-
-if (userDetail) {
-  try {
-    const userDetails = JSON.parse(userDetail);
-    userName = userDetails?.username || null;
-    userMobile = userDetails?.mobilenumber || null;
-    userId = userDetails?._id || null;
-  } catch (error) {
-    console.error("Error parsing userDetails from sessionStorage:", error);
+  if (userDetail) {
+    try {
+      const userDetails = JSON.parse(userDetail);
+      userName = userDetails?.username || null;
+      userMobile = userDetails?.mobilenumber || null;
+      userId = userDetails?._id || null;
+    } catch (error) {
+      console.error("Error parsing userDetails from sessionStorage:", error);
+    }
   }
-}
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -123,15 +122,12 @@ if (userDetail) {
 
   const getUser = async () => {
     try {
-      
       const res = await authService.getCompanyDetail(userId);
       const companyDetails = res.data.company_profile[0];
       if (companyDetails) {
         setPanNumber(companyDetails.pan_number || "N/A");
         setGstNumber(companyDetails.gst_number || "N/A");
-    }
-
-      
+      }
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
@@ -228,9 +224,9 @@ if (userDetail) {
   const baseAmount = booking?.base_amount;
   const tdsCharges = booking?.tds_deduction;
   const amountAfterDeduction = baseAmount - tdsCharges;
- const gst = amountAfterDeduction * 0.18;
+  const gst = amountAfterDeduction * 0.18;
 
-  const grandTotal = amountAfterDeduction + gst ;
+  const grandTotal = amountAfterDeduction + gst;
 
   if (loading) {
     return (
@@ -326,7 +322,6 @@ if (userDetail) {
       }
     });
 
-
     try {
       const res = await axios.put(
         `${config.BASEURL}/user-order/reschedule-order/${booking._id}`,
@@ -361,227 +356,236 @@ if (userDetail) {
   const formatTime = (timeString) => {
     const [time, period] = timeString.split(" ");
     let [hours, minutes] = time.split(":").map(Number);
-  
+
     if (period === "PM" && hours !== 12) hours += 12;
     if (period === "AM" && hours === 12) hours = 0;
-  
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+      2,
+      "0"
+    )}`;
   };
-  
-  
-  
+
   console.log("The start", booking.event_start_time);
-  
 
-  
+  const downloadInvoice = () => {
+    const doc = new jsPDF("p", "mm", "a4");
+    doc.setFontSize(10);
+    let startX = 15;
+    let currentY = 20;
 
-const downloadInvoice = () => {
-  const doc = new jsPDF("p", "mm", "a4");
-  doc.setFontSize(10);
-  let startX = 15;
-  let currentY = 20;
+    const img = new Image();
+    img.src = logo;
+    img.onload = function () {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      const logoBase64 = canvas.toDataURL("image/png");
 
-  const img = new Image();
-  img.src = logo;
-  img.onload = function () {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = img.width;
-    canvas.height = img.height;
-    ctx.drawImage(img, 0, 0);
-    const logoBase64 = canvas.toDataURL("image/png");
+      doc.addImage(logoBase64, "PNG", 15, 10, 30, 25);
+      currentY += 15;
+      // Company Information
+      doc.setFont("helvetica", "bold");
+      doc.text("KADAGAM VENTURES PRIVATE LIMITED", startX, currentY);
+      doc.setFont("helvetica", "normal");
+      currentY += 5;
+      doc.text("#345 3rd Vishwapriya Road,", startX, currentY);
+      currentY += 5;
+      doc.text("Bengaluru, Karnataka 560068, India", startX, currentY);
+      currentY += 5;
+      doc.text("GST: 29AABCK9472B1ZW", startX, currentY);
+      currentY += 5;
+      doc.text("SAC CODE: 998597", startX, currentY);
+      currentY += 7;
 
-    doc.addImage(logoBase64, "PNG", 15, 10, 30, 25);
-    currentY += 15;
-  // Company Information
-  doc.setFont("helvetica", "bold");
-  doc.text("KADAGAM VENTURES PRIVATE LIMITED", startX, currentY);
-  doc.setFont("helvetica", "normal");
-  currentY += 5;
-  doc.text("#345 3rd Vishwapriya Road,", startX, currentY);
-  currentY += 5;
-  doc.text("Bengaluru, Karnataka 560068, India", startX, currentY);
-  currentY += 5;
-  doc.text("GST: 29AABCK9472B1ZW", startX, currentY);
-  currentY += 5;
-  doc.text("SAC CODE: 998597", startX, currentY);
-  currentY += 7;
+      // Customer Details
+      doc.setFont("helvetica", "bold");
+      doc.text(`To: ${userName || "N/A"}`, startX, currentY);
+      currentY += 5;
+      doc.setFont("helvetica", "normal");
+      doc.text(`Phone: ${userMobile || "N/A"}`, startX, currentY);
+      currentY += 5;
+      doc.text(
+        booking.event_location || "No address provided",
+        startX,
+        currentY
+      );
+      currentY += 5;
+      if (panNumber) {
+        doc.setFont("helvetica", "bold");
+        doc.setFont("helvetica", "normal");
+        doc.text(`PAN Number: ${panNumber}`, startX, currentY);
+        // doc.setFont("helvetica", "normal");
+        // doc.text(`Pan card details has been uploaded`, startX, currentY);
+      }
+      if (gstNumber) {
+        currentY += 5;
+        doc.setFont("helvetica", "normal");
+        doc.text(`GST Number: ${gstNumber}`, startX, currentY);
+        currentY += 5;
+      }
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        `Kind Attn: ${booking.receiver_name || "N/A"}`,
+        startX,
+        currentY
+      );
+      currentY += 10;
 
-  // Customer Details
-  doc.setFont("helvetica", "bold");
-  doc.text(`To: ${userName || "N/A"}`, startX, currentY);
-  currentY += 5;
-  doc.setFont("helvetica", "normal");
-  doc.text(`Phone: ${userMobile || "N/A"}`, startX, currentY);
-  currentY += 5;
-  doc.text(booking.event_location || "No address provided", startX, currentY);
-  currentY += 5;
-   if (panNumber) {
-    doc.setFont("helvetica", "bold");
-    doc.setFont("helvetica", "normal");
-    doc.text(`PAN Number: ${panNumber}`, startX, currentY);
-    // doc.setFont("helvetica", "normal");
-    // doc.text(`Pan card details has been uploaded`, startX, currentY);
+      // Invoice Details Box
+      let infoBoxX = 120;
+      let infoBoxY = 20;
+      let infoBoxWidth = 88;
+      let infoBoxHeight = 55;
+      doc.rect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
 
-   }
-   if(gstNumber){
-    currentY += 5;
-    doc.setFont("helvetica", "normal");
-    doc.text(`GST Number: ${gstNumber}`, startX, currentY);
-    currentY +=5;
-  }
-  doc.setFont("helvetica", "normal");
-  doc.text(`Kind Attn: ${booking.receiver_name || "N/A"}`, startX, currentY);
-  currentY += 10;
+      let infoTextX = infoBoxX + 5;
+      let infoTextY = infoBoxY + 6;
 
-  // Invoice Details Box
-  let infoBoxX = 120;
-  let infoBoxY = 20;
-  let infoBoxWidth = 88;
-  let infoBoxHeight = 55;
-  doc.rect(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
+      const invoiceDetails = [
+        { label: "Invoice #", value: `INV${booking._id.slice(-6)}` },
+        { label: "Event Name", value: booking.event_name || "N/A" },
+        {
+          label: "Ordered Date",
+          value: formatDate(booking.ordered_date) || "-",
+        },
+        { label: "Venue Name", value: booking.venue_name || "-" },
+        { label: "Venue Location", value: booking.event_location || "N/A" },
+        {
+          label: "Event Date",
+          value: `${formatDate(booking.event_start_date)} - ${formatDate(
+            booking.event_end_date
+          )}`,
+        },
+        // { label: "Event Time", value: `${booking.event_start_date} - ${booking.event_end_date}` },
+        {
+          label: "Event Time",
+          value: `${formatTime(booking.event_start_time)} - ${formatTime(
+            booking.event_end_time
+          )}`,
+        },
+        { label: "No of Days", value: String(booking.number_of_days) },
+      ];
 
-  let infoTextX = infoBoxX + 5;
-  let infoTextY = infoBoxY + 6;
+      doc.setFontSize(9);
+      invoiceDetails.forEach((item) => {
+        doc.setFont("helvetica", "bold");
 
-  const invoiceDetails = [
-      { label: "Invoice #", value: `INV${booking._id.slice(-6)}` },
-      { label: "Event Name", value: booking.event_name || "N/A" },
-      { label: "Ordered Date", value: formatDate(booking.ordered_date) || "-" },
-      { label: "Venue Name", value: booking.venue_name || "-" },
-      { label: "Venue Location", value: booking.event_location || "N/A" },
-      { label: "Event Date", value: `${formatDate(booking.event_start_date)} - ${formatDate(booking.event_end_date)}` },
-      // { label: "Event Time", value: `${booking.event_start_date} - ${booking.event_end_date}` },
-      { label: "Event Time", value: `${formatTime(booking.event_start_time)} - ${formatTime(booking.event_end_time)}` },
-      { label: "No of Days", value: String(booking.number_of_days) },
-  ];
+        doc.text(`${item.label}:`, infoTextX, infoTextY);
 
-  
+        doc.setFont("helvetica", "normal");
 
-  doc.setFontSize(9);
-  invoiceDetails.forEach((item) => {
-    doc.setFont("helvetica", "bold");
-    
+        let splitValue = doc.splitTextToSize(String(item.value), 36);
 
-    doc.text(`${item.label}:`, infoTextX, infoTextY);
-    
-    doc.setFont("helvetica", "normal");
+        doc.text(splitValue, infoTextX + 45, infoTextY);
 
-  
-    let splitValue = doc.splitTextToSize(String(item.value), 36);
+        infoTextY += splitValue.length * 5;
+      });
 
-    doc.text(splitValue, infoTextX + 45, infoTextY);
-
- 
-    infoTextY += splitValue.length * 5;  
-});
-
-
-
-  // Product Table
-  let tableStartY = infoBoxY + infoBoxHeight + 15;
-    const columns = [
+      // Product Table
+      let tableStartY = infoBoxY + infoBoxHeight + 15;
+      const columns = [
         { header: "Product", dataKey: "name" },
         { header: "Size", dataKey: "dimension" },
         { header: "Qty", dataKey: "quantity" },
         { header: "Price", dataKey: "price" },
         { header: "Days", dataKey: "days" },
         { header: "Amount", dataKey: "amount" },
-    ];
-    const rows = items.map((item) => ({
+      ];
+      const rows = items.map((item) => ({
         name: item.name,
         dimension: item.dimension,
         quantity: item.quantity,
         price: item.price,
         days: String(numberOfDays),
         amount: item.price * item.quantity * numberOfDays,
-    }));
+      }));
 
-    doc.autoTable({
+      doc.autoTable({
         startY: tableStartY,
         theme: "grid",
         head: [columns.map((col) => col.header)],
         body: rows.map((r) => columns.map((col) => r[col.dataKey])),
         headStyles: {
-            fillColor: [255, 255, 0],
-            textColor: [0, 0, 0],
-            fontStyle: "bold",
+          fillColor: [255, 255, 0],
+          textColor: [0, 0, 0],
+          fontStyle: "bold",
         },
         styles: {
-            fontSize: 9,
+          fontSize: 9,
         },
         margin: { left: 15 },
         tableWidth: 180,
-    });
+      });
 
-    let finalY = doc.lastAutoTable.finalY + 5;
+      let finalY = doc.lastAutoTable.finalY + 5;
 
-  // Payment Summary
-  doc.setFontSize(10);
-  doc.setFont(undefined, "bold");
-  doc.text("Sub Total", 100, finalY);
-  doc.setFont(undefined, "normal");
-  doc.text(String(subTotal), 190, finalY, { align: "right" });
-  finalY += 5;
+      // Payment Summary
+      doc.setFontSize(10);
+      doc.setFont(undefined, "bold");
+      doc.text("Sub Total", 100, finalY);
+      doc.setFont(undefined, "normal");
+      doc.text(String(subTotal), 190, finalY, { align: "right" });
+      finalY += 5;
 
-  doc.setFont(undefined, "bold");
-  doc.text("TDS(2%)", 100, finalY);
-  doc.setFont(undefined, "normal");
-  doc.text(String(tdsCharges), 190, finalY, { align: "right" });
-  finalY += 5;
+      doc.setFont(undefined, "bold");
+      doc.text("TDS(2%)", 100, finalY);
+      doc.setFont(undefined, "normal");
+      doc.text(String(tdsCharges), 190, finalY, { align: "right" });
+      finalY += 5;
 
+      doc.setFont("helvetica", "bold");
+      doc.text("Amount After TDS Deduction", 100, finalY);
+      doc.setFont("helvetica", "normal");
+      doc.text(String(amountAfterDeduction), 190, finalY, { align: "right" });
 
+      finalY += 5;
+      doc.setFont("helvetica", "bold");
+      doc.text("GST:", 100, finalY);
+      doc.setFont("helvetica", "normal");
+      doc.text(String(Math.round(amountAfterDeduction * 0.18)), 190, finalY, {
+        align: "right",
+      });
+      finalY += 5;
 
-  doc.setFont("helvetica", "bold");
-  doc.text("Amount After TDS Deduction", 100, finalY);
-  doc.setFont("helvetica", "normal");
-  doc.text(String(amountAfterDeduction), 190, finalY, { align: "right" });
+      doc.setFont(undefined, "bold");
+      doc.text("Grand Total", 100, finalY);
+      doc.setFont(undefined, "normal");
+      doc.text(String(grandTotal), 190, finalY, { align: "right" });
+      finalY += 15;
 
-  
-  finalY += 5;
-  doc.setFont("helvetica", "bold");
-  doc.text("GST:", 100, finalY);
-  doc.setFont("helvetica", "normal");
-  doc.text(String(Math.round(amountAfterDeduction * 0.18)), 190, finalY, { align: "right" });
-  finalY += 5;
+      // Terms & Conditions with Text Wrapping
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text("Terms & Conditions", 15, finalY);
+      finalY += 5;
 
+      doc.setFont("helvetica", "normal");
+      const terms = [
+        "1. Payment Terms: Payment is due upon receipt.",
+        "2. Reservation & Deposit: A 100% deposit is required to secure your reservation",
+        "3. Cancellation Policy: Cancellations must be made at least 2 days in advance. Cancellation made within a day will be no refund.",
+        `4. Rental Period: The rental period starts from ${booking.event_start_time} to ${booking.event_end_time}. Any extensions must be arranged in advance and is subject to availabilty`,
+        "5. Delivery & Pickup: Delivery and pickup services are available for an additional fee. The customer must ensure the rental location is accessible for delivery.",
+        "6. Condition of Equipment: Rented items should be returned in their original condition. Customers are responsible for any damage or loss incurred during the rental period.",
+        "7. Liability: The customer agrees to assume all liability for rented items during the rental period.[Include any insurance requirements if applicable.]",
+        "8. Indemnification: The customer agrees to indemnify and hold Nithya Events or Kadagam Ventures Pvt Ltd harmless from any claims or damages arising from the use of rented items.",
+        "9. Governing Law: This agreement follows the laws of Bangalore, Karnataka.",
+        "10. Changes to Terms: Nithya Events or Kadagam Ventures Pvt Ltd reserves the right to change these terms and conditions at any time. Customers will be notified of any significant changes.",
+        "11. Contact: For questions, contact support@nithyaevent.com.",
+      ];
 
-  doc.setFont(undefined, "bold");
-  doc.text("Grand Total", 100, finalY);
-  doc.setFont(undefined, "normal");
-  doc.text(String(grandTotal), 190, finalY, { align: "right" });
-  finalY += 15;
+      terms.forEach((line) => {
+        let splitText = doc.splitTextToSize(line, 180);
+        doc.text(splitText, 15, finalY);
+        finalY += splitText.length * 5;
+      });
 
-  // Terms & Conditions with Text Wrapping
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  doc.text("Terms & Conditions", 15, finalY);
-  finalY += 5;
-
-  doc.setFont("helvetica", "normal");
-  const terms = [
-    "1. Payment Terms: Payment is due upon receipt.",
-    "2. Reservation & Deposit: A 100% deposit is required to secure your reservation",
-    "3. Cancellation Policy: Cancellations must be made at least 2 days in advance. Cancellation made within a day will be no refund.",
-    `4. Rental Period: The rental period starts from ${booking.event_start_time} to ${booking.event_end_time}. Any extensions must be arranged in advance and is subject to availabilty`,
-    "5. Delivery & Pickup: Delivery and pickup services are available for an additional fee. The customer must ensure the rental location is accessible for delivery.",
-    "6. Condition of Equipment: Rented items should be returned in their original condition. Customers are responsible for any damage or loss incurred during the rental period.",
-    "7. Liability: The customer agrees to assume all liability for rented items during the rental period.[Include any insurance requirements if applicable.]",
-    "8. Indemnification: The customer agrees to indemnify and hold Nithya Events or Kadagam Ventures Pvt Ltd harmless from any claims or damages arising from the use of rented items.",
-    "9. Governing Law: This agreement follows the laws of Bangalore, Karnataka.",
-    "10. Changes to Terms: Nithya Events or Kadagam Ventures Pvt Ltd reserves the right to change these terms and conditions at any time. Customers will be notified of any significant changes.",
-    "11. Contact: For questions, contact support@nithyaevent.com.",
-];
-
-  terms.forEach((line) => {
-      let splitText = doc.splitTextToSize(line, 180);
-      doc.text(splitText, 15, finalY);
-      finalY += splitText.length * 5;
-  });
-
-  doc.save("invoice.pdf");
-};
-};
+      doc.save("invoice.pdf");
+    };
+  };
 
   if (!booking) {
     return (
@@ -609,16 +613,19 @@ const downloadInvoice = () => {
     navigate(`/raise-ticket/${id}`);
   };
 
-
-
-
   return (
-    <Box sx={{ p: 2, maxWidth: "1200px", margin: "auto" }}>
+    <Box sx={{ p: 6, maxWidth: "1200px", margin: "auto" }}>
       <ToastContainer />
       <Grid container spacing={2}>
         <Grid item xs={8}>
           <Paper variant="outlined" sx={{ p: 3 }}>
-            <Box sx={{display:'flex', alignItems:'center',justifyContent:'space-between'}}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
               {eventStatus === "Cancel Event" &&
               booking.order_status !== "Order Cancelled" &&
               booking.order_status !== "Order Rescheduled" ? (
@@ -630,7 +637,7 @@ const downloadInvoice = () => {
                     fontSize: "14px",
                     mb: 2,
                     color: "#fff",
-                    backgroundColor: "#f44336", 
+                    backgroundColor: "#f44336",
                     "&:hover": {
                       backgroundColor: "#d32f2f",
                       opacity: 0.9,
@@ -683,8 +690,39 @@ const downloadInvoice = () => {
                 />
               )}
               <Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    sx={{ backgroundColor: "#c026d3", borderRadius: "20px" }}
+                    onClick={handleRaiseTicket}
+                  >
+                    Raise Ticket
+                  </Button>
 
-              <Button variant="contained" sx={{backgroundColor:'#c026d3', borderRadius:'20px'}} onClick={handleRaiseTicket}>Raise Ticket</Button>
+                  <IconButton
+                    href="https://wa.me/919980137001"
+                    target="_blank"
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      flexDirection: "column",
+                      marginLeft: "1rem",
+                    }}
+                  >
+                    <WhatsAppIcon
+                      sx={{ color: "#25D366", fontSize: "1.5rem" }}
+                    />
+                    <Typography variant="p" sx={{ fontSize: "0.7rem" }}>
+                      WhatsApp
+                    </Typography>
+                  </IconButton>
+                </Box>
               </Box>
             </Box>
 
@@ -827,7 +865,7 @@ const downloadInvoice = () => {
                               gap: "0.5rem",
                             }}
                           >
-                            <IconButton
+                            {/* <IconButton
                               href={`https://wa.me/${9773828339}`}
                               target="_blank"
                               sx={{
@@ -839,13 +877,7 @@ const downloadInvoice = () => {
                               <WhatsAppIcon
                                 sx={{ color: "#25D366", fontSize: "1.5rem" }}
                               />
-                              <Typography
-                                variant="p"
-                                sx={{ fontSize: "0.7rem" }}
-                              >
-                                Whatsapp
-                              </Typography>
-                            </IconButton>
+                            </IconButton> */}
                             <IconButton
                               href={`tel:${87328228}`}
                               target="_blank"
@@ -944,7 +976,7 @@ const downloadInvoice = () => {
                               gap: "0.5rem",
                             }}
                           >
-                            <IconButton
+                            {/* <IconButton
                               href={`https://wa.me/${9773828339}`}
                               target="_blank"
                               sx={{
@@ -962,7 +994,7 @@ const downloadInvoice = () => {
                               >
                                 Whatsapp
                               </Typography>
-                            </IconButton>
+                            </IconButton> */}
                             <IconButton
                               href={`tel:${87328228}`}
                               target="_blank"
@@ -1057,25 +1089,6 @@ const downloadInvoice = () => {
                               gap: "0.5rem",
                             }}
                           >
-                            <IconButton
-                              href={`https://wa.me/${9773828339}`}
-                              target="_blank"
-                              sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                flexDirection: "column",
-                              }}
-                            >
-                              <WhatsAppIcon
-                                sx={{ color: "#25D366", fontSize: "1.5rem" }}
-                              />
-                              <Typography
-                                variant="p"
-                                sx={{ fontSize: "0.7rem" }}
-                              >
-                                Whatsapp
-                              </Typography>
-                            </IconButton>
                             <IconButton
                               href={`tel:${87328228}`}
                               target="_blank"
@@ -1205,12 +1218,12 @@ const downloadInvoice = () => {
 
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="body2">TDS Charges (2%)</Typography>
-                <Typography variant="body2">{tdsCharges}</Typography>
+                <Typography variant="body2">{Math.floor(tdsCharges)}</Typography>
               </Box>
 
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="body2">Amount After Deductions</Typography>
-                <Typography variant="body2">{amountAfterDeduction}</Typography>
+                <Typography variant="body2">{Math.floor(amountAfterDeduction)}</Typography>
               </Box>
 
               {/* <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -1230,7 +1243,7 @@ const downloadInvoice = () => {
                   Bill Total
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                  {String(grandTotal)}
+                  {Math.floor(String(grandTotal))}
                 </Typography>
               </Box>
             </Box>
@@ -1312,9 +1325,7 @@ const downloadInvoice = () => {
         >
           Download Invoice
         </Button>
-        
       </Paper>
-   
       <Modal
         open={open}
         onClose={handleClose}

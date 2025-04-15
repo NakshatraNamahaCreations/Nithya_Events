@@ -55,7 +55,8 @@ import HomePage from "../../assets/homepage.png";
 import AnalyticsImg from "../../assets/pieChart.png";
 import Delivery from "../../assets/deliveryHome.png";
 import Calendar from "../../pages/Calender";
-import Settings from "../../assets/Settings.png";
+import PhotoCamera from "@mui/icons-material/PhotoCamera";
+
 // import ShoppingCart from "../../assets/shoppingCart.png";
 // import ShoppingCart from "../../assets/carts.png";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
@@ -246,8 +247,9 @@ const PageHeader = () => {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              padding: "0.5rem 1rem", // Add padding to control spacing
-              minHeight: "60px", // Ensures uniform height
+              padding: "1rem", 
+              minHeight: "60px",
+              position:"relative"
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
@@ -265,7 +267,16 @@ const PageHeader = () => {
                 src={Logo}
                 alt="Logo"
                 style={{ cursor: "pointer" }}
+                className="logo-image"
                 onClick={() => navigate("/")}
+                // cursor: pointer;
+                // height: 7rem;
+                // position: absolute;
+                // right: -107%;
+                // width: 8rem;
+                // z-index: 1;
+                // top: -16%;
+                // left: 0rem;
               />
               {/* </Typography> */}
 
@@ -680,29 +691,71 @@ const PageHeader = () => {
                       }}
                     >
                       {isAuthenticated ? (
-                        <Box
-                          sx={{ textAlign: "center", paddingBottom: "12px" }}
+                        <Box sx={{ textAlign: "center", paddingBottom: "12px" }}>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          id="avatarUpload"
+                          style={{ display: "none" }}
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                // Update the image locally (you can also trigger API update here)
+                                userDetails.profileImage = reader.result;
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                       <label
+  htmlFor="avatarUpload"
+  style={{ position: "relative", display: "inline-block", cursor: "pointer" }}
+>
+  <Avatar
+    src={userDetails.profileImage}
+    sx={{
+      width: 64,
+      height: 64,
+      margin: "0 auto",
+      mb: 1,
+      border: "2px solid #ccc",
+    }}
+  />
+  <Box
+    sx={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: 64,
+      height: 64,
+      borderRadius: "50%",
+      bgcolor: "rgba(0,0,0,0.4)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      opacity: 0,
+      transition: "opacity 0.3s",
+      "&:hover": {
+        opacity: 1,
+      },
+    }}
+  >
+    <PhotoCamera sx={{ color: "white" }} />
+  </Box>
+</label>
+                        <Typography
+                          variant="h6"
+                          fontWeight="bold"
+                          sx={{ textTransform: "capitalize" }}
                         >
-                          <Avatar
-                            src={userDetails.profileImage}
-                            sx={{
-                              width: 64,
-                              height: 64,
-                              margin: "0 auto",
-                              mb: 1,
-                            }}
-                          />
-                          <Typography
-                            variant="h6"
-                            fontWeight="bold"
-                            sx={{ textTransform: "capitalize" }}
-                          >
-                            {userDetails.username}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            {userDetails.email}
-                          </Typography>
-                        </Box>
+                          {userDetails.username}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {userDetails.email}
+                        </Typography>
+                      </Box>
                       ) : (
                         <Box
                           sx={{ textAlign: "center", paddingBottom: "12px" }}
@@ -787,7 +840,7 @@ const PageHeader = () => {
                           />
                           <ListItemText
                             primary="Logout"
-                            sx={{ color: "#d32f2f" }}
+                            sx={{ color: "#d32f2f", cursor:"pointer" }}
                           />
                         </ListItem>
                       ) : (

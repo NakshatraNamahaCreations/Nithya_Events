@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { Box, Button, Typography } from "@mui/material";
 import EventIcon from "@mui/icons-material/Event";
 import CustomModal from "../../components/CustomModal";
+import CloseIcon from "@mui/icons-material/Close";
+import { IconButton } from "@mui/material";
 import "./styles.scss";
 
 const Calendar = ({ calendarClose }) => {
@@ -15,7 +17,7 @@ const Calendar = ({ calendarClose }) => {
 
   // Get current date
   const today = new Date();
-  
+
   // Get stored dates from Redux
   const { startDate, endDate } = useSelector((state) => state.date);
 
@@ -45,8 +47,8 @@ const Calendar = ({ calendarClose }) => {
   const handleDateChange = (dates) => {
     setSelectedDates(dates);
 
-    let start = dates[0] || today; 
-    let end = dates[1] || start; 
+    let start = dates[0] || today;
+    let end = dates[1] || start;
     let difference =
       Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
@@ -72,12 +74,24 @@ const Calendar = ({ calendarClose }) => {
 
   return (
     <Box className="calendar-container">
+      <IconButton
+        onClick={calendarClose}
+        sx={{ position: "absolute", top: 0, right: 0 }}
+      >
+        <CloseIcon />
+      </IconButton>
       {/* HEADER */}
-      <Box className="calendar-header">
+      <Box className="calendar-header" sx={{ position: "relative" }}>
         <EventIcon className="calendar-icon" />
-        <Typography variant="h6" sx={{fontSize:'1rem'}}>Choose your Event Date</Typography>
-        <Box sx={{ display: "flex", gap: "0.3rem", alignItems: "center" }} mt={1}>
-          <Typography className="calendar-date" sx={{fontSize:'0.8rem'}}>
+        <Typography variant="h6" sx={{ fontSize: "1rem" }}>
+          Choose your Event Date
+        </Typography>
+
+        <Box
+          sx={{ display: "flex", gap: "0.3rem", alignItems: "center" }}
+          mt={1}
+        >
+          <Typography className="calendar-date" sx={{ fontSize: "0.8rem" }}>
             {selectedDates[0]?.toLocaleDateString("en-US", {
               month: "short",
               day: "2-digit",

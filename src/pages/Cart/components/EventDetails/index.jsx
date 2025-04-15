@@ -192,9 +192,61 @@ const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setEventDetails({ ...eventDetails, [name]: value });
+  
+    // Mobile Number Validation (Max 10 digits)
+    if (name === "receiverMobile") {
+      if (value.length <= 10 && /^[0-9]*$/.test(value)) {
+        setEventDetails({ ...eventDetails, [name]: value });
+  
+        // Hide error once the input is valid
+        setMobileError(false); // Clear error once the number is valid
+      } else if (value.length > 10) {
+        // If the length exceeds 10, do not allow further input
+        setEventDetails({ ...eventDetails, [name]: value.slice(0, 10) }); // Trim to 10 digits
+  
+        // Show the error message only once
+        if (!mobileError) {
+          toast.error("Mobile number cannot exceed 10 digits.", {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+          setMobileError(true); // Set to true to prevent multiple error messages
+        }
+      }
+    }
+  
+    // Name Validation (Only Alphabets and Spaces)
+    if (name === "receiverName") {
+      const regex = /^[A-Za-z\s]*$/;  // Allows only alphabets and spaces
+      if (regex.test(value) || value === "") {
+        setEventDetails({ ...eventDetails, [name]: value });
+      } else {
+        // Toast error for invalid name input (numbers or special characters)
+        toast.error("Name should only contain alphabets and spaces.", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+      }
+    }
+  
+    // For other fields
+    else {
+      setEventDetails({ ...eventDetails, [name]: value });
+    }
   };
-
+  
+  
+  
   
   const techniciansData = technicianItem?.map((item) => ({
     orderId: Date.now().toString(),
@@ -932,9 +984,9 @@ const navigate = useNavigate();
           </Grid>
 
           <Box mt={4} textAlign="center">
-            {isCheckoutAllowed && (
+            {(
               <Box mt={4} textAlign="center">
-                {/* 🔹 Informational Message */}
+                {/* Informational Message */}
                 <Typography
                   variant="body2"
                   sx={{
@@ -944,7 +996,7 @@ const navigate = useNavigate();
                     fontWeight: "bold",
                   }}
                 >
-                  {/* ⚠️ Before proceeding to place your order, you need to accept
+                  {/* Before proceeding to place your order, you need to accept
                   the Terms & Conditions. */}
 
                   {/* TERMS AND CONDITIONS  */}

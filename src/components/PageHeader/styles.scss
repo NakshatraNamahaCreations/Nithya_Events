@@ -42,6 +42,15 @@
     // color: #c026d3;
   }
 
+  .logo-image{
+    height: 8rem;
+    position: absolute;
+    right: -107%;
+    width: 9rem;
+    z-index: 1;
+    top: -12%;
+    left: 0rem;
+  }
   img {
     max-width: 100%; /* Ensures logo or images fit the container */
     height: auto;

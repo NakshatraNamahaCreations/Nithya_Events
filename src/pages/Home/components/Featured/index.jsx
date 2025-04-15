@@ -142,7 +142,13 @@ const Featured = () => {
       return;
     }
     const wishlistId = productList.find((w) => w.product_id === item._id);
-
+    if (isInWishlist) {
+      toast.error("This item is already in your wishlist!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      return;
+    }
     try {
       // if (!isInWishlist) {
 
@@ -273,11 +279,11 @@ const Featured = () => {
           >
             <Box
               component="img"
-              src={item.product_image}
+              src={item.product_image[0]}
               alt={item.product_name}
               sx={{
                 width: "94%",
-                height: "180px",
+                height: "200px",
                 objectFit: "fill",
                 borderTopLeftRadius: "10px",
                 borderTopRightRadius: "10px",
@@ -378,7 +384,7 @@ const Featured = () => {
                   margin: "0 auto",
                 }}
               >
-                <Button
+                {/* <Button
                   variant="outlined"
                   size="small"
                   sx={{
@@ -397,7 +403,7 @@ const Featured = () => {
                   onClick={() => handleProductClick(item._id)}
                 >
                   View More
-                </Button>
+                </Button> */}
               </Box>
             </CardContent>
           </Card>
