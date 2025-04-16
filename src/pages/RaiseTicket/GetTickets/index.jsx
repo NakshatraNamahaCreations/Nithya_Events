@@ -33,7 +33,9 @@ const handleNavigate = (ticket) => {
           throw new Error('Failed to fetch tickets');
         }
         const data = await response.json();
-        setTickets(data.data);
+        const sortedTickets = data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        setTickets(sortedTickets);
       } catch (err) {
         setError(err.message);
       } finally {

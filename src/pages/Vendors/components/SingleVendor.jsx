@@ -34,7 +34,6 @@ const SingleVendor = () => {
     }
   }
 
-  
   const calculateAverageRating = (reviews) => {
     if (!reviews || reviews.length === 0) return 0;
     const totalRatings = reviews.reduce(
@@ -76,12 +75,11 @@ const SingleVendor = () => {
     setReviewModalOpen(true);
   };
   console.log("The id check", id);
-  const handleReviewSubmit = async(reviewData) => {
-  const res = await authService.writeVendorReview(reviewData, id);
-  
-  
-  setReviewModalOpen(false);
-  }
+  const handleReviewSubmit = async (reviewData) => {
+    const res = await authService.writeVendorReview(reviewData, id);
+
+    setReviewModalOpen(false);
+  };
 
   const handleProductClick = (id) => {
     navigate(`/products/${id}`);
@@ -98,8 +96,13 @@ const SingleVendor = () => {
       {vendor && (
         <>
           <Box className="vendor-header">
-            <Box className="vendor-image" sx={{position:'relative'}}>
-              <Button onClick={handleVendorReviewClick} sx={{position:'absolute', top:'3rem', left:'30rem'}}>Review</Button>
+            <Box className="vendor-image" sx={{ position: "relative" }}>
+              {/* <Button
+                onClick={handleVendorReviewClick}
+                sx={{ position: "absolute", top: "3rem", left: "30rem" }}
+              >
+                Review
+              </Button> */}
               <img
                 src={vendor.shop_image_or_logo || "/assets/vendor-logo.png"}
                 alt="Vendor Logo"
@@ -155,14 +158,13 @@ const SingleVendor = () => {
               ))}
             </Box>
           </Box>
-
-       <Review     onSubmit={handleReviewSubmit}
-            productId={id}
-            open={isReviewModalOpen}
-            onClose={() => setReviewModalOpen(false)}
-            userId={userId}
-            />
-
+          <Review
+        onSubmit={handleReviewSubmit}
+        productId={id}
+        open={isReviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+        setOpen={setReviewModalOpen}
+      />
         </>
       )}
     </Box>

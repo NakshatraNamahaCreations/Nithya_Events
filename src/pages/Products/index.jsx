@@ -210,7 +210,7 @@ const Products = () => {
       );
 setAnimate(item._id)
       setWishlist((prev) => [...prev, item._id]);
-      toast.success("Item added to cart!", {
+      toast.success("Item added to wishlist!", {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,

@@ -127,8 +127,21 @@ const Category = () => {
 
   const handleWishlistClick = async (item) => {
     const isInWishlist = wishlist.includes(item._id);
+
     if (!userId) {
       toast.error("You need to login", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
+    if (isInWishlist) {
+      toast.error("This item is already in your wishlist!", {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,
@@ -156,7 +169,7 @@ const Category = () => {
         { headers: { "Content-Type": "application/json" } }
       );
 
-      toast.success("Item added to cart!", {
+      toast.success("Item added to wishlist!", {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,
@@ -165,6 +178,15 @@ const Category = () => {
         draggable: true,
         progress: undefined,
       });
+
+
+      if (isInWishlist) {
+        toast.error("This item is already in your wishlist!", {
+          position: "top-right",
+          autoClose: 2000,
+        });
+        return;
+      }
       setWishlist((prev) =>
         isInWishlist
           ? prev.filter((id) => id !== item._id)

@@ -5,6 +5,7 @@ import authService from "../../../../api/ApiService"; // API call
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./styles.scss";
 
 const Profile = () => {
   const [accountDetails, setAccountDetails] = useState({
@@ -18,7 +19,7 @@ const Profile = () => {
     gstNumber: "",
     cinNumber: "",
     tradeLicense: "",
-    panFrontImage: "",  // PAN image for company
+    panFrontImage: "", // PAN image for company
     panBackImage: "",
     profileImage: null, // Store image as file (not URL)
   });
@@ -60,7 +61,8 @@ const Profile = () => {
         tradeLicense: companyProfile.tradeLicense || "",
         panFrontImage: companyProfile.pan_front_image || "",
         panBackImage: companyProfile.pan_back_image || "",
-        profileImage: res.data.profile_image || companyProfile.pan_front_image || null, // Default to company image
+        profileImage:
+          res.data.profile_image || companyProfile.pan_front_image || null, // Default to company image
       };
 
       setAccountDetails(userData);
@@ -133,7 +135,7 @@ const Profile = () => {
         draggable: true,
         progress: undefined,
       });
-      setUpdatedDetails(originalDetails); // Reset to original backend values
+      setUpdatedDetails(originalDetails); 
     }
     setIsSaving(false);
   };
@@ -167,13 +169,15 @@ const Profile = () => {
       </Typography>
 
       {/* Profile Image Upload */}
-      <Box sx={{ textAlign: "center", marginBottom: 3 }}>
-        {/* Only use URL.createObjectURL() if profileImage is a valid file */}
-        <img
+      <Box sx={{ textAlign: "center", marginBottom: 3, display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center' }}>
+    
+      <img
           src={
-            updatedDetails.profileImage
+            updatedDetails.profileImage instanceof File
               ? URL.createObjectURL(updatedDetails.profileImage)
-              : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1zwhySGCEBxRRFYIcQgvOLOpRGqrT3d7Qng&s"
+              : updatedDetails.profileImage
+              ? updatedDetails.profileImage
+              : "https://www.ohe.org/external_stakeholder/ken-buckingham/?modal=yes"
           }
           alt="Profile"
           style={{
@@ -242,7 +246,8 @@ const Profile = () => {
       </Grid>
 
       {/* Company Details */}
-      <Typography
+    {/* Company Details */}
+    <Typography
         variant="subtitle1"
         gutterBottom
         sx={{
@@ -259,9 +264,7 @@ const Profile = () => {
         <Grid item xs={12}>
           <TextField
             fullWidth
-            label={
-              accountDetails.companyType === "Self/Others" ? "Name" : "Company Name"
-            }
+            label="Company Name"
             variant="outlined"
             value={accountDetails.companyName}
             InputProps={{ readOnly: true }}
@@ -274,6 +277,63 @@ const Profile = () => {
             variant="outlined"
             value={accountDetails.companyType}
             InputProps={{ readOnly: true }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Designation"
+            variant="outlined"
+            value={accountDetails.designation}
+            InputProps={{ readOnly: true }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="PAN Number"
+            variant="outlined"
+            value={accountDetails.panNumber}
+            InputProps={{ readOnly: true }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="GST Number"
+            variant="outlined"
+            value={accountDetails.gstNumber}
+            InputProps={{ readOnly: true }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="CIN Number"
+            variant="outlined"
+            value={accountDetails.cinNumber}
+            InputProps={{ readOnly: true }}
+          />
+        </Grid>
+      </Grid>
+
+      {/* PAN Images */}
+      <Typography variant="subtitle1" sx={{ marginTop: 4 }}>
+        PAN Images
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <img
+            src={accountDetails.panFrontImage}
+            alt="PAN Front"
+            style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <img
+            src={accountDetails.panBackImage}
+            alt="PAN Back"
+            style={{ width: "100%", height: "auto", borderRadius: "8px" }}
           />
         </Grid>
       </Grid>

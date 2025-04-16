@@ -198,7 +198,11 @@ const Login = () => {
               }}
             />
 
-            <Typography variant="body2" className="forgot-password">
+            <Typography
+              onClick={() => navigate("/forgotPassword")}
+              variant="body2"
+              className="forgot-password"
+            >
               Forgot Password?
             </Typography>
             <Button
@@ -221,7 +225,22 @@ const Login = () => {
           >
             Sign in with Google
           </Button>
-
+          <Button
+            fullWidth
+            variant="outlined"
+            className="social-btn"
+            onClick={() => navigate("/loginMobile")}
+          >
+            Sign in with Mobile Number
+          </Button>
+          <Button
+            fullWidth
+            variant="outlined"
+            className="social-btn"
+            // onClick={() => navigate("/loginMobile")}
+          >
+            Sign in with Facebook
+          </Button>
           <Typography variant="body2" className="register-text">
             Don't have an account yet?
             <Typography

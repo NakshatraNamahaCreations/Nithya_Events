@@ -48,6 +48,7 @@ const SingleService = () => {
   const [openModal, setOpenModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [openBook, setOpenBook] = useState(false);
+  const [serviceObj, setServiceObj] = useState(null);
   const dispatch = useDispatch();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -175,20 +176,24 @@ const SingleService = () => {
   //   alert("Service added to cart!");
   // };
 
-  const handleAddToCart = () => {
-    if (!selectedService) return;
+  const handleAddToCart = (serviceItem) => {
+    console.log("function call inside scope");
+    console.log("serviceItem ind=side cscope", serviceItem);
+    console.log("selectedService ind=side cscope", selectedService);
+
+    // if (!selectedService) return;
 
     const payload = {
       orderId: Date.now().toString(),
-      id: selectedService._id,
+      id: serviceItem._id,
       context: "service",
       store: "123rooms",
-      productName: selectedService.service_name,
-      productPrice: selectedService.price,
-      imageUrl: selectedService.additional_images?.[0] || "",
-      sellerName: selectedService.vendor_name || "Unknown Seller",
-      sellerId: selectedService.vendor_id,
-      totalPrice: selectedService.price,
+      productName: serviceItem.service_name,
+      productPrice: serviceItem.price,
+      imageUrl: serviceItem.additional_images?.[0] || "",
+      sellerName: serviceItem.vendor_name || "Unknown Seller",
+      sellerId: serviceItem.vendor_id,
+      totalPrice: serviceItem.price,
       quantity: 1,
       eventStartDate: startDate || new Date().toISOString().split("T")[0],
       eventEndDate: endDate || new Date().toISOString().split("T")[0],
@@ -200,6 +205,7 @@ const SingleService = () => {
     alert("Service added to cart!");
     setOpenBook(false);
   };
+
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -513,11 +519,12 @@ const SingleService = () => {
                   }}
                   onClick={() => {
                     setSelectedService(serviceItem);
-                    
+
                     if (service?.profession === "Hotels") {
                       setOpenBook(true);
+                      setServiceObj(serviceItem);
                     } else {
-                      handleAddToCart();
+                      handleAddToCart(serviceItem);
                     }
                   }}
                 >
@@ -718,7 +725,7 @@ const SingleService = () => {
           <Button
             variant="contained"
             sx={{ backgroundColor: "#c026d3" }}
-            onClick={handleAddToCart}
+            onClick={() => handleAddToCart(serviceObj)}
           >
             Add to Cart
           </Button>

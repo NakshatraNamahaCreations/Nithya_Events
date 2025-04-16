@@ -191,7 +191,7 @@ const FeaturedProduct = () => {
       );
 
       setWishlist((prev) => [...prev, item._id]);
-      toast.success("Item added to cart!", {
+      toast.success("Item added to wishlist!", {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,
@@ -241,7 +241,7 @@ const FeaturedProduct = () => {
           progress: undefined,
         });
 
-        return; // ✅ This stops the second toast from executing
+        return; //This stops the second toast from executing
       }
 
       // This will only run if the first condition is not met
@@ -386,7 +386,10 @@ const FeaturedProduct = () => {
     <>
       <ToastContainer />
       <Slider />
+      <Box sx={{marginTop:'4rem', marginLeft:'2rem'}}>
+
       <BreadCrumb paths={breadcrumbPaths} />
+      </Box>
 
       <Box className="products-page">
         <Box className="filters-sidebar">

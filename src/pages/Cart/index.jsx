@@ -159,7 +159,7 @@ const Cart = () => {
 
       setWishlist((prev) => [...prev, item.id]);
 
-      toast.success("Item added to cart!", {
+      toast.success("Item added to wishlist!", {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,

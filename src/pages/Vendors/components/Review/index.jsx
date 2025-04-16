@@ -16,7 +16,7 @@ import { useDispatch } from "react-redux";
 import { setLoading } from "../../../../redux/slice/LoaderSlice";
 import { getErrorMessage } from "../../../../utils/helperFunc";
 
-const Review = ({ onSubmit, productId, open, onClose }) => {
+const Review = ({ onSubmit, productId, open, onClose, setOpen }) => {
   const [rating, setRating] = useState(0);
   const [reviews, setReviews] = useState([]);
   const [reviewTitle, setReviewTitle] = useState("");
@@ -36,6 +36,7 @@ const Review = ({ onSubmit, productId, open, onClose }) => {
       getErrorMessage(error);
     }
   };
+
 
   useEffect(() => {
     fetchProductReview();
@@ -228,7 +229,7 @@ const Review = ({ onSubmit, productId, open, onClose }) => {
           "&:hover": { backgroundColor: "#9b1a99" },
         }}
       >
-        Write a Review
+        Write  Review
       </Button>
 
       {/* Modal for Writing a Review */}

@@ -1295,9 +1295,9 @@ const BookingDetails = () => {
           }}
         >
           <strong>Invitation Pass:</strong>
-          {booking.upload_gatepass ? (
+          {booking.upload_invitation ? (
             <img
-              src={booking.upload_gatepass}
+              src={booking.upload_invitation}
               style={{ width: "160px" }}
               alt="Not found"
             />
@@ -1305,10 +1305,16 @@ const BookingDetails = () => {
             "N/A"
           )}
         </Typography>{" "}
-        <Typography variant="p" sx={{ mb: 1, fontSize: "0.9rem" }}>
+        <Typography variant="p"         sx={{
+            mb: 1,
+            fontSize: "0.9rem",
+            display: "flex",
+            alignItems: "center",
+         
+          }}>
           <strong>Gate Pass:</strong>{" "}
-          {booking.upload_inivitaion ? (
-            <img src={booking.upload_inivitaion} alt="Not found" />
+          {booking.upload_gatepass ? (
+            <img src={booking.upload_gatepass} alt="Not found"   style={{ width: "160px",   marginLeft:"2.2rem" }} />
           ) : (
             "N/A"
           )}
@@ -1353,10 +1359,6 @@ const BookingDetails = () => {
             Cancellation & Reschedule Policy
           </Typography>
 
-          <Typography sx={{ mb: 2 }}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-            vestibulum interdum dolor, sed dapibus ligula ultricies non.
-          </Typography>
 
           <TextField
             fullWidth

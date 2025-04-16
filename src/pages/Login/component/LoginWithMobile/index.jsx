@@ -64,7 +64,7 @@ const LoginWithMobile = () => {
               variant="contained"
               className="primary-btn"
             >
-              Send OTP
+              Login
             </Button>
           </form>
 
