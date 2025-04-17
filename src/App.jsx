@@ -67,6 +67,8 @@ import MoodDetail from "./pages/Mood/MoodDetail";
 import GetTickets from "./pages/RaiseTicket/GetTickets";
 import Phonepe from "./components/Phonepe";
 import TicketDetails from "./pages/RaiseTicket/GetTickets/Components/TicketDetails";
+import ContactUs from "./pages/About/ContactUs";
+import HelpCenter from "./pages/About/HelpCenter";
 
 function App() {
   const loading = useSelector((state) => state.loader.loading);
@@ -162,6 +164,10 @@ function App() {
               }
             />
             <Route path="/aboutUs" element={<AboutUs />} />
+            <Route path="/contact-us" element={<ContactUs />} />
+            <Route path="/help-center" element={<HelpCenter />} />
+            
+
             {/* Protected Routes */}
             <Route
               path="/category/:category"

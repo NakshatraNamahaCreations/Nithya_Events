@@ -36,7 +36,7 @@ import CustomModal from "../../../../components/CustomModal";
 import OrderSummery from "./components/OrderSummery";
 import { config } from "../../../../api/config";
 import axios from "axios";
-import { formatDate, getCurrentCity } from "../../../../utils/helperFunc";
+import { formatDate, formatDate1, getCurrentCity } from "../../../../utils/helperFunc";
 import moment from "moment";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -100,8 +100,8 @@ const EventDetails = ({
   const [error, setError] = useState(null);
 
   const dispatch = useDispatch();
-  const formatedStartDate = formatDate(startDate);
-  const formatedEndDate = formatDate(endDate);
+  const formatedStartDate = formatDate1(startDate);
+  const formatedEndDate = formatDate1(endDate);
   const navigate = useNavigate();
   const handleProceedToTerms = () => {
     //   if (
@@ -158,21 +158,21 @@ const EventDetails = ({
       setSnackbarOpen(true);
       return;
     }
-    if (
-      (cartItems && cartItems.length === 0)
-    ) {
-      // Show error message
-      toast.error("Please add products or services to the cart!", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      return;
-    }
+    // if (
+    //   (cartItems && cartItems.length === 0)
+    // ) {
+    //   // Show error message
+    //   toast.error("Please add products or services to the cart!", {
+    //     position: "top-right",
+    //     autoClose: 2000,
+    //     hideProgressBar: false,
+    //     closeOnClick: true,
+    //     pauseOnHover: true,
+    //     draggable: true,
+    //     progress: undefined,
+    //   });
+    //   return;
+    // }
     if (eventDetails.receiverMobile.length < 10) {
       toast.error(
         "Please enter a valid 10-digit mobile number for the receiver.",

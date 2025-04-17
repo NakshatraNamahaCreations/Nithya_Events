@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const getErrorMessage = (error) => {
   if (error && error.message) {
     return error.message;
@@ -102,6 +104,10 @@ export const formatDate = (dateString, formatType = "YYYY-MM-DD HH:mm A") => {
 
   const options = formatOptions[formatType] || formatOptions["YYYY-MM-DD"];
   return new Intl.DateTimeFormat("en-US", options).format(date);
+};
+// Format date as DD/MM/YYYY using dayjs
+export const formatDate1 = (date) => {
+  return dayjs(date).format("DD/MM/YYYY");
 };
 
 // export const formatTicketDate = (dateStr) => {

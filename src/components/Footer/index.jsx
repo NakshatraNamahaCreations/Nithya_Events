@@ -71,9 +71,9 @@ const Footer = () => {
             <Link to="/services" style={{ textDecoration: "none" }}>
               <li>Services</li>
             </Link>
-            <Link to="/aboutUs" style={{ textDecoration: "none" }}>
-              <li>Contact Us</li>
-            </Link>
+            {/* <Link to="/contact-us" style={{ textDecoration: "none" }}>
+              <li>Contact Us</li>              
+            </Link> */}
             {/* <p>Contact Us</p>
             <p>Support@nithyaevents.com</p>
             <p>Phone: +91 99801370001</p> */}
@@ -88,7 +88,7 @@ const Footer = () => {
               Terms and conditions
             </li>
             <li onClick={() => navigate("/returnPolicy")}>Refund Policy</li>
-            <li onClick={() => navigate("/returnPolicy")}>Help Center</li>
+            <li onClick={() => navigate("/help-center")}>Help Center</li>
           </ul>
         </Box>
 

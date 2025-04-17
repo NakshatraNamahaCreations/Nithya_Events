@@ -616,14 +616,20 @@ const BookingDetails = () => {
   return (
     <Box sx={{ p: 6, maxWidth: "1200px", margin: "auto" }}>
       <ToastContainer />
-      <Grid container spacing={2}>
+      <Grid
+        container
+        spacing={2}
+        sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' } }}
+      >
         <Grid item xs={8}>
-          <Paper variant="outlined" sx={{ p: 3 }}>
+          {/* <Paper variant="outlined" sx={{ p: 3 }}> */}
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
+                gap: "4rem"
+
               }}
             >
               {eventStatus === "Cancel Event" &&
@@ -726,127 +732,17 @@ const BookingDetails = () => {
               </Box>
             </Box>
 
-            {/* <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <Box>
-                {eventStatus === "Cancel Event" &&
-                booking.order_status !== "Order Cancelled" &&
-                booking.order_status !== "Order Rescheduled" && (
-                  <Button
-                    variant="contained"
-                    onClick={handleOpen}
-                    sx={{
-                      fontWeight: "bold",
-                      fontSize: "14px",
-                      mb: 2,
-                      color: "#fff",
-                      backgroundColor: getChipColor(eventStatus),
-                      "&:hover": {
-                        backgroundColor: getChipColor(eventStatus),
-                        opacity: 0.9,
-                      },
-                    }}
-                  >
-                   {"Cancel Event"}
-                  </Button>
-                ) }
-              </Box>
-            </Box>
-            <Box>
-              {eventStatus === "Order Reschedule" ? (
-                <Button
-                  variant="contained"
-                  onClick={handleOpenReschedule}
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "14px",
-                    mb: 2,
-                    color: "#fff",
-                    backgroundColor: "#ff9800",
-                  }}
-                >
-                  Reschedule
-                </Button>
-              ) : (
-                <Chip
-                  label={
-                    booking.order_status === "Order Rescheduled"
-                      ? "Order Rescheduled"
-                      : eventStatus
-                  }
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "14px",
-                    mb: 2,
-                    color: "#fff",
-                    backgroundColor: getChipColor(eventStatus),
-                  }}
-                />
-              )}
-            </Box> */}
-            {/* {items.map((item) => {
-              const amount = item.price * item.quantity * numberOfDays;
-              return (
-                <Box
-                  key={item.id}
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    borderBottom: "1px solid #ccc",
-                    py: 1,
-                  }}
-                >
-                  <Box sx={{ display: "flex", gap: "1.4rem" }}>
-                    <Box>
-                      <img
-                        src={item.image}
-                        style={{ width: "60px", borderRadius: "10px" }}
-                        alt="Not found"
-                      />
-                    </Box>
-                    <Box>
-                      <Typography variant="body2">
-                        <strong>Product:</strong> {item.name}
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>Size:</strong> {item.dimension}
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>Qty:</strong> {item.quantity}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box>
-                    <Box textAlign="right">
-                      <Typography variant="body2">
-                        <strong>Price:</strong> {formatCurrencyIntl(item.price)}
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>Days:</strong> {numberOfDays}
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>Amount:</strong> {formatCurrencyIntl(amount)}
-                      </Typography>
-                    </Box>
-
-                    <Box></Box>
-                  </Box>
-                </Box>
-              );
-            })} */}
-
             <Box sx={{ p: 2, maxWidth: "1200px", margin: "auto" }}>
-              <Grid container spacing={2}>
+              <Grid
+                container
+                spacing={2}
+                sx={{ display: "flex", flexDirection: "column" }}
+              >
                 {/* Products Section */}
                 <Grid item xs={12}>
                   {products.length > 0 &&
                     products.map((item) => (
-                      <Paper variant="outlined" sx={{ p: 3 }}>
+                      <Paper variant="outlined" sx={{ p: 3, width:'17rem' }}>
                         <Box
                           sx={{
                             display: "flex",
@@ -909,7 +805,7 @@ const BookingDetails = () => {
                             py: 1,
                           }}
                         >
-                          <Box sx={{ display: "flex", gap: "1.4rem" }}>
+                          <Box sx={{ display: "flex", gap: "1.4rem",flexDirection: { xs: 'column', sm: 'row' } }}>
                             <Box>
                               <img
                                 src={item.imageUrl}
@@ -1023,6 +919,7 @@ const BookingDetails = () => {
                             justifyContent: "space-between",
                             borderBottom: "1px solid #ccc",
                             py: 1,
+                            flexDirection: { xs: 'column', sm: 'row' }
                           }}
                         >
                           <Box sx={{ display: "flex", gap: "1.4rem" }}>
@@ -1164,7 +1061,7 @@ const BookingDetails = () => {
                 </Grid>
               </Grid>
             </Box>
-          </Paper>
+          {/* </Paper> */}
 
           {/* <Paper
             variant="outlined"
@@ -1185,8 +1082,8 @@ const BookingDetails = () => {
           </Paper> */}
         </Grid>
 
-        <Grid item xs={4}>
-          <Paper variant="outlined" sx={{ mb: 2, p: 3 }}>
+        <Grid item xs={4} >
+          <Paper variant="outlined" sx={{ mb: 2, p: 3,width: { xs: "16.5rem", sm: "auto" } }}>
             <Typography variant="body1" sx={{ fontWeight: "bold", mb: 1 }}>
               Payment Summary
             </Typography>
@@ -1218,12 +1115,16 @@ const BookingDetails = () => {
 
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="body2">TDS Charges (2%)</Typography>
-                <Typography variant="body2">{Math.floor(tdsCharges)}</Typography>
+                <Typography variant="body2">
+                  {Math.floor(tdsCharges)}
+                </Typography>
               </Box>
 
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography variant="body2">Amount After Deductions</Typography>
-                <Typography variant="body2">{Math.floor(amountAfterDeduction)}</Typography>
+                <Typography variant="body2">
+                  {Math.floor(amountAfterDeduction)}
+                </Typography>
               </Box>
 
               {/* <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -1305,16 +1206,22 @@ const BookingDetails = () => {
             "N/A"
           )}
         </Typography>{" "}
-        <Typography variant="p"         sx={{
+        <Typography
+          variant="p"
+          sx={{
             mb: 1,
             fontSize: "0.9rem",
             display: "flex",
             alignItems: "center",
-         
-          }}>
+          }}
+        >
           <strong>Gate Pass:</strong>{" "}
           {booking.upload_gatepass ? (
-            <img src={booking.upload_gatepass} alt="Not found"   style={{ width: "160px",   marginLeft:"2.2rem" }} />
+            <img
+              src={booking.upload_gatepass}
+              alt="Not found"
+              style={{ width: "160px", marginLeft: "2.2rem" }}
+            />
           ) : (
             "N/A"
           )}
@@ -1358,7 +1265,6 @@ const BookingDetails = () => {
           >
             Cancellation & Reschedule Policy
           </Typography>
-
 
           <TextField
             fullWidth
