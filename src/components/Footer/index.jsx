@@ -44,15 +44,13 @@ const Footer = () => {
         <Box className="footer-column">
           <h3>Shop by Category</h3>
           <ul>
-            <li onClick={() => navigate("/category/sound")}>Sounds</li>
-            <li onClick={() => navigate("/category/lighting")}>Lights</li>
-            <li onClick={() => navigate("/category/fabrication")}>
-              Fabrications
-            </li>
-            <li onClick={() => navigate("/category/shamiana")}>Shamiana</li>
-            <li onClick={() => navigate("/category/video")}>Video</li>
-            <li onClick={() => navigate("/category/genset")}>Genset</li>
-          </ul>
+    <li onClick={() => window.location.href = "/category/sound"}>Sounds</li>
+    <li onClick={() => window.location.href = "/category/lighting"}>Lights</li>
+    <li onClick={() => window.location.href = "/category/fabrication"}>Fabrications</li>
+    <li onClick={() => window.location.href = "/category/shamiana"}>Shamiana</li>
+    <li onClick={() => window.location.href = "/category/video"}>Video</li>
+    <li onClick={() => window.location.href = "/category/genset"}>Genset</li>
+  </ul>
         </Box>
 
         <Box className="footer-column">

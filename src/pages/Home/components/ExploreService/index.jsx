@@ -23,19 +23,24 @@ const ExploreService = () => {
   }, []);
 
   return (
-    <Box sx={{ padding: "2rem", paddingLeft: { xs: "3rem", md: "8rem" } }}>
-      <Typography
-        sx={{
-          fontSize: "1.4rem",
-          fontWeight: "bold",
-          color: "#343a40",
-          marginBottom: "2rem",
-          textTransform: "uppercase",
-        }}
-      >
-        Services
-      </Typography>
-
+    <Box sx={{ padding: "2rem" }}>
+    <Typography
+      sx={{
+        fontSize: "1.4rem",
+        fontWeight: "bold",
+        color: "#343a40",
+        marginBottom: "2rem",
+        textTransform: "uppercase",
+        textAlign: "center",
+      }}
+    >
+      Services
+    </Typography>
+  
+    {/* Center container */}
+    <Box sx={{   display: "flex", 
+  justifyContent: "center", 
+  marginLeft: { xs: "2.5rem", lg: '8rem' } }}>
       <Box
         sx={{
           display: "grid",
@@ -45,6 +50,9 @@ const ExploreService = () => {
             md: "repeat(3, 1fr)",
           },
           gap: "1.5rem",
+          maxWidth: "1280px", 
+          width: "100%",
+          justifyContent: "center",
         }}
       >
         {services.slice(0, 6).map((service) => (
@@ -71,54 +79,39 @@ const ExploreService = () => {
                 alt={service.service_name}
                 style={{
                   width: "100%",
-                  // height: "100%",
+                  height: "100%",
                   objectFit: "cover",
                 }}
               />
-              {/* <Box
-        sx={{
-          position: "absolute",
-          top: 8,
-          left: 8,
-          backgroundColor: "limegreen",
-          color: "white",
-          padding: "2px 8px",
-          borderRadius: "8px",
-          fontSize: "0.7rem",
-          fontWeight: "bold",
-        }}
-      >
-        Available
-      </Box> */}
             </Box>
           </Box>
         ))}
       </Box>
-
-      <Box
-        sx={{ display: "flex", justifyContent: "center", marginTop: "3rem" }}
-      >
-        <Button
-          variant="outlined"
-          onClick={() => navigate("/services")}
-          sx={{
-            textTransform: "capitalize",
-            fontWeight: "bold",
-            color: "white",
-            backgroundColor: "#c026d3",
-            width: "8rem",
-            height: "40px",
-            border: "none",
-            "&:hover": {
-              transform: "scale(1.1)",
-              color: "#fff",
-            },
-          }}
-        >
-          View All
-        </Button>
-      </Box>
     </Box>
+  
+    <Box sx={{ display: "flex", justifyContent: "center", marginTop: "3rem" }}>
+      <Button
+        variant="outlined"
+        onClick={() => navigate("/services")}
+        sx={{
+          textTransform: "capitalize",
+          fontWeight: "bold",
+          color: "white",
+          backgroundColor: "#c026d3",
+          width: "8rem",
+          height: "40px",
+          border: "none",
+          "&:hover": {
+            transform: "scale(1.1)",
+            color: "#fff",
+          },
+        }}
+      >
+        View All
+      </Button>
+    </Box>
+  </Box>
+  
   );
 };
 

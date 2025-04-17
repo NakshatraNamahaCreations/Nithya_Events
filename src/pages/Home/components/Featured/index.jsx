@@ -267,146 +267,83 @@ const Featured = () => {
         }}
       >
         {featuredProduct.map((item) => (
-          <Card
-            key={item._id}
+    <Card
+    key={item._id}
+    sx={{
+      cursor: "pointer",
+      transition: "transform 0.3s ease",
+      "&:hover": { transform: "scale(1.03)" },
+      boxShadow: "0 6px 20px rgba(0, 0, 0, 0.15)",
+      borderRadius: "16px",
+      overflow: "hidden",
+      backgroundColor: "#fff",
+      minHeight: "480px",
+    }}
+  >
+    <Box
+      component="img"
+      src={item.product_image[0]}
+      alt={item.product_name}
+      sx={{
+        width: "100%",
+        height: "260px",
+        objectFit: "contain",
+      }}
+      onClick={() => handleProductClick(item._id)}
+    />
+    <CardContent sx={{ padding: "1.8rem" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+            fontSize: "1.2rem",
+            color: "#111827",
+            flexGrow: 1,
+          }}
+        >
+          {item.product_name.length > 18
+            ? item.product_name.slice(0, 18) + "..."
+            : item.product_name}
+        </Typography>
+        <IconButton onClick={() => handleWishlistClick(item)} sx={{ padding: 0 }}>
+          {wishlist.includes(item._id) ? (
+            <FavoriteOutlinedIcon sx={{ color: "#c026d3" }} />
+          ) : (
+            <FavoriteBorderIcon sx={{ color: "#c026d3" }} />
+          )}
+        </IconButton>
+      </Box>
+  
+      <Box sx={{ display: "flex", alignItems: "center", gap: "0.5rem", mt: 1 }}>
+        <StarRating rating={parseFloat(calculateAverageRating(item.Reviews))} />
+        <Typography sx={{ fontSize: "0.9rem", color: "#6b7280" }}>
+          {item.Reviews.length || 0} Reviews
+        </Typography>
+      </Box>
+  
+      <Box sx={{ display: "flex", alignItems: "center", gap: "1rem", mt: 1.5 }}>
+        <Typography sx={{ fontWeight: "bold", fontSize: "1.1rem", color: "#111827" }}>
+          ₹{item.product_price}
+        </Typography>
+        {item.discount < item.product_price && (
+          <Typography
             sx={{
-              cursor: "pointer",
-              transition: "transform 0.3s ease",
-              "&:hover": { transform: "scale(1.05)" },
-              boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-              borderRadius: "10px",
+              textDecoration: "line-through",
+              color: "#ef4444",
+              fontSize: "1rem",
             }}
           >
-            <Box
-              component="img"
-              src={item.product_image[0]}
-              alt={item.product_name}
-              sx={{
-                width: "94%",
-                height: "200px",
-                objectFit: "fill",
-                borderTopLeftRadius: "10px",
-                borderTopRightRadius: "10px",
-              }}
-              onClick={() => handleProductClick(item._id)}
-            />
-            <CardContent>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: "bold",
-                    fontSize: "0.9rem",
-                    color: "#343a40",
-                  }}
-                >
-                  {item.product_name.length > 15
-                    ? item.product_name.slice(0, 15) + "..."
-                    : item.product_name}
-                </Typography>
-                <Button
-                  onClick={(e) => {
-                    // e.stopPropagation();
-                    handleWishlistClick(item);
-                  }}
-                  sx={{ color: "#c026d3", position: "relative" }}
-                >
-                  {wishlist.includes(item._id) ? (
-                    <FavoriteOutlinedIcon style={{ position: "absolute" }} />
-                  ) : (
-                    <FavoriteBorderIcon style={{ position: "absolute" }} />
-                  )}
-                </Button>
-              </Box>
-
-              {/* <Typography
-                variant="p"
-                sx={{
-                  color: "#6c757d",
-                }}
-              >
-                {item.brand}
-              </Typography> */}
-              <Box sx={{ display: "flex", gap: "1rem", marginTop: "0.2rem" }}>
-                <StarRating
-                  rating={parseFloat(calculateAverageRating(item.Reviews))}
-                  // style={{ marginRight: '2rem' }}
-                />
-                <Typography variant="p" style={{ fontSize: "0.8rem" }}>
-                  {item.Reviews.length > 0 ? item.Reviews.length : 0} Reviews
-                  {/* {item.Reviews && item.Reviews.length > 0
-                      ? calculateAverageRating(item.Reviews)
-                      : "No Ratings"} */}
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.7rem",
-                  marginTop: "0.3rem",
-                }}
-              >
-                <Typography
-                  variant="p"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "#000",
-                    fontSize: "0.9rem",
-                  }}
-                >
-                  ₹{item.product_price}
-                </Typography>
-
-                {item.discount < item.product_price && (
-                  <Typography
-                    variant="p"
-                    sx={{
-                      textDecoration: "line-through",
-                      color: "red",
-                      fontSize: "0.9rem",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    ₹{item.mrp_rate || "2500"}
-                  </Typography>
-                )}
-                <Typography sx={{ color: "red", marginLeft: "-0.2rem" }}>
-                  Per day
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  margin: "0 auto",
-                }}
-              >
-                {/* <Button
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    width: "15rem",
-                    textTransform: "capitalize",
-                    fontWeight: "bold",
-                    marginTop: "1rem",
-                    backgroundColor: "#c026d3",
-                    color: "white",
-                    border: "none",
-                    "&:hover": {
-                      borderColor: "black",
-                      boxShadow: "none",
-                    },
-                  }}
-                  onClick={() => handleProductClick(item._id)}
-                >
-                  View More
-                </Button> */}
-              </Box>
-            </CardContent>
-          </Card>
+            ₹{item.mrp_rate || "2500"}
+          </Typography>
+        )}
+        <Typography sx={{ color: "#ef4444", fontWeight: 500, fontSize: "0.9rem" }}>
+          Per day
+        </Typography>
+      </Box>
+    </CardContent>
+  </Card>
+  
         ))}
       </Box>
 

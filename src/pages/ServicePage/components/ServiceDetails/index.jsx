@@ -335,7 +335,7 @@ const ServiceDetails = () => {
 
                 <CardContent sx={{ textAlign: "center" }}>
                   <Typography variant="h6" fontWeight="bold">
-                    {item.shop_name}
+                    {(item.shop_name)?.slice(0,15)+"..."}
                   </Typography>
                   <Typography
                     variant="body2"

@@ -3,12 +3,14 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
+  IconButton,
   Modal,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CloseIcon from "@mui/icons-material/Close";
 
 const Terms = ({ open, onClose, onContinue }) => {
   const [isAccepted, setIsAccepted] = useState(false);
@@ -47,6 +49,7 @@ const Terms = ({ open, onClose, onContinue }) => {
     setShowTerms(false);
     setIsCheckoutAllowed(true);
   };
+
   const handleContinue = () => {
     if (isAccepted) {
       onContinue();
@@ -80,9 +83,21 @@ const Terms = ({ open, onClose, onContinue }) => {
             borderRadius: 2,
             height: "80vh",
             maxHeight: "80vh",
-            overflowY: "auto",
+            // overflowY: "auto",
           }}
         >
+          <IconButton
+            onClick={closeTerms}
+            sx={{
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              color: "black",
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+
           <Typography
             variant="h6"
             gutterBottom
@@ -102,76 +117,83 @@ const Terms = ({ open, onClose, onContinue }) => {
             }}
           >
             <Typography variant="body2" paragraph>
-              1. Introduction <br /> This Agreement outlines the terms and
-              conditions that govern the rental of equipment and related
-              services provided by NithyaEvent. By accessing, browsing, or using
-              the NithyaEvent mobile application or website (collectively, the
-              “Platform”), you, the user, agree to adhere to these Terms and
-              Conditions and acknowledge that any breach may lead to the
-              suspension of your account or legal action if necessary.
-              NithyaEvent offers rental equipment for events, including sound
-              systems, lighting, cameras, and more, which are intended solely
-              for the purposes outlined during the rental process. By using the
-              Platform, you confirm that you will handle all rented equipment
-              responsibly, in line with the intended use, and maintain the
-              equipment in the condition it was provided. These Terms and
-              Conditions apply to all interactions on the Platform, including
-              account registration, equipment rental, service usage, and
-              payments. NithyaEvent reserves the right to modify or update these
-              terms at any time, and it is your responsibility to rediv the
-              Terms and Conditions periodically to stay informed of any changes.
-              By continuing to use the Platform after such updates, you agree to
-              the revised terms.
+              <strong>
+                1. Introduction <br />
+              </strong>
+              This Agreement outlines the terms and conditions that govern the
+              rental of equipment and related services provided by NithyaEvent.
+              By accessing, browsing, or using the NithyaEvent mobile
+              application or website (collectively, the “Platform”), you, the
+              user, agree to adhere to these Terms and Conditions and
+              acknowledge that any breach may lead to the suspension of your
+              account or legal action if necessary. NithyaEvent offers rental
+              equipment for events, including sound systems, lighting, cameras,
+              and more, which are intended solely for the purposes outlined
+              during the rental process. By using the Platform, you confirm that
+              you will handle all rented equipment responsibly, in line with the
+              intended use, and maintain the equipment in the condition it was
+              provided. These Terms and Conditions apply to all interactions on
+              the Platform, including account registration, equipment rental,
+              service usage, and payments. NithyaEvent reserves the right to
+              modify or update these terms at any time, and it is your
+              responsibility to rediv the Terms and Conditions periodically to
+              stay informed of any changes. By continuing to use the Platform
+              after such updates, you agree to the revised terms.
             </Typography>
 
             <Typography variant="body2" paragraph>
-              2. Definitions Agreement: <br /> Refers to these Terms and
-              Conditions, including any amendments, modifications, or updates
-              made by Kadagam Venture Private Limited (the “Company”) at its
-              discretion. Content: Means any text, images, audio, video,
-              software, or other materials provided or uploaded by the Company,
-              its users, or third parties onto the Portal, including all
-              promotional, informational, or instructional material. Customer:
-              Refers to any individual, entity, or organization that uses the
-              Portal to rent, purchase, or avail of goods, services, or
-              equipment. Order: Means any rental, service, or purchase made by a
-              Customer through the Portal, including all associated terms such
-              as duration, fees, and conditions. Product: Refers to any goods,
-              equipment, or services offered or sold by the Company through the
-              Portal, including but not limited to rental items for events.{" "}
-              <br />
-              3. Access and Use <br /> The Portal is provided for commercial
-              use, non-commercial use, and personal use. By accessing and using
-              this Portal, you agree to the following terms: Prohibited Actions:
-              You must not modify, copy, distribute, transmit, display, perform,
-              reproduce, publish, license, create derivative works from, or sell
-              any Content or information obtained from the Portal without the
-              prior written consent of the Company. Automated Access: You are
-              prohibited from using any automated software, algorithms, or
-              manual processes to scrape, crawl, or copy any Content or
-              information from the Portal. Fair Usage: You must not use the
-              Portal in any manner that could damage, disable, overburden, or
-              impair its functionality, or interfere with any other party's use
-              and enjoyment of the Portal. Account Security: Account holders are
-              solely responsible for maintaining the confidentiality of their
-              account login credentials. Any activity that occurs under your
-              account is your responsibility.
+              <strong>2. Definitions Agreement:</strong>
+              <br /> Refers to these Terms and Conditions, including any
+              amendments, modifications, or updates made by Kadagam Venture
+              Private Limited (the “Company”) at its discretion. Content: Means
+              any text, images, audio, video, software, or other materials
+              provided or uploaded by the Company, its users, or third parties
+              onto the Portal, including all promotional, informational, or
+              instructional material. Customer: Refers to any individual,
+              entity, or organization that uses the Portal to rent, purchase, or
+              avail of goods, services, or equipment. Order: Means any rental,
+              service, or purchase made by a Customer through the Portal,
+              including all associated terms such as duration, fees, and
+              conditions. Product: Refers to any goods, equipment, or services
+              offered or sold by the Company through the Portal, including but
+              not limited to rental items for events. <br />
+              <strong>
+                3. Access and Use <br />
+              </strong>
+              The Portal is provided for commercial use, non-commercial use, and
+              personal use. By accessing and using this Portal, you agree to the
+              following terms: Prohibited Actions: You must not modify, copy,
+              distribute, transmit, display, perform, reproduce, publish,
+              license, create derivative works from, or sell any Content or
+              information obtained from the Portal without the prior written
+              consent of the Company. Automated Access: You are prohibited from
+              using any automated software, algorithms, or manual processes to
+              scrape, crawl, or copy any Content or information from the Portal.
+              Fair Usage: You must not use the Portal in any manner that could
+              damage, disable, overburden, or impair its functionality, or
+              interfere with any other party's use and enjoyment of the Portal.
+              Account Security: Account holders are solely responsible for
+              maintaining the confidentiality of their account login
+              credentials. Any activity that occurs under your account is your
+              responsibility.
             </Typography>
 
             <Typography variant="body2" paragraph>
-              4. Orders and Payments Order Acceptance: <br /> All orders placed
+              <strong>
+                4. Orders and Payments Order Acceptance: <br />
+              </strong>
+              All orders placed through the Portal are subject to acceptance by
+              the Company. The Company reserves the right to accept or reject
+              any order at its discretion. Order Acceptance: All orders placed
               through the Portal are subject to acceptance by the Company. The
               Company reserves the right to accept or reject any order at its
-              discretion. Order Acceptance: All orders placed through the Portal
-              are subject to acceptance by the Company. The Company reserves the
-              right to accept or reject any order at its discretion. Order
-              Cancellations: The Company may, at any time, decline or cancel an
-              order due to reasons such as unavailability of the product,
-              pricing errors, or any issues with the Customer’s payment method.
-              If an order is canceled after payment has been processed, the
-              Company will issue a refund in accordance with its Company’S
-              refund policy. Payment Processing: Payments for orders are
-              processed securely through an e-payment gateway, and all
+              discretion. Order Cancellations: The Company may, at any time,
+              decline or cancel an order due to reasons such as unavailability
+              of the product, pricing errors, or any issues with the Customer’s
+              payment method. If an order is canceled after payment has been
+              processed, the Company will issue a refund in accordance with its
+              Company’S refund policy. Payment Processing: Payments for orders
+              are processed securely through an e-payment gateway, and all
               transactions are subject to the terms and conditions of the chosen
               payment processor. The Company does not store sensitive payment
               information on its servers. Pricing and Taxes: All prices are
@@ -209,15 +231,22 @@ const Terms = ({ open, onClose, onContinue }) => {
             </Typography>
 
             <Typography variant="body2" paragraph>
-              7. PRODUCT DESCRIPTIONS <br /> The Company makes reasonable
-              efforts to ensure that Product descriptions, including
-              specifications, images, and pricing, are accurate and up-to-date.
-              However, occasional errors, inaccuracies, or omissions may occur.
-              The Company reserves the right to correct any such errors in
-              Product descriptions, including after an order has been placed.
+              <strong>
+                {" "}
+                7. PRODUCT DESCRIPTIONS <br />
+              </strong>
+              The Company makes reasonable efforts to ensure that Product
+              descriptions, including specifications, images, and pricing, are
+              accurate and up-to-date. However, occasional errors, inaccuracies,
+              or omissions may occur. The Company reserves the right to correct
+              any such errors in Product descriptions, including after an order
+              has been placed.
               <br />
               <br />
-              8. CANCELLATION FEES AND REFUNDS Cancellation Window:
+              <strong>
+                {" "}
+                8. CANCELLATION FEES AND REFUNDS Cancellation Window: <br />
+              </strong>
               <br /> Customers may cancel their order within 48 hours of placing
               the order. Cancellations made after this period may not be
               eligible for a full refund. A. Cancellation Fees: If a
@@ -253,7 +282,11 @@ const Terms = ({ open, onClose, onContinue }) => {
             </Typography>
 
             <Typography variant="body2" paragraph>
-              10. RETURN AND LATE RETURNS Return:
+              <strong>
+                {" "}
+                10. RETURN AND LATE RETURNS Return:
+                <br />
+              </strong>
               <br /> At the end of the rental period, the Renter shall return
               the equipment to [Specific Return Location, e.g., "Owner's primary
               business location"] no later than [End Date as mentioned in Rental
@@ -301,7 +334,11 @@ const Terms = ({ open, onClose, onContinue }) => {
             </Typography>
 
             <Typography variant="body2" paragraph>
-              13. RELEASE OF LIABILITY
+              <strong>
+                {" "}
+                13. RELEASE OF LIABILITY
+                <br />
+              </strong>
               <br />
               The Renter releases the Owner from any claims, liabilities, or
               demands arising out of injuries or damages caused by the rented
@@ -312,7 +349,11 @@ const Terms = ({ open, onClose, onContinue }) => {
               the risks associated with the use of the equipment and accepts
               full responsibility for any incidents that may arise during the
               rental period. <br /> <br />
-              14. REPLACEMENT
+              <strong>
+                {" "}
+                14. REPLACEMENT
+                <br />
+              </strong>
               <br />
               In the event of loss or total damage to the equipment where repair
               is not feasible, the Renter agrees to reimburse the Owner for the
@@ -325,40 +366,67 @@ const Terms = ({ open, onClose, onContinue }) => {
             </Typography>
 
             <Typography variant="body2" paragraph>
-              15. ADDITIONAL COSTS Any costs associated with remedying a breach
-              of this agreement, including but not limited to legal fees,
-              collection costs, and expenses incurred in recovering the
-              equipment, will be the sole responsibility of the Renter. The
-              Renter agrees to reimburse the Owner for all reasonable costs
-              incurred in enforcing the terms of this condition, including any
-              necessary legal action to recover damages or equipment. <br />{" "}
-              <br />
-              17. JURISDICTION Any legal proceedings related to this agreement
-              will be brought in the courts of [Specific City, State/Country],
-              and both parties consent to such jurisdiction and venue. Both the
-              Renter and the Owner agree that they will not contest the
-              jurisdiction or venue of these courts in any legal action arising
-              from this agreement. <br /> <br />
-              18. BINDING ARBITRATION If mediation is unsuccessful, either party
-              may propose to settle the dispute by binding arbitration under the
-              rules of [Specific Arbitration Association]. The decision reached
-              by arbitration shall be final and binding on both parties, and
-              neither party shall have the right to appeal the decision in a
-              court of law. <br /> <br />
-              19. PRIVACY Please rediv our Privacy Notice, which also governs
-              your visit to NithyaEvent.com, to understand our practices
-              regarding your personal information. The personal information and
-              data provided to us during your usage of NithyaEvent.com will be
-              treated as strictly confidential and in accordance with the
-              Privacy Notice and applicable laws and regulations. <br />
+              <strong>
+                {" "}
+                15. ADDITIONAL COSTS <br />
+              </strong>
+              Any costs associated with remedying a breach of this agreement,
+              including but not limited to legal fees, collection costs, and
+              expenses incurred in recovering the equipment, will be the sole
+              responsibility of the Renter. The Renter agrees to reimburse the
+              Owner for all reasonable costs incurred in enforcing the terms of
+              this condition, including any necessary legal action to recover
+              damages or equipment. <br /> <br />
+              <strong>
+                {" "}
+                17. JURISDICTION
+                <br />
+              </strong>
+              Any legal proceedings related to this agreement will be brought in
+              the courts of [Specific City, State/Country], and both parties
+              consent to such jurisdiction and venue. Both the Renter and the
+              Owner agree that they will not contest the jurisdiction or venue
+              of these courts in any legal action arising from this agreement.{" "}
+              <br /> <br />
+              <strong>
+                {" "}
+                18. BINDING ARBITRATION
+                <br />
+              </strong>
+              If mediation is unsuccessful, either party may propose to settle
+              the dispute by binding arbitration under the rules of [Specific
+              Arbitration Association]. The decision reached by arbitration
+              shall be final and binding on both parties, and neither party
+              shall have the right to appeal the decision in a court of law.{" "}
+              <br /> <br />
+              <strong>
+                {" "}
+                19. PRIVACY
+                <br />
+              </strong>
+              Please rediv our Privacy Notice which also governs your visit to
+              NithyaEvent.com, to understand our practices regarding your
+              personal information. The personal information and data provided
+              to us during your usage of NithyaEvent.com will be treated as
+              strictly confidential and in accordance with the Privacy Notice
+              and applicable laws and regulations. <br />
               If you object to your information being transferred or used as
               outlined in the Privacy Notice, please do not use the website.
               <br /> <br />
             </Typography>
 
             <Typography variant="body2" paragraph>
-              PRIVACY POLICY <br />
-              <br /> 1.Introduction
+              <strong>
+                {" "}
+                PRIVACY POLICY <br />
+                <br />
+              </strong>
+              <br />
+              <strong>
+                {" "}
+                1.Introduction <br />
+                <br />
+              </strong>
               <br />
               Welcome to NithyaEvent. Your privacy is important to us. This
               Privacy Policy outlines how we collect, use, disclose, and
@@ -398,7 +466,7 @@ const Terms = ({ open, onClose, onContinue }) => {
               will be required to adhere to this Privacy Policy concerning your
               personal information.
               <br /> <br />
-              19. PRIVACY
+              PRIVACY
               <br />
               Please rediv our Privacy Notice, which also governs your visit to
               NithyaEvent.com, to understand our practices regarding your
@@ -412,7 +480,11 @@ const Terms = ({ open, onClose, onContinue }) => {
             </Typography>
 
             <Typography variant="body2" paragraph>
-              2. Information We Collect <br />
+              <strong>
+                {" "}
+                2. Information We Collect <br />
+                <br />
+              </strong>
                Personal Information: <br />
               We may collect personal information that you provide to us when
               you register on our site, place an order, subscribe to our
@@ -423,7 +495,11 @@ const Terms = ({ open, onClose, onContinue }) => {
               you visit our site. This may include your IP address, browser
               type, operating system, pages visited, time spent on the site, and
               referring website. <br /> <br />
-              3. How We Use Your Information <br />
+              <strong>
+                {" "}
+                3. How We Use Your Information <br />
+                <br />
+              </strong>
               We use the information we collect in the following ways:
               <br />
                To process your transactions and manage your rental orders.
@@ -439,7 +515,11 @@ const Terms = ({ open, onClose, onContinue }) => {
               <br />
                To comply with applicable laws and regulations.
               <br /> <br />
-              4. Disclosure of Your Information <br />
+              <strong>
+                {" "}
+                4. Disclosure of Your Information <br />
+                <br />
+              </strong>
               We do not sell, trade, or otherwise transfer your personal
               information to third parties without your consent, except as
               described in this policy. We may share your information with:{" "}
@@ -467,7 +547,11 @@ const Terms = ({ open, onClose, onContinue }) => {
             </Typography>
 
             <Typography variant="body2" paragraph>
-              5. Security of Your Information <br />
+              <strong>
+                {" "}
+                5. Security of Your Information <br />
+                <br />
+              </strong>
               We implement a variety of security measures to maintain the safety
               of your personal information. However, please be aware that no
               method of transmission over the internet or method of electronic
@@ -475,7 +559,11 @@ const Terms = ({ open, onClose, onContinue }) => {
               acceptable means to protect your personal information, we cannot
               guarantee its absolute security.
               <br /> <br />
-              6. Your Rights
+              <strong>
+                {" "}
+                6. Your Rights
+                <br />
+              </strong>
               <br />
               You have the right to:  Access your personal information and
               request corrections.  Request the deletion of your personal
@@ -483,20 +571,32 @@ const Terms = ({ open, onClose, onContinue }) => {
               information.  Withdraw consent where we rely on your consent to
               process your information.
               <br /> <br />
-              7. Cookies and Tracking Technologies
+              <strong>
+                {" "}
+                7. Cookies and Tracking Technologies
+                <br />
+              </strong>
               <br />
               Our website may use cookies and similar tracking technologies to
               enhance user experience. You can choose to accept or decline
               cookies. Most web browsers automatically accept cookies, but you
               can modify your browser setting to decline cookies if you prefer.{" "}
               <br /> <br />
-              8. Third-Party Links
+              <strong>
+                {" "}
+                8. Third-Party Links
+                <br />
+              </strong>
               <br />
               Our website may contain links to third-party websites. We do not
               control these websites and are not responsible for their content
               or privacy practices. We encourage you to rediv the privacy
               policies of any third-party websites you visit. <br /> <br />
-              9. Changes to This Privacy Policy <br />
+              <strong>
+                {" "}
+                9. Changes to This Privacy Policy <br />
+                <br />
+              </strong>
               We may update this Privacy Policy from time to time. Any changes
               will be posted on this page with an updated effective date. We
               encourage you to rediv this policy periodically for any changes.{" "}
@@ -505,7 +605,11 @@ const Terms = ({ open, onClose, onContinue }) => {
               will be posted on this page with an updated effective date. We
               encourage you to rediv this policy periodically for any changes.{" "}
               <br />
-              10. Contact Us <br />
+              <strong>
+                {" "}
+                10. Contact Us <br />
+                <br />
+              </strong>
               If you have any questions about this TERMS AND CONDITIONS Privacy
               Policy, please contact us at: <br />
                Email: Support@nithyaevents.com

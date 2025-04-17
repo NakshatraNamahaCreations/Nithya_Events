@@ -7,7 +7,7 @@ const CustomModal = ({ open, onClose, message, type }) => {
     if (open) {
       const timer = setTimeout(() => {
         onClose();
-      }, 8000);
+      }, 3000);
 
       return () => clearTimeout(timer);
     }

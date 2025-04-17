@@ -82,6 +82,9 @@ import "./styles.scss";
 import { config } from "../../api/config";
 import { setLoading } from "../../redux/slice/LoaderSlice";
 import axios from "axios";
+import authService from "../../api/ApiService";
+import { toast } from "react-toastify"; // Add this import
+import "react-toastify/dist/ReactToastify.css"; // Ensure CSS for toast is imported
 
 const PageHeader = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -106,6 +109,16 @@ const PageHeader = () => {
   const totalItems = [...cartItems, ...techniciansItems, ...serviceItems];
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [originalDetails, setOriginalDetails] = useState({
+
+    profileImage: "",
+  });
+
+  const [updatedDetails, setUpdatedDetails] = useState({
+
+    profileImage: "",
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   const menuItems = [
     {
@@ -148,7 +161,7 @@ const PageHeader = () => {
 
     const fetchProducts = async () => {
       // setLoading(true);
-      dispatch(setLoading(true));
+      // dispatch(setLoading(true));
       try {
         const res = await axios.post(
           `${config.BASEURL}/product/search-product?limit=5&name=${searchTerm}`
@@ -158,7 +171,7 @@ const PageHeader = () => {
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
-      dispatch(setLoading(false));
+      // dispatch(setLoading(false));
     };
 
     const debounceSearch = setTimeout(fetchProducts, 300);
@@ -232,6 +245,66 @@ const PageHeader = () => {
     dispatch(logout());
     navigate("/login");
   };
+  const handleProfileImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // Update the profileImage in the state
+        setUpdatedDetails({
+          ...updatedDetails,
+          profileImage: reader.result, // Base64 image data
+        });
+      };
+      reader.readAsDataURL(file); // Read the file as base64 string
+    }
+  };
+
+  const handleSave = async () => {
+    console.log("handleSave triggered");
+    setIsSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append("username", updatedDetails.name);
+  
+      if (updatedDetails.profileImage) {
+        formData.append("profile_image", updatedDetails.profileImage);
+      }
+  
+  
+      const res = await axios.put(
+        `https://api.nithyaevent.com/api/user/edit-profile/${userId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+  
+      console.log("API Response", res);
+      toast.success("Profile updated successfully");
+    } catch (error) {
+      console.log("API Error", error);
+      toast.error("Error updating profile");
+    }
+    setIsSaving(false);
+  };
+  
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const res = await authService.getUserProfile(userDetails._id);
+        setUpdatedDetails(res.data); // Update the state with the fetched data
+        console.log("the udpateddetails", res.data.profile_image);
+      } catch (error) {
+        console.error("Error fetching user data", error);
+      }
+    };
+
+    getUser();
+  }, [userDetails._id]);
+
   return (
     <>
       <Box className="header-main">
@@ -465,21 +538,24 @@ const PageHeader = () => {
 
             {/* Search Suggestions */}
             {suggestedProducts.length > 0 && searchTerm && (
-              <Paper
-                sx={{
-                  position: "absolute",
-                  top: "100%",
-                  left: 0,
-                  width: "100%",
-                  backgroundColor: "white",
-                  zIndex: 10,
-                  boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
-                  maxHeight: "200px",
-                  overflowY: "auto",
-                  borderRadius: "8px",
-                  marginTop: "5px",
-                }}
-              >
+               <Paper
+               sx={{
+                 position: "absolute",
+                 top: "100%",
+                 left: "50%",  
+                 transform: "translateX(-50%)",
+                 width: "100%", 
+                 maxWidth: "400px",  
+                 backgroundColor: "white",
+                 zIndex: 10,
+                 boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+                 maxHeight: "400px",
+                 overflowY: "auto",  
+                 borderRadius: "8px",
+                 marginTop: "5px",
+                 padding: "10px",
+               }}
+             >
                 <List>
                   {suggestedProducts.length > 0 &&
                     suggestedProducts.map((product) => (
@@ -649,9 +725,21 @@ const PageHeader = () => {
                 {/* Account page................................. */}
                 {isAuthenticated ? (
                   <>
-                    <IconButton onClick={handleMenuOpen}>
-                      {userDetails.profileImage ? (
-                        <Avatar src={userDetails.profileImage} />
+                    <Box onClick={handleMenuOpen}>
+                      {updatedDetails.profile_image ? (
+                          <Avatar
+                          src={
+                            updatedDetails.profile_image 
+                       
+                          }
+                          sx={{
+                            width: 64,
+                            height: 64,
+                            margin: "0 auto",
+                            mb: 1,
+                            border: "2px solid #ccc",
+                          }}
+                        />
                       ) : (
                         <Box
                           sx={{
@@ -675,7 +763,7 @@ const PageHeader = () => {
                           </Typography>
                         </Box>
                       )}
-                    </IconButton>
+                    </Box>
 
                     <Menu
                       anchorEl={menuAnchor}
@@ -694,7 +782,7 @@ const PageHeader = () => {
                         <Box
                           sx={{ textAlign: "center", paddingBottom: "12px" }}
                         >
-                          <input
+                          {/* <input
                             type="file"
                             accept="image/*"
                             id="avatarUpload"
@@ -705,31 +793,37 @@ const PageHeader = () => {
                                 const reader = new FileReader();
                                 reader.onloadend = () => {
                                   // Update the image locally (you can also trigger API update here)
-                                  userDetails.profileImage = reader.result;
+                                  setUpdatedDetails({
+                                    ...updatedDetails,
+                                    profileImage: reader.result,
+                                  });
+
+                                  // Call handleSave to upload the profile image to the server immediately
+                                  handleSave(); // Save the image to the server immediately
                                 };
-                                reader.readAsDataURL(file);
+                                reader.readAsDataURL(file); // Convert the selected file to base64
                               }
                             }}
-                          />
+                          /> */}
+
                           <label
                             htmlFor="avatarUpload"
-                            style={{
-                              position: "relative",
-                              display: "inline-block",
-                              cursor: "pointer",
-                            }}
+                            style={{ position: "relative", cursor: "pointer" }}
                           >
                             <Avatar
-                              src={userDetails.profileImage}
+                              src={
+                                updatedDetails.profile_image 
+                           
+                              } // Use the selected image or the default image
                               sx={{
-                                width: 64,
-                                height: 64,
+                              width:'3rem',
+                              height:'3rem',
                                 margin: "0 auto",
                                 mb: 1,
                                 border: "2px solid #ccc",
                               }}
                             />
-                            <Box
+                            {/* <Box
                               sx={{
                                 position: "absolute",
                                 top: 0,
@@ -748,9 +842,18 @@ const PageHeader = () => {
                                 },
                               }}
                             >
-                              <PhotoCamera sx={{ color: "white" }} />
-                            </Box>
+                              {/* <PhotoCamera sx={{ color: "white" }} /> */}
+                            {/* </Box> */}
                           </label>
+{/* 
+                          <input
+                            type="file"
+                            accept="image/*"
+                            id="avatarUpload"
+                            style={{ display: "none" }}
+                            onChange={handleProfileImageChange} // Handle the file input change
+                          /> */}
+
                           <Typography
                             variant="h6"
                             fontWeight="bold"
@@ -933,6 +1036,7 @@ const PageHeader = () => {
                 Menu
               </Typography>
               <Divider />
+
               <List>
                 <ListItem button component={Link} to="/">
                   <ListItemText primary="Home" />
@@ -940,20 +1044,23 @@ const PageHeader = () => {
                 {/* <ListItem button component={Link} to="/about">
                   <ListItemText primary="About" />
                 </ListItem> */}
-                <ListItem button component={Link} to="/categories">
-                  <ListItemText primary="Categories" />
+                <ListItem button component={Link} to="/profile">
+                  <ListItemText primary="My Profile" />
                 </ListItem>
-                <ListItem button component={Link} to="/booking">
-                  <ListItemText primary="Bookings" />
+                <ListItem button component={Link} to="/Booking">
+                  <ListItemText primary="My Bookings" />
                 </ListItem>
-                <ListItem button component={Link} to="/services">
-                  <ListItemText primary="Services" />
+                <ListItem button component={Link} to="/my-tickets">
+                  <ListItemText primary="My Tickets" />
                 </ListItem>
                 <ListItem button component={Link} to="/faq">
                   <ListItemText primary="Faq" />
                 </ListItem>
-                <ListItem button component={Link} to="/account">
-                  <ListItemText primary="Account" />
+                <ListItem button component={Link} to="/Privacy Policy">
+                  <ListItemText primary="privacyPolicy" />
+                </ListItem>
+                <ListItem button component={Link} to="/TermsAndCondition">
+                  <ListItemText primary="Terms & Conditions" />
                 </ListItem>
               </List>
             </Box>

@@ -92,7 +92,6 @@ const SingleService = () => {
     try {
       dispatch(setLoading(true));
       const res = await authService.getParticularService(id);
-      console.log("vendor profile data:", res.data);
       setService(res.data);
       if (res.data.shop_image_or_logo) {
         setMainImage(res.data.shop_image_or_logo);
@@ -205,7 +204,6 @@ const SingleService = () => {
     alert("Service added to cart!");
     setOpenBook(false);
   };
-
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -332,7 +330,6 @@ const SingleService = () => {
               marginTop: "1rem",
             }}
           >
-         
             <Typography>{calculateAverageRating(service.Reviews)}</Typography>
             {/* <Typography variant="p" sx={{ fontSize: "0.8rem" }}>
               {service.Reviews?.length || 0} 
@@ -443,7 +440,13 @@ const SingleService = () => {
 
       {/* Tab Content */}
       {activeTab === 0 && (
-        <Box sx={{ marginTop: "2rem",display:{xs:'flex'}, flexDirection:{xs:'column'} }}>
+        <Box
+          sx={{
+            marginTop: "2rem",
+            display: { xs: "flex" },
+            flexDirection: { xs: "column" },
+          }}
+        >
           {services.map((serviceItem) => (
             <Card
               key={serviceItem._id}
@@ -453,7 +456,7 @@ const SingleService = () => {
                 alignItems: "center",
                 marginBottom: "1rem",
                 cursor: "pointer",
-                flexDirection:{xs:'column', md:'row'}
+                flexDirection: { xs: "column", md: "row" },
               }}
             >
               <CardMedia
@@ -477,7 +480,7 @@ const SingleService = () => {
                 </Typography>
 
                 <Typography
-                  style={{ paddingLeft: "1rem", margin: 0, fontSize: "0.9rem" }}
+                  style={{margin: 0, fontSize: "0.9rem" }}
                   variant="body2"
                   sx={{ marginBottom: "0.5rem" }}
                 >

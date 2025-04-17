@@ -124,6 +124,7 @@ const MoodDetail = () => {
       )
     );
   };
+  
 
   const handleDragStart = (id, e) => {
     e.dataTransfer.setData("id", id);
@@ -358,28 +359,26 @@ const MoodDetail = () => {
           onDragOver={allowDrop}
         >
           {objects.map((obj) => (
-            <div
-              key={obj.id}
-              className="draggable-object"
-              style={{
-                top: obj.y,
-                left: obj.x,
-                transform: `rotate(${obj.rotation}deg)`,
-                position: "absolute",
-              }}
-              draggable="true"
-              onDragStart={(e) => handleDragStart(obj.id, e)}
-              onContextMenu={(e) => {
-                e.preventDefault(); // Prevent default right-click
-                handleRotate(obj.id);
-              }}
-            >
-              <img
-                src={renderIcon(obj.type)}
-                alt={obj.type}
-                className="object-img"
-              />
-            </div>
+          <div
+          key={obj.id}
+          className="draggable-object"
+          style={{
+            top: obj.y,
+            left: obj.x,
+            transform: `rotate(${obj.rotation}deg)`,
+            position: "absolute",
+          }}
+          draggable="true"
+          onDragStart={(e) => handleDragStart(obj.id, e)}
+          onClick={() => handleRotate(obj.id)} 
+        >
+          <img
+            src={renderIcon(obj.type)}
+            alt={obj.type}
+            className="object-img"
+          />
+        </div>
+        
           ))}
         </div>
       </div>

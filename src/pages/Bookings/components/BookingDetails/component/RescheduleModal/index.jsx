@@ -12,25 +12,23 @@ import { useSelector } from "react-redux";
 import LocationSection from "../../../../../Cart/components/EventDetails/components/LocationSection";
 import dayjs from "dayjs";
 
-
 const RescheduleModal = ({
   open,
   handleClose,
   formData,
   setFormData,
   handleRescheduleOrder,
-  days
+  days,
 }) => {
   const [openLocation, setOpenLocation] = useState(false);
 
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === "event_end_date") {
       const startDate = dayjs(formData.event_start_date);
       const endDate = dayjs(value);
-      const selectedDays = endDate.diff(startDate, "day") + 1; 
+      const selectedDays = endDate.diff(startDate, "day") + 1;
 
       if (selectedDays > days) {
         alert(`You cannot select more than ${days} days.`);
@@ -103,8 +101,17 @@ const RescheduleModal = ({
             sx={{ mb: 2 }}
           />
 
-          <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem", mb: 2 }}>
-            <Typography>{formData.event_location || "Select a location"}</Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+              mb: 2,
+            }}
+          >
+            <Typography>
+              {formData.event_location || "Select a location"}
+            </Typography>
             <Button
               sx={{
                 width: "100%",
@@ -136,7 +143,6 @@ const RescheduleModal = ({
             onChange={handleInputChange}
             sx={{ mb: 2 }}
           />
-
           <TextField
             fullWidth
             type="date"
@@ -147,6 +153,7 @@ const RescheduleModal = ({
             value={formData.event_start_date}
             onChange={handleInputChange}
             sx={{ mb: 2 }}
+            inputProps={{ min: dayjs().format("YYYY-MM-DD") }}
           />
 
           <TextField
@@ -159,6 +166,7 @@ const RescheduleModal = ({
             value={formData.event_end_date}
             onChange={handleInputChange}
             sx={{ mb: 2 }}
+            inputProps={{ min: dayjs().format("YYYY-MM-DD") }}
           />
 
           <TextField
@@ -236,7 +244,9 @@ const RescheduleModal = ({
             label="I agree to the reschedule policy"
           />
 
-          <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end", gap: 2 }}>
+          <Box
+            sx={{ mt: 2, display: "flex", justifyContent: "flex-end", gap: 2 }}
+          >
             <Button variant="contained" onClick={handleClose} color="error">
               Cancel
             </Button>

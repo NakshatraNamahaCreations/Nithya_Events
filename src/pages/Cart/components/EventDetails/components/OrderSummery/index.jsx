@@ -32,7 +32,7 @@ const OrderSummary = ({
   const { numberOfDays } = useSelector((state) => state.date);
   const [openModal, setOpenModal] = useState(false);
 const [isCalenderOpen, setIsCalenderOpen] = useState(false);
-  const handleOpenModal = () => setOpenModal(true);
+    const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
 
   const handleModify = () => {
