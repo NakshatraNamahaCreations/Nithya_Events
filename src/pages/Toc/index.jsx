@@ -118,7 +118,7 @@ const Toc = () => {
           order. <br /> 5. SHIPPING AND DELIVERY Shipping Timeframe:
           <br /> The Company will arrange for the shipment of all Products
           either directly or through its delivery partners within a specified
-          timeframe after receiving an Order. Estimated delivery is 0-7 days. Shipping Timeframe:
+          timeframe after receiving an Order. Estimated delivery is 7-10 days. Shipping Timeframe:
           The Company will arrange for the shipment of all Products either
           directly or through its delivery partners within a specified timeframe
           after receiving an Order. Estimated delivery times are provided at the

@@ -67,7 +67,7 @@ const Featured = () => {
   // View All Products
   const handleViewAll = () => {
     window.scrollTo(0, 0);
-    navigate(`/Featuredproducts`);
+    navigate(`/products`);
   };
 
   const calculateAverageRating = (review) => {

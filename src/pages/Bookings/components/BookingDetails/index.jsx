@@ -742,7 +742,7 @@ const BookingDetails = () => {
                 <Grid item xs={12}>
                   {products.length > 0 &&
                     products.map((item) => (
-                      <Paper variant="outlined" sx={{ p: 3, width:'17rem' }}>
+                      <Paper variant="outlined" sx={{ p: 3, width:'40rem' }}>
                         <Box
                           sx={{
                             display: "flex",
@@ -1093,7 +1093,7 @@ const BookingDetails = () => {
                 display: "flex",
                 flexDirection: "column",
                 gap: 1,
-                width: "200px",
+                width: "300px",
               }}
             >
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -1186,46 +1186,37 @@ const BookingDetails = () => {
         <Typography variant="p" sx={{ mb: 1, fontSize: "0.9rem" }}>
           <strong>Contact:</strong> {booking.receiver_mobilenumber || "N/A"}
         </Typography>
-        <Typography
-          variant="p"
-          sx={{
-            mb: 1,
-            fontSize: "0.9rem",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <strong>Invitation Pass:</strong>
-          {booking.upload_invitation ? (
-            <img
-              src={booking.upload_invitation}
-              style={{ width: "160px" }}
-              alt="Not found"
-            />
-          ) : (
-            "N/A"
-          )}
-        </Typography>{" "}
-        <Typography
-          variant="p"
-          sx={{
-            mb: 1,
-            fontSize: "0.9rem",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <strong>Gate Pass:</strong>{" "}
-          {booking.upload_gatepass ? (
-            <img
-              src={booking.upload_gatepass}
-              alt="Not found"
-              style={{ width: "160px", marginLeft: "2.2rem" }}
-            />
-          ) : (
-            "N/A"
-          )}
-        </Typography>
+       <Box sx={{ display: "flex", gap: 4, mb: 1 }}>
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+    <Typography sx={{ fontSize: "0.9rem" }}>
+      <strong>Invitation Pass:</strong>
+    </Typography>
+    {booking.upload_invitation ? (
+      <img
+        src={booking.upload_invitation}
+        style={{ width: "160px" }}
+        alt="Not found"
+      />
+    ) : (
+      <Typography sx={{ fontSize: "0.9rem" }}>N/A</Typography>
+    )}
+  </Box>
+
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+    <Typography sx={{ fontSize: "0.9rem" }}>
+      <strong>Gate Pass:</strong>
+    </Typography>
+    {booking.upload_gatepass ? (
+      <img
+        src={booking.upload_gatepass}
+        style={{ width: "160px" }}
+        alt="Not found"
+      />
+    ) : (
+      <Typography sx={{ fontSize: "0.9rem" }}>N/A</Typography>
+    )}
+  </Box>
+</Box>
         <Button
           variant="contained"
           sx={{

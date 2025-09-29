@@ -4,12 +4,13 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setDates } from "../../redux/slice/dateSlice";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import EventIcon from "@mui/icons-material/Event";
-import CustomModal from "../../components/CustomModal";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
 import "./styles.scss";
+import { toast } from "react-toastify"; // Add this import
+import "react-toastify/dist/ReactToastify.css"; 
 
 const Calendar = ({ calendarClose }) => {
   const dispatch = useDispatch();
@@ -21,100 +22,146 @@ const Calendar = ({ calendarClose }) => {
   // Get stored dates from Redux
   const { startDate, endDate } = useSelector((state) => state.date);
 
-  // State initialization with current date as default
+  // State initialization
   const [selectedDates, setSelectedDates] = useState([
-    startDate ? new Date(startDate) : today,
-    endDate ? new Date(endDate) : today,
+    startDate ? new Date(startDate) : null,
+    endDate ? new Date(endDate) : null,
   ]);
   const [numberOfDays, setNumberOfDays] = useState(1);
-  const [openModal, setOpenModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const [modalType, setModalType] = useState("success");
+  const [dateType, setDateType] = useState("start"); // Toggle between start and end date
 
   // Effect to set default dates if not selected
   useEffect(() => {
     if (!startDate || !endDate) {
       dispatch(
         setDates({
-          startDate: today,
-          endDate: today,
+          startDate: null,
+          endDate: null,
           numberOfDays: 1,
         })
       );
     }
-  }, [dispatch, startDate, endDate, today]);
+  }, [dispatch, startDate, endDate]);
 
   const handleDateChange = (dates) => {
-    setSelectedDates(dates);
+    const [start, end] = dates;
+    setSelectedDates([start, end]);
 
-    let start = dates[0] || today;
-    let end = dates[1] || start;
-    let difference =
-      Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    if (start && !end) {
+      setDateType("end"); // Switch to end date after selecting start
+      dispatch(
+        setDates({
+          startDate: start,
+          endDate: null,
+          numberOfDays: 1,
+        })
+      );
+    } else if (start && end) {
+      const difference =
+        Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      setNumberOfDays(difference > 0 ? difference : 1);
+      dispatch(
+        setDates({
+          startDate: start,
+          endDate: end,
+          numberOfDays: difference > 0 ? difference : 1,
+        })
+      );
+    }
+  };
 
-    setNumberOfDays(difference);
-
-    dispatch(
-      setDates({
-        startDate: start,
-        endDate: end,
-        numberOfDays: difference,
-      })
-    );
+  const handleDateTypeChange = (event, newDateType) => {
+    if (newDateType !== null) {
+      setDateType(newDateType);
+    }
   };
 
   const handleConfirm = () => {
-    if (selectedDates[0]) {
+    if (selectedDates[0] && selectedDates[1]) {
       navigate("/");
       calendarClose();
     } else {
-      alert("Please select a date range first.");
+      alert("Please select both start and end dates.");
     }
   };
 
   return (
-    <Box className="calendar-container">
+    <Box className="calendar-container" sx={{ p: 2, maxWidth: 400, mx: "auto" }}>
       <IconButton
         onClick={calendarClose}
-        sx={{ position: "absolute", top: 0, right: 0 }}
+        sx={{ position: "absolute", top: 8, right: 8 }}
       >
         <CloseIcon />
       </IconButton>
       {/* HEADER */}
-      <Box className="calendar-header" sx={{ position: "relative" }}>
-        <EventIcon className="calendar-icon" />
-        <Typography variant="h6" sx={{ fontSize: "1rem" }}>
+      <Box className="calendar-header" sx={{ textAlign: "center", mb: 2 }}>
+        <Typography variant="h6" sx={{ fontSize: "1.2rem", fontWeight: "bold" }}>
           Choose your Event Date
         </Typography>
-
-        <Box
-          sx={{ display: "flex", gap: "0.3rem", alignItems: "center" }}
-          mt={1}
-        >
-          <Typography className="calendar-date" sx={{ fontSize: "0.8rem" }}>
-            {selectedDates[0]?.toLocaleDateString("en-US", {
-              month: "short",
-              day: "2-digit",
-              year: "numeric",
-            })}{" "}
-            -{" "}
-            {selectedDates[1]?.toLocaleDateString("en-US", {
-              month: "short",
-              day: "2-digit",
-              year: "numeric",
-            })}
-          </Typography>
-          <Typography
-            className="noofdays"
-            sx={{ color: "#d946ef", fontSize: "0.75rem", height: "30px" }}
-          >
-            {numberOfDays} {numberOfDays > 1 ? "days" : "day"}
-          </Typography>
-        </Box>
       </Box>
 
+      {/* TOGGLE BUTTONS */}
+<Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+  <ToggleButtonGroup
+    value={dateType}
+    exclusive
+    onChange={handleDateTypeChange}
+    aria-label="date type"
+    sx={{ bgcolor: "#f0f0f0", overflow: "hidden", fontSize: '14px' }}
+  >
+    <ToggleButton
+      value="start"
+      sx={{
+        px: 2,
+        py: 0.5,
+        border: "none",
+        fontSize: '12px',
+        textTransform: "uppercase",
+        whiteSpace: "nowrap",
+        "&.Mui-selected": {
+          backgroundColor: "#d946ef",
+          color: "white",
+        },
+        "&.Mui-selected:hover": {
+          backgroundColor: "#c13ec8",
+        },
+        "&:hover": {
+          backgroundColor: "#e0e0e0",
+        },
+      }}
+    >
+      Event Start Date
+    </ToggleButton>
+    <ToggleButton
+      value="end"
+      sx={{
+        px: 2,
+        py: 0.5,
+        border: "none",
+        fontSize: '12px',
+        textTransform: "uppercase",
+        whiteSpace: "nowrap",
+        "&.Mui-selected": {
+          backgroundColor: "#d946ef",
+          color: "white",
+        },
+        "&.Mui-selected:hover": {
+          backgroundColor: "#c13ec8",
+        },
+        "&:hover": {
+          backgroundColor: "#e0e0e0",
+        },
+      }}
+    >
+      Event End Date
+    </ToggleButton>
+  </ToggleButtonGroup>
+</Box>
+
+
+
       {/* DATE PICKER */}
-      <Box mt={5}>
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
         <DatePicker
           selected={selectedDates[0]}
           onChange={handleDateChange}
@@ -128,28 +175,54 @@ const Calendar = ({ calendarClose }) => {
           minDate={new Date()}
           maxDate={new Date(2035, 11, 31)}
           calendarClassName="custom-calendar"
+          dayClassName={(date) =>
+            (selectedDates[0] &&
+              selectedDates[1] &&
+              date >= selectedDates[0] &&
+              date <= selectedDates[1]) ||
+            date.toDateString() === selectedDates[0]?.toDateString() ||
+            date.toDateString() === selectedDates[1]?.toDateString()
+              ? "selected-date"
+              : undefined
+          }
         />
       </Box>
 
+      {/* SELECTED DATES DISPLAY */}
+      <Box sx={{ textAlign: "center", mb: 2 }}>
+        {selectedDates[0] && (
+          <Typography sx={{ fontSize: "0.9rem", mb: 0.5 }}>
+            Start Date: {selectedDates[0].toLocaleDateString("en-GB")}
+          </Typography>
+        )}
+        {selectedDates[1] && (
+          <Typography sx={{ fontSize: "0.9rem", mb: 0.5 }}>
+            End Date: {selectedDates[1].toLocaleDateString("en-GB")}
+          </Typography>
+        )}
+        {selectedDates[0] && selectedDates[1] && (
+          <Typography sx={{ fontSize: "0.9rem", color: "#c026d3", mb: 0.5 }}>
+            Number of Days: {numberOfDays}
+          </Typography>
+        )}
+      </Box>
+
       {/* CONFIRM BUTTON */}
-      <div className="calendar-footer">
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
         <Button
           variant="contained"
           onClick={handleConfirm}
-          sx={{ backgroundColor: "#c026d3" }}
-          className="calendar-confirm-btn"
+          sx={{
+            backgroundColor: "#c026d3",
+            color: "white",
+            px: 4,
+            py: 1,
+            borderRadius: 8,
+          }}
         >
           Confirm
         </Button>
-      </div>
-
-      {/* MODAL */}
-      <CustomModal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        message={modalMessage}
-        type={modalType}
-      />
+      </Box>
     </Box>
   );
 };

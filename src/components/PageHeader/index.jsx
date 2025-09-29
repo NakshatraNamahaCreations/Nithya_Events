@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "../../assets/logo2.png";
 
+
 // Third party library
 import {
   AppBar,
@@ -241,10 +242,27 @@ const PageHeader = () => {
   };
 
   // Logout User
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
-  };
+  // const handleLogout = () => {
+  //   dispatch(logout());
+  //   navigate("/login");
+  // };
+
+const handleLogout = () => {
+  // toast.warn("You have been logged out", {
+  //   position: "top-right",
+  //   autoClose: 3000,
+  //   pauseOnHover: true,
+  //   draggable: true,
+  //   theme: "colored",
+  // });
+
+  alert('you have been logged out');
+
+  dispatch(logout());
+  navigate("/login");
+};
+
+
   const handleProfileImageChange = (e) => {
     const file = e.target.files[0];
 
@@ -736,6 +754,7 @@ const PageHeader = () => {
                             width: 64,
                             height: 64,
                             margin: "0 auto",
+                            cursor: "pointer",
                             mb: 1,
                             border: "2px solid #ccc",
                           }}
@@ -756,6 +775,7 @@ const PageHeader = () => {
                             sx={{
                               color: "#6f6a6a",
                               fontFamily: "poppins",
+                                  cursor: "pointer",
                               fontSize: "0.8rem",
                             }}
                           >

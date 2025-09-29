@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { FaFacebook, FaGoogle } from 'react-icons/fa';
 import {
   Box,
   Button,
@@ -20,6 +21,10 @@ import axios from "axios";
 import { config } from "../../api/config";
 import { IconButton, InputAdornment } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import GoogleIcon from "@mui/icons-material/Google"; // Google "G" logo (Material icon)
+import FacebookIcon from "@mui/icons-material/Facebook"; // Official FB logo
+import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone"; // Phone icon
+
 
 const Login = () => {
   const [data, setData] = useState({ email: "", password: "" });
@@ -222,6 +227,7 @@ const Login = () => {
             variant="outlined"
             className="social-btn"
             onClick={googleLogin}
+             startIcon={<GoogleIcon />}
           >
             Sign in with Google
           </Button>
@@ -230,6 +236,7 @@ const Login = () => {
             variant="outlined"
             className="social-btn"
             onClick={() => navigate("/loginMobile")}
+             startIcon={<PhoneIphoneIcon />}
           >
             Sign in with Mobile Number
           </Button>
@@ -238,6 +245,7 @@ const Login = () => {
             variant="outlined"
             className="social-btn"
             // onClick={() => navigate("/loginMobile")}
+            startIcon={<FacebookIcon />}
           >
             Sign in with Facebook
           </Button>

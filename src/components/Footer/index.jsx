@@ -117,7 +117,7 @@ const Footer = () => {
           <Box>
             <Typography sx={{ color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '8px', gap: '2rem' }}>
 
-              Download
+           
               <img style={{ width: '135px' }} src={get1} alt="Not Found" />
               <img style={{ width: '135px' }} src={appPng} alt="Not Found" /></Typography>
           </Box>

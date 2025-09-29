@@ -1,4 +1,3 @@
-// React related imports
 import React, { useEffect, useState } from "react";
 
 // Third party library
@@ -21,17 +20,13 @@ import {
   TimePicker,
   renderTimeViewClock,
 } from "@mui/x-date-pickers";
-import { GoogleMap, LoadScript, Autocomplete } from "@react-google-maps/api";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 // Custom Components
-import authService from "../../../../api/ApiService";
 import Terms from "../Terms";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCart } from "../../../../redux/slice/CartSlice";
-import CustomAlert from "../../../../components/CustomAlerts";
-import LocationSection from "./components/LocationSection";
 import CustomModal from "../../../../components/CustomModal";
 import OrderSummery from "./components/OrderSummery";
 import { config } from "../../../../api/config";
@@ -41,6 +36,7 @@ import moment from "moment";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import LocationSection from "./components/LocationSection";
 
 const FieldLabel = ({ label }) => (
   <Typography component="span">
@@ -60,7 +56,9 @@ const EventDetails = ({
 }) => {
   const [eventDetails, setEventDetails] = useState({
     eventDate: null,
-    // venueStart:null,
+    eventSetupStartDate: null,
+    eventSetupEndDate: null,
+    rehearsalDate: null,
     startTime: null,
     endTime: null,
     eventName: "",
@@ -74,20 +72,26 @@ const EventDetails = ({
     address: null,
     upload_invitation: "",
     upload_gatepass: "",
+    event_location: "",
+    location_lat: null,
+    location_long: null,
   });
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false); // Controlled by handleProceedToTerms
   const [isCheckoutAllowed, setIsCheckoutAllowed] = useState(false);
   const [isOrderSummaryOpen, setIsOrderSummaryOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [openLocation, setOpenLocation] = useState(false);
-  const [addLocation, setAddLocation] = useState("");
+  const [addLocation, setAddLocation] = useState({
+    address: "",
+    lat: null,
+    lng: null,
+  });
   const [openModal, setOpenModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [modalType, setModalType] = useState("success");
-  const { startDate, endDate, numberOfDays } = useSelector(
-    (state) => state.date
-  );
+  const [termsAccepted, setTermsAccepted] = useState(false); // Sync with Terms component
+  const { startDate, endDate, numberOfDays } = useSelector((state) => state.date);
   const servicesItem = useSelector((state) => state.services.services);
   const technicianItem = useSelector((state) => state.technicians.technicians);
   const [currentLocation, setCurrentLocation] = useState({
@@ -98,26 +102,35 @@ const EventDetails = ({
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [mobileError, setMobileError] = useState(false);
 
   const dispatch = useDispatch();
   const formatedStartDate = formatDate1(startDate);
   const formatedEndDate = formatDate1(endDate);
   const navigate = useNavigate();
+
+  // Trigger the Terms modal
   const handleProceedToTerms = () => {
-    //   if (
-    //     !eventDetails.startTime ||
-    //     !eventDetails.endTime ||
-    //     !eventDetails.eventName.trim() ||
-    //     !eventDetails.eventVenue.trim() ||
-    //     !eventDetails.receiverName.trim() ||
-    //     !eventDetails.receiverMobile.trim()
-    //   ) {
-    //     setSnackbarOpen(true);
-    //     return;
-    //   } else {
-    setShowTerms(true);
-    //   }
+    if (
+      !eventDetails.startTime ||
+      !eventDetails.endTime ||
+      !eventDetails.venueEndTime ||
+      !eventDetails.venueStartTime ||
+      !eventDetails.eventSetupStartDate ||
+      !eventDetails.eventSetupEndDate ||
+      !eventDetails.rehearsalDate ||
+      !eventDetails.eventName.trim() ||
+      !eventDetails.eventVenue.trim() ||
+      !eventDetails.receiverName.trim() ||
+      !eventDetails.receiverMobile.trim() ||
+      !addLocation.address
+    ) {
+      setSnackbarOpen(true);
+      return;
+    }
+    setShowTerms(true); // Open the Terms modal
   };
+
   const userDetail = sessionStorage.getItem("userDetails");
   let userId = null;
 
@@ -129,20 +142,13 @@ const EventDetails = ({
       console.error("Error parsing userDetails from sessionStorage:", error);
     }
   }
+
+  // Handle terms acceptance and proceed
   const handleAcceptTerms = () => {
     if (!userId) {
-      toast.error("Authentication is Required!", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+      toast.error("Authentication is Required!");
       localStorage.setItem("previousPage", location.pathname);
       navigate("/login");
-
       return;
     }
     if (
@@ -150,63 +156,46 @@ const EventDetails = ({
       !eventDetails.endTime ||
       !eventDetails.venueEndTime ||
       !eventDetails.venueStartTime ||
+      !eventDetails.eventSetupStartDate ||
+      !eventDetails.eventSetupEndDate ||
+      !eventDetails.rehearsalDate ||
       !eventDetails.eventName.trim() ||
       !eventDetails.eventVenue.trim() ||
       !eventDetails.receiverName.trim() ||
-      !eventDetails.receiverMobile.trim()
+      !eventDetails.receiverMobile.trim() ||
+      !addLocation.address
     ) {
       setSnackbarOpen(true);
       return;
     }
-    // if (
-    //   (cartItems && cartItems.length === 0)
-    // ) {
-    //   // Show error message
-    //   toast.error("Please add products or services to the cart!", {
-    //     position: "top-right",
-    //     autoClose: 2000,
-    //     hideProgressBar: false,
-    //     closeOnClick: true,
-    //     pauseOnHover: true,
-    //     draggable: true,
-    //     progress: undefined,
-    //   });
-    //   return;
-    // }
     if (eventDetails.receiverMobile.length < 10) {
-      toast.error(
-        "Please enter a valid 10-digit mobile number for the receiver.",
-        {
-          position: "top-right",
-          autoClose: 2000,
-        }
-      );
+      toast.error("Please enter a valid 10-digit mobile number for the receiver.");
       return;
     }
-
-    // If all validations are passed, show order summary
+    if (!termsAccepted) {
+      toast.error("Please accept the Terms & Conditions.");
+      return;
+    }
     setIsOrderSummaryOpen(true);
-    setShowTerms(false);
+    setShowTerms(false); // Close the Terms modal after acceptance
   };
+
   const handleLocationContinue = (locationData) => {
     if (!locationData || !locationData.lat || !locationData.lng) {
       console.error("Invalid location data received:", locationData);
       return;
     }
-
     setAddLocation({
       address: locationData.address,
       lat: locationData.lat,
       lng: locationData.lng,
     });
-
     setEventDetails((prevDetails) => ({
       ...prevDetails,
       event_location: locationData.address,
       location_lat: locationData.lat,
       location_long: locationData.lng,
     }));
-
     setOpenLocation(false);
   };
 
@@ -218,54 +207,31 @@ const EventDetails = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Mobile Number Validation (Max 10 digits)
     if (name === "receiverMobile") {
       if (value.length <= 10 && /^[0-9]*$/.test(value)) {
         setEventDetails({ ...eventDetails, [name]: value });
-
-        // Hide error once the input is valid
-        setMobileError(false); // Clear error once the number is valid
+        setMobileError(false);
       } else if (value.length > 10) {
-        // If the length exceeds 10, do not allow further input
-        setEventDetails({ ...eventDetails, [name]: value.slice(0, 10) }); // Trim to 10 digits
-
-        // Show the error message only once
+        setEventDetails({ ...eventDetails, [name]: value.slice(0, 10) });
         if (!mobileError) {
           toast.error("Mobile number cannot exceed 10 digits.", {
             position: "top-right",
             autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
           });
-          setMobileError(true); // Set to true to prevent multiple error messages
+          setMobileError(true);
         }
       }
-    }
-
-    // Name Validation (Only Alphabets and Spaces)
-    if (name === "receiverName") {
-      const regex = /^[A-Za-z\s]*$/; // Allows only alphabets and spaces
+    } else if (name === "receiverName") {
+      const regex = /^[A-Za-z\s]*$/;
       if (regex.test(value) || value === "") {
         setEventDetails({ ...eventDetails, [name]: value });
       } else {
-        // Toast error for invalid name input (numbers or special characters)
         toast.error("Name should only contain alphabets and spaces.", {
           position: "top-right",
           autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
         });
       }
-    }
-
-    // For other fields
-    else {
+    } else {
       setEventDetails({ ...eventDetails, [name]: value });
     }
   };
@@ -287,27 +253,12 @@ const EventDetails = ({
     commission_percentage: item.commission_percentage || 0,
   }));
 
-  // _id: `tech_${technician._id}`,
-  // product_image:
-  //   technician.image ||
-  //   "https://centrechurch.org/wp-content/uploads/2022/03/img-person-placeholder.jpeg",
-  // product_name: `${technician.service_name}`,
-  // product_price: technician.price,
-  // vendor_name: technician.vendor_name,
-  // shop_name: technician.shop_name,
-  // vendor_id: technician.vendor_id,
-  // category: technician.category,
-  // commission_percentage: technician.commission_percentage,
-  // commission_tax: technician.commission_tax,
-  // quantity: 1,
-
   const productData = cartItems?.map((item) => ({
     orderId: Date.now().toString(),
     id: item.id || "undefined",
     productName: item.productName || "Unknown",
     productPrice: item.productPrice || 0,
     mrpPrice: item.mrpPrice || 0,
-    // store: item.shop_name || "Unknown",
     imageUrl:
       item.imageUrl ||
       "https://centrechurch.org/wp-content/uploads/2022/03/img-person-placeholder.jpeg",
@@ -325,28 +276,25 @@ const EventDetails = ({
 
   const servicesData = servicesItem?.map((item) => ({
     orderId: Date.now().toString(),
-    id: item.id || item._id, // Ensuring id is covered in both cases
+    id: item.id || item._id,
     context: "service",
-    store: "123rooms", // Replace with actual store name if dynamic
+    store: "123rooms",
     sellerName: item.vendorName || item.sellerName || "Unknown Seller",
     sellerId: item.vendor_id || item.sellerId || "Unknown Vendor",
     productName: item.productName || item.service_name || "Service",
     productPrice: item.productPrice || item.price || 0,
     imageUrl: item.imageUrl || item.additional_images?.[0] || "",
     totalPrice:
-      (item.pricing || item.productPrice || item.price || 0) *
-      (item.quantity || 1),
+      (item.pricing || item.productPrice || item.price || 0) * (item.quantity || 1),
     quantity: item.quantity || 1,
-    // orderDate: moment().utc().format("YYYY-MM-DDTHH:mm:ss.SSS[Z]"),
-    eventStartDate:
-      item.eventStartDate || new Date().toISOString().split("T")[0],
+    eventStartDate: item.eventStartDate || new Date().toISOString().split("T")[0],
     eventEndDate: item.eventEndDate || new Date().toISOString().split("T")[0],
     commissionTax: item.commissionTax || 18,
     commissionPercentage: item.commissionPercentage || 22,
   }));
 
-  const handleDateChange = (newDate) => {
-    setEventDetails({ ...eventDetails, eventDate: newDate });
+  const handleDateChange = (field, newDate) => {
+    setEventDetails({ ...eventDetails, [field]: newDate });
   };
 
   const handleTimeChange = (field, newTime) => {
@@ -368,28 +316,20 @@ const EventDetails = ({
     const formData = new FormData();
     const userData = JSON.parse(sessionStorage.getItem("userDetails"));
 
-    // formData.append("event_date", `432424 to 324324}`); //static
-    // formData.append(
-    //   "venue_start",
-    //   eventDetails.eventDate?.format("YYYY-MM-DD")
-    // );
-
     formData.append("event_start_date", startDate);
     formData.append("event_end_date", endDate);
+    formData.append("event_setup_start_date", eventDetails.eventSetupStartDate?.format("YYYY-MM-DD"));
+    formData.append("event_setup_end_date", eventDetails.eventSetupEndDate?.format("YYYY-MM-DD"));
+    formData.append("rehearsal_date", eventDetails.rehearsalDate?.format("YYYY-MM-DD"));
     formData.append("event_name", eventDetails.eventName);
     formData.append("number_of_days", numberOfDays);
     const orderedDate = moment().utc().format("YYYY-MM-DD");
-
-    const eventDate = `${moment(startDate).format("YYYY-MM-DD")} to ${moment(
-      endDate
-    ).format("YYYY-MM-DD")}`;
-    formData.append("booking_from", "Website"),
-      formData.append("ordered_date", orderedDate);
+    const eventDate = `${moment(startDate).format("YYYY-MM-DD")} to ${moment(endDate).format("YYYY-MM-DD")}`;
+    formData.append("booking_from", "Website");
+    formData.append("ordered_date", orderedDate);
     formData.append("event_date", eventDate);
     formData.append("upload_invitation", eventDetails.upload_invitation);
-
     formData.append("upload_gatepass", eventDetails.upload_gatepass);
-
     formData.append("receiver_name", eventDetails.receiverName);
     formData.append("receiver_mobilenumber", eventDetails.receiverMobile);
     formData.append("product_data", JSON.stringify(productData));
@@ -399,31 +339,17 @@ const EventDetails = ({
     formData.append("user_name", userData.username);
     formData.append("user_mailid", userData.email);
     formData.append("venue_name", eventDetails.eventVenue);
-    formData.append(
-      "venue_open_time",
-      eventDetails.startTime?.format("hh:mm A")
-    );
+    formData.append("venue_open_time", eventDetails.startTime?.format("hh:mm A"));
     formData.append("event_location", addLocation.address);
     formData.append("location_lat", addLocation.lat);
     formData.append("location_long", addLocation.lng);
-
-    formData.append(
-      "event_start_time",
-      eventDetails.startTime?.format("hh:mm A")
-    );
+    formData.append("event_start_time", eventDetails.startTime?.format("hh:mm A"));
     formData.append("event_end_time", eventDetails.endTime?.format("hh:mm A"));
-    formData.append(
-      "venue_start_time",
-      eventDetails.venueStartTime?.format("hh:mm A")
-    );
-    formData.append(
-      "venue_end_time",
-      eventDetails.venueEndTime?.format("hh:mm A")
-    );
-
+    formData.append("venue_start_time", eventDetails.venueStartTime?.format("hh:mm A"));
+    formData.append("venue_end_time", eventDetails.venueEndTime?.format("hh:mm A"));
     formData.append("cart_total", billingDetails.totalPrice);
     formData.append("base_amount", billingDetails?.baseAmount);
-    formData.append("gst_applied_value", "15120");
+    formData.append("gst_applied_value", billingDetails.totalGst);
     formData.append("tds_deduction", billingDetails.tdsCharges);
     formData.append("amount_after_deduction", billingDetails.amountAfterTds);
     formData.append("paid_amount", billingDetails.grandTotal);
@@ -433,58 +359,57 @@ const EventDetails = ({
     formData.append("vendors_message", "Test");
 
     try {
-      // const response = await authService.createOrder(formData);
       const response = await axios.post(
         `${config.BASEURL}${config.CREATE_ORDER}`,
         formData,
         {
           headers: {
-            content: "multipart/form-data",
+            "Content-Type": "multipart/form-data",
           },
         }
       );
-      setAddLocation("");
+      setAddLocation({ address: "", lat: null, lng: null });
       setEventDetails({
         eventDate: null,
+        eventSetupStartDate: null,
+        eventSetupEndDate: null,
+        rehearsalDate: null,
         startTime: null,
         endTime: null,
         eventName: "",
         eventVenue: "",
+        venueSetupStartTime: null,
+        venueSetupEndTime: null,
+        venueStartTime: null,
+        venueEndTime: null,
         receiverName: "",
         receiverMobile: "",
         address: null,
         upload_invitation: "",
         upload_gatepass: "",
+        event_location: "",
+        location_lat: null,
+        location_long: null,
       });
-      toast.dismiss();
-      
-      // toast.success("Your order is placed!", {
-      //   position: "top-right",
-      //   autoClose: 2000,
-      // });
+      toast.success("Your order is placed!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
       setOpenModal(true);
       setModalMessage("Order Created Successfully");
       setModalType("success");
       setIsOrderSummaryOpen(false);
       handleClearAll();
     } catch (error) {
-      // toast.error("Order failed", {
-      //   position: "top-right",
-      //   autoClose: 2000,
-      //   hideProgressBar: false,
-      //   closeOnClick: true,
-      //   pauseOnHover: true,
-      //   draggable: true,
-      //   progress: undefined,
-      // });
+      toast.error("Order failed", {
+        position: "top-right",
+        autoClose: 2000,
+      });
       setOpenModal(true);
       setModalMessage("Order failed");
       setModalType("failure");
       setIsOrderSummaryOpen(false);
-      console.error(
-        "Error creating order:",
-        error.response?.data || error.message
-      );
+      console.error("Error creating order:", error.response?.data || error.message);
     }
     handleClearAll();
   };
@@ -492,37 +417,31 @@ const EventDetails = ({
   const handleModalClose = () => {
     setIsOrderSummaryOpen(false);
   };
+
   useEffect(() => {
     const isValid =
       eventDetails.startTime &&
       eventDetails.endTime &&
+      eventDetails.venueEndTime &&
+      eventDetails.venueStartTime &&
+      eventDetails.eventSetupStartDate &&
+      eventDetails.eventSetupEndDate &&
+      eventDetails.rehearsalDate &&
       eventDetails.eventName.trim() &&
       eventDetails.eventVenue.trim() &&
       eventDetails.receiverName.trim() &&
       eventDetails.receiverMobile.trim() &&
-      addLocation?.address; // Ensure address is selected
+      addLocation?.address &&
+      eventDetails.receiverMobile.length === 10 &&
+      termsAccepted;
 
     setIsCheckoutAllowed(isValid);
-  }, [eventDetails, addLocation]); // Re-run when eventDetails or location changes
+  }, [eventDetails, addLocation, termsAccepted]);
 
-  const handleCheckout = async () => {
-    // if (
-    //   !eventDetails.startTime ||
-    //   !eventDetails.endTime ||
-    //   !eventDetails.eventName.trim() ||
-    //   !eventDetails.eventVenue.trim() ||
-    //   !eventDetails.receiverName.trim() ||
-    //   !eventDetails.receiverMobile.trim()
-    // ) {
-    //   setSnackbarOpen(true);
-    //   return;
-    // }
-  };
   useEffect(() => {
     const fetchLocation = async () => {
       try {
         const locationData = await getCurrentCity();
-        // setCityData(locationData);
         setCurrentLocation({
           lat: locationData.lat,
           lng: locationData.lng,
@@ -535,13 +454,12 @@ const EventDetails = ({
         setLoading(false);
       }
     };
-
     fetchLocation();
   }, []);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <ToastContainer/>
+      <ToastContainer />
       <Box
         sx={{
           display: "flex",
@@ -574,162 +492,126 @@ const EventDetails = ({
           </Typography>
 
           <Grid container spacing={2}>
-            <Grid
-              item
-              xs={10}
-              sx={{
-                display: "flex",
-                gap: "1rem",
-                marginBottom: "1rem",
-                fontSize: "1rem",
-              }}
-            >
+            <Grid item xs={12} sx={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
               <TextField
                 label="Start Date"
                 value={formatedStartDate}
                 fullWidth
                 InputProps={{ readOnly: true }}
                 sx={{
-                  "& .MuiInputLabel-root": {
-                    fontSize: "0.8rem",
-                    color: "#c026d3",
-                  },
-                  "& .MuiInputBase-input": {
-                    fontSize: "0.8rem",
-                    padding: "16px 18px",
-                  },
+                  "& .MuiInputLabel-root": { fontSize: "0.8rem", color: "#c026d3" },
+                  "& .MuiInputBase-input": { fontSize: "0.8rem", padding: "16px 18px" },
                   "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#c026d3",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#c026d3",
-                    },
-                    "& input": {
-                      color: "black",
-                    },
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
                   },
                 }}
               />
-
               <TextField
                 label="End Date"
                 value={formatedEndDate}
                 fullWidth
                 InputProps={{ readOnly: true }}
                 sx={{
-                  "& .MuiInputLabel-root": {
-                    fontSize: "0.8rem",
-                    color: "#c026d3",
-                  },
-                  "& .MuiInputBase-input": {
-                    fontSize: "0.8rem",
-                    padding: "16px 18px",
-                  },
+                  "& .MuiInputLabel-root": { fontSize: "0.8rem", color: "#c026d3" },
+                  "& .MuiInputBase-input": { fontSize: "0.8rem", padding: "16px 18px" },
                   "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#c026d3",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#c026d3",
-                    },
-                    "& input": {
-                      color: "black", // Input text color
-                    },
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <DatePicker
+                label={<FieldLabel label="Event Setup Start Date" />}
+                value={eventDetails.eventSetupStartDate}
+                onChange={(newDate) => handleDateChange("eventSetupStartDate", newDate)}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <DatePicker
+                label={<FieldLabel label="Event Setup End Date" />}
+                value={eventDetails.eventSetupEndDate}
+                onChange={(newDate) => handleDateChange("eventSetupEndDate", newDate)}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <DatePicker
+                label={<FieldLabel label="Rehearsal Date" />}
+                value={eventDetails.rehearsalDate}
+                onChange={(newDate) => handleDateChange("rehearsalDate", newDate)}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
                   },
                 }}
               />
             </Grid>
             <Grid item xs={6}>
               <TimePicker
-                label={
-                  <Typography
-                    component="span"
-                    sx={{ color: "#c026d3", fontSize: "0.8rem" }}
-                  >
-                    Event Setup Start Time{" "}
-                    <span style={{ color: "red" }}>*</span>
-                  </Typography>
-                }
+                label={<FieldLabel label="Event Setup Start Time" />}
                 value={eventDetails.venueStartTime}
-                onChange={(newTime) =>
-                  handleTimeChange("venueStartTime", newTime)
-                }
+                onChange={(newTime) => handleTimeChange("venueStartTime", newTime)}
                 viewRenderers={{
                   hours: renderTimeViewClock,
                   minutes: renderTimeViewClock,
                   seconds: renderTimeViewClock,
                 }}
                 renderInput={(params) => <TextField {...params} fullWidth />}
-                InputLabelProps={{
-                  style: { color: "#c026d3" },
-                }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#c026d3", // Default border color
-                    },
-
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#c026d3", // Border color when focused
-                    },
-                    "& input": {
-                      color: "black", // Input text color
-                    },
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
                   },
                 }}
               />
             </Grid>
             <Grid item xs={6}>
               <TimePicker
-                label={
-                  <Typography
-                    component="span"
-                    sx={{ color: "#c026d3", fontSize: "0.8rem" }}
-                  >
-                    Event Setup End Time <span style={{ color: "red" }}>*</span>
-                  </Typography>
-                }
+                label={<FieldLabel label="Event Setup End Time" />}
                 value={eventDetails.venueEndTime}
-                onChange={(newTime) =>
-                  handleTimeChange("venueEndTime", newTime)
-                }
+                onChange={(newTime) => handleTimeChange("venueEndTime", newTime)}
                 viewRenderers={{
                   hours: renderTimeViewClock,
                   minutes: renderTimeViewClock,
                   seconds: renderTimeViewClock,
                 }}
                 renderInput={(params) => <TextField {...params} fullWidth />}
-                InputLabelProps={{
-                  style: { color: "#c026d3" },
-                }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#c026d3", // Default border color
-                    },
-
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#c026d3", // Border color when focused
-                    },
-                    "& input": {
-                      color: "black", // Input text color
-                    },
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
                   },
                 }}
               />
             </Grid>
-
             <Grid item xs={6}>
               <TimePicker
-                label={
-                  <Typography
-                    component="span"
-                    sx={{ color: "#c026d3", fontSize: "0.8rem" }}
-                  >
-                    Event Start Time <span style={{ color: "red" }}>*</span>
-                  </Typography>
-                }
+                label={<FieldLabel label="Event Start Time" />}
                 value={eventDetails.startTime}
                 onChange={(newTime) => handleTimeChange("startTime", newTime)}
                 viewRenderers={{
@@ -738,35 +620,18 @@ const EventDetails = ({
                   seconds: renderTimeViewClock,
                 }}
                 renderInput={(params) => <TextField {...params} fullWidth />}
-                InputLabelProps={{
-                  style: { color: "#c026d3" },
-                }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#c026d3", // Default border color
-                    },
-
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#c026d3", // Border color when focused
-                    },
-                    "& input": {
-                      color: "black", // Input text color
-                    },
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
                   },
                 }}
               />
             </Grid>
             <Grid item xs={6}>
               <TimePicker
-                label={
-                  <Typography
-                    component="span"
-                    sx={{ color: "#c026d3", fontSize: "0.8rem" }}
-                  >
-                    Event End Time <span style={{ color: "red" }}>*</span>
-                  </Typography>
-                }
+                label={<FieldLabel label="Event End Time" />}
                 value={eventDetails.endTime}
                 onChange={(newTime) => handleTimeChange("endTime", newTime)}
                 viewRenderers={{
@@ -775,117 +640,53 @@ const EventDetails = ({
                   seconds: renderTimeViewClock,
                 }}
                 renderInput={(params) => <TextField {...params} fullWidth />}
-                InputLabelProps={{
-                  style: { color: "#c026d3" },
-                }}
                 sx={{
                   "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#c026d3", // Default border color
-                    },
-
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#c026d3", // Border color when focused
-                    },
-                    "& input": {
-                      color: "black", // Input text color
-                    },
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
                   },
                 }}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
-                label={
-                  <Typography
-                    component="span"
-                    sx={{ color: "#c026d3", fontSize: "0.8rem" }}
-                  >
-                    Event Name <span style={{ color: "red" }}>*</span>
-                  </Typography>
-                }
+                label={<FieldLabel label="Event Name" />}
                 name="eventName"
                 value={eventDetails.eventName}
                 onChange={handleChange}
                 fullWidth
-                InputLabelProps={{
-                  style: { color: "#c026d3" },
-                }}
                 sx={{
-                  "& .MuiInputLabel-root": {
-                    fontSize: "0.8rem",
-                    color: "#c026d3",
-                  },
-                  "& .MuiInputBase-input": {
-                    fontSize: "0.8rem",
-                    padding: "16px 18px",
-                  },
+                  "& .MuiInputLabel-root": { fontSize: "0.8rem", color: "#c026d3" },
+                  "& .MuiInputBase-input": { fontSize: "0.8rem", padding: "16px 18px" },
                   "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#c026d3",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#c026d3",
-                    },
-                    "& input": {
-                      color: "black", // Input text color
-                    },
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
                   },
                 }}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
-                label={
-                  <Typography
-                    component="span"
-                    sx={{ color: "#c026d3", fontSize: "0.8rem" }}
-                  >
-                    Event Venue Name <span style={{ color: "red" }}>*</span>
-                  </Typography>
-                }
+                label={<FieldLabel label="Event Venue Name" />}
                 name="eventVenue"
                 value={eventDetails.eventVenue}
                 onChange={handleChange}
                 fullWidth
-                InputLabelProps={{
-                  style: { color: "#c026d3" }, // Red label color
-                }}
                 sx={{
-                  "& .MuiInputLabel-root": {
-                    fontSize: "0.8rem",
-                    color: "#c026d3",
-                  },
-                  "& .MuiInputBase-input": {
-                    fontSize: "0.8rem",
-                    padding: "16px 18px",
-                  },
+                  "& .MuiInputLabel-root": { fontSize: "0.8rem", color: "#c026d3" },
+                  "& .MuiInputBase-input": { fontSize: "0.8rem", padding: "16px 18px" },
                   "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#c026d3",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#c026d3",
-                    },
-                    "& input": {
-                      color: "black", // Input text color
-                    },
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
                   },
                 }}
               />
             </Grid>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: "1rem",
-              }}
-            >
-              <Typography>
-                {addLocation ? `${addLocation.address}` : ""}
-              </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginTop: "1rem", width: "100%" }}>
+              <Typography>{addLocation.address || "No address selected"}</Typography>
               <Button
                 sx={{
                   width: "33.7rem",
@@ -912,37 +713,18 @@ const EventDetails = ({
             </Box>
             <Grid item xs={6}>
               <TextField
-                label={
-                  <Typography
-                    component="span"
-                    sx={{ color: "#c026d3", fontSize: "0.8rem" }}
-                  >
-                    Receiver Name <span style={{ color: "red" }}>*</span>
-                  </Typography>
-                }
+                label={<FieldLabel label="Receiver Name" />}
                 name="receiverName"
-                value={eventDetails?.receiverName}
+                value={eventDetails.receiverName}
                 onChange={handleChange}
                 fullWidth
                 sx={{
-                  "& .MuiInputLabel-root": {
-                    fontSize: "0.8rem",
-                    color: "#c026d3",
-                  },
-                  "& .MuiInputBase-input": {
-                    fontSize: "0.8rem",
-                    padding: "16px 18px",
-                  },
+                  "& .MuiInputLabel-root": { fontSize: "0.8rem", color: "#c026d3" },
+                  "& .MuiInputBase-input": { fontSize: "0.8rem", padding: "16px 18px" },
                   "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#c026d3",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#c026d3",
-                    },
-                    "& input": {
-                      color: "black",
-                    },
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
                   },
                 }}
               />
@@ -950,49 +732,28 @@ const EventDetails = ({
             <Grid item xs={6}>
               <TextField
                 type="number"
-                label={
-                  <Typography
-                    component="span"
-                    sx={{ color: "#c026d3", fontSize: "0.8rem" }}
-                  >
-                    Receiver Mobile <span style={{ color: "red" }}>*</span>
-                  </Typography>
-                }
+                label={<FieldLabel label="Receiver Mobile" />}
                 name="receiverMobile"
-                value={eventDetails?.receiverMobile}
+                value={eventDetails.receiverMobile}
                 onChange={handleChange}
                 fullWidth
                 sx={{
-                  "& .MuiInputLabel-root": {
-                    fontSize: "0.8rem",
-                    color: "#c026d3",
-                  },
-                  "& .MuiInputBase-input": {
-                    fontSize: "0.8rem",
-                    padding: "16px 18px",
-                  },
+                  "& .MuiInputLabel-root": { fontSize: "0.8rem", color: "#c026d3" },
+                  "& .MuiInputBase-input": { fontSize: "0.8rem", padding: "16px 18px" },
                   "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#c026d3",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#c026d3",
-                    },
-                    "& input": {
-                      color: "black",
-                    },
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
                   },
                 }}
               />
             </Grid>
-
             <Grid item xs={6}>
               <Button
                 variant="outlined"
                 component="label"
                 fullWidth
                 sx={{ border: "1px solid #9c27b0", color: "#9c27b0" }}
-                // startIcon={<UploadFileIcon />}
               >
                 Upload Invitation
                 <input
@@ -1002,11 +763,8 @@ const EventDetails = ({
                   hidden
                 />
               </Button>
-              {eventDetails.upload_invitation.name && (
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#555", marginTop: "5px", textAlign: "center" }}
-                >
+              {eventDetails.upload_invitationPreview && (
+                <Typography variant="body2" sx={{ color: "#555", marginTop: "5px", textAlign: "center" }}>
                   {eventDetails.upload_invitation.name}
                 </Typography>
               )}
@@ -1017,21 +775,17 @@ const EventDetails = ({
                 component="label"
                 fullWidth
                 sx={{ border: "1px solid #9c27b0", color: "#9c27b0" }}
-                // startIcon={<UploadFileIcon />}
               >
                 Upload Gate Pass
                 <input
                   type="file"
                   name="upload_gatepass"
-                  hidden
                   onChange={handleFileChange}
+                  hidden
                 />
               </Button>
-              {eventDetails.upload_gatepass.name && (
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#555", marginTop: "5px", textAlign: "center" }}
-                >
+              {eventDetails.upload_gatepassPreview && (
+                <Typography variant="body2" sx={{ color: "#555", marginTop: "5px", textAlign: "center" }}>
                   {eventDetails.upload_gatepass.name}
                 </Typography>
               )}
@@ -1039,36 +793,33 @@ const EventDetails = ({
           </Grid>
 
           <Box mt={4} textAlign="center">
-            {
-              <Box mt={4} textAlign="center">
-                {/* Informational Message */}
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: "#555",
-                    fontSize: "0.9rem",
-                    marginBottom: "10px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {/* Before proceeding to place your order, you need to accept
-                  the Terms & Conditions. */}
-
-                  {/* TERMS AND CONDITIONS  */}
-
-                  <Terms onContinue={handleAcceptTerms} />
-                </Typography>
-                {/* <Button
-                  variant="contained"
-                  color="secondary"
-                  size="large"
-                  onClick={handleProceedToTerms}
-                  sx={{ width: "100%", py: 1.5 }}
-                >
-                  Accept Terms
-                </Button> */}
-              </Box>
-            }
+            <Typography
+              variant="body2"
+              sx={{
+                color: "#555",
+                fontSize: "0.9rem",
+                marginBottom: "10px",
+                fontWeight: "bold",
+              }}
+            >
+              Before proceeding to place your order, you need to accept the Terms & Conditions.
+            </Typography>
+            <Terms
+              open={showTerms}
+              onClose={() => setShowTerms(false)}
+              onContinue={handleAcceptTerms}
+              onTermsAccepted={setTermsAccepted} // Sync terms acceptance
+            />
+            {/* <Button
+              variant="contained"
+              color="secondary"
+              size="large"
+              onClick={handleProceedToTerms}
+              sx={{ width: "100%", py: 1.5, mt: 2 }}
+              disabled={!isCheckoutAllowed}
+            >
+              Continue to Checkout
+            </Button> */}
           </Box>
         </Paper>
 
@@ -1093,19 +844,13 @@ const EventDetails = ({
             billingDetails={billingDetails}
             startDate={formatedStartDate}
             endDate={formatedEndDate}
-            eventName={eventDetails?.eventName}
-            venueName={eventDetails?.eventVenue}
-            startTime={
-              eventDetails.startTime
-                ? eventDetails.startTime.format("HH:mm")
-                : ""
-            }
-            endTime={
-              eventDetails.endTime ? eventDetails.endTime.format("HH:mm") : ""
-            }
+            eventName={eventDetails.eventName}
+            venueName={eventDetails.eventVenue}
+            startTime={eventDetails.startTime ? eventDetails.startTime.format("HH:mm") : ""}
+            endTime={eventDetails.endTime ? eventDetails.endTime.format("HH:mm") : ""}
             location={addLocation.address}
-            receiverName={eventDetails?.receiverName}
-            receiverMobile={eventDetails?.receiverMobile}
+            receiverName={eventDetails.receiverName}
+            receiverMobile={eventDetails.receiverMobile}
             uploadedFiles={{
               invitation: eventDetails.upload_invitation,
               invitationPreview: eventDetails.upload_invitationPreview,
@@ -1116,6 +861,7 @@ const EventDetails = ({
             handleModalClose={handleModalClose}
           />
         </Modal>
+
         <Modal
           open={openLocation}
           onClose={() => setOpenLocation(false)}
@@ -1137,7 +883,7 @@ const EventDetails = ({
             }}
           >
             <Typography variant="h6" sx={{ mb: 2 }}>
-              {currentLocation ? currentLocation.city : "Select Location "}
+              {currentLocation ? currentLocation.city : "Select Location"}
             </Typography>
             <LocationSection
               onContinue={handleLocationContinue}
@@ -1153,6 +899,7 @@ const EventDetails = ({
             </Button>
           </Box>
         </Modal>
+
         <CustomModal
           open={openModal}
           onClose={() => setOpenModal(false)}

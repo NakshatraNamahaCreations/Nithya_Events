@@ -9,6 +9,10 @@ import { Box } from "@mui/material";
 import { setLoading } from "../../redux/slice/LoaderSlice";
 import { getErrorMessage } from "../../utils/helperFunc";
 import { clearCart } from "../../redux/slice/CartSlice";
+import { toast } from "react-toastify"; 
+import "react-toastify/dist/ReactToastify.css"; 
+
+
 
 const Account = () => {
   const [userDetails, setUserDetails] = useState([]);
@@ -29,6 +33,16 @@ const Account = () => {
   };
 
   const handleLogout = () => {
+
+     toast.warn("You have been logged out", {
+        position: "top-right",
+        autoClose: 3000,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
+
+
     dispatch(setLoading(true));
     dispatch(logout());
     navigate("/login");

@@ -12,15 +12,15 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CloseIcon from "@mui/icons-material/Close";
 
-const Terms = ({ open, onClose, onContinue }) => {
+const Terms = ({ open, onClose, onContinue, onTermsAccepted }) => {
   const [isAccepted, setIsAccepted] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
-  const handleAcceptTerms = (event) => {
-    setIsAccepted(event.target.checked);
-  };
+
 
   const userDetail = sessionStorage.getItem("userDetails");
   let userId = null;
+
+  
 
   if (userDetail) {
     try {
@@ -30,6 +30,12 @@ const Terms = ({ open, onClose, onContinue }) => {
       console.error("Error parsing userDetails from sessionStorage:", error);
     }
   }
+
+
+  const handleAcceptTerms = (event) => {
+    setIsAccepted(event.target.checked);
+    if (onTermsAccepted) onTermsAccepted(event.target.checked); // Notify parent
+  };
   const handleProceedToTerms = () => {
     //   if (
     //     !eventDetails.startTime ||
@@ -53,12 +59,11 @@ const Terms = ({ open, onClose, onContinue }) => {
   const handleContinue = () => {
     if (isAccepted) {
       onContinue();
-      // onClose();
+      onClose();
     } else {
       alert("Please accept the terms and conditions to proceed.");
     }
   };
-
   return (
     <Box>
       <ToastContainer />

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -17,12 +17,12 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  TextField,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import PhoneIcon from "@mui/icons-material/Phone";
 import CloseIcon from "@mui/icons-material/Close";
-
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 import StarRating from "../../../../components/StarRating";
@@ -30,17 +30,17 @@ import ReviewSection from "./components/ReviewSection";
 import authService from "../../../../api/ApiService";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../../../../redux/slice/LoaderSlice";
-// import {SliderImage} from "../../../Products/SingleProducts/components/SliderImage"
 import axios from "axios";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./styles.scss";
 import { Star } from "@mui/icons-material";
-import { addService } from "../../../../redux/slice/serviceSlice";
+import { addService, updateServiceAddons } from "../../../../redux/slice/serviceSlice";
 
 const SingleService = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [service, setService] = useState({});
   const [mainImage, setMainImage] = useState("");
   const [wishlist, setWishlist] = useState([]);
@@ -49,32 +49,19 @@ const SingleService = () => {
   const [selectedService, setSelectedService] = useState(null);
   const [openBook, setOpenBook] = useState(false);
   const [serviceObj, setServiceObj] = useState(null);
+  const [isInCart, setIsInCart] = useState(false);
+  const [modalMainImage, setModalMainImage] = useState("");
+  const [addOnsList, setAddOnsList] = useState([]);
+  const [selectedAddOns, setSelectedAddOns] = useState([]);
+  const [services, setServices] = useState([]);
   const dispatch = useDispatch();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const { startDate, endDate, numberOfDays } = useSelector(
-    (state) => state.date
-  );
+  // Corrected useSelector to access services from serviceSlice
+  const cartItems = useSelector((state) => state.services.services || []);
+  const { startDate, endDate } = useSelector((state) => state.date);
 
-  const formatBookingDate = (startDate, endDate) => {
-    if (!startDate || !endDate) return "Not Selected";
-    const options = { day: "2-digit", month: "short" };
-    return `${new Date(startDate).toLocaleDateString(
-      "en-GB",
-      options
-    )} - ${new Date(endDate).toLocaleDateString("en-GB", options)}`;
-  };
-  const [bookingDetails, setBookingDetails] = useState({
-    bookingDate: formatBookingDate(startDate, endDate),
-    adult: 1,
-    child: 0,
-  });
-
-  // const userDetail = sessionStorage.getItem("userDetails");
-  // const userDetails = JSON.parse(userDetail);
-  // const userId = userDetails?._id;
-  const [modalMainImage, setModalMainImage] = useState("");
   const userDetail = sessionStorage.getItem("userDetails");
   let userId = null;
 
@@ -87,12 +74,12 @@ const SingleService = () => {
     }
   }
 
-  const [services, setServices] = useState([]);
   const fetchService = async () => {
     try {
       dispatch(setLoading(true));
       const res = await authService.getParticularService(id);
-      setService(res.data);
+      setService(res.data || {});
+
       if (res.data.shop_image_or_logo) {
         setMainImage(res.data.shop_image_or_logo);
       } else if (res.data.additional_services?.length > 0) {
@@ -100,88 +87,113 @@ const SingleService = () => {
       }
 
       const individualService = await authService.getIndividualService(id);
+      setServices(Array.isArray(individualService.data.service) ? individualService.data.service : []);
 
-      setServices(individualService.data.service);
+      // Check if any service is in the cart
+      const anyInCart = individualService.data.service?.some(serviceItem =>
+        cartItems.some(cartItem => cartItem.id === serviceItem._id)
+      );
+      setIsInCart(anyInCart);
 
-      if (res.data.shop_image_or_logo) {
-        setMainImage(res.data.shop_image_or_logo);
-      } else if (res.data.additional_services?.length > 0) {
-        setMainImage(res.data.additional_services[0]);
-      }
       dispatch(setLoading(false));
     } catch (error) {
       dispatch(setLoading(false));
       console.error("Error fetching service:", error);
+      setServices([]);
+    }
+  };
+
+  const handleOpenBookDialog = async (serviceItem) => {
+    const inCartItem = cartItems.find(item => item.id === serviceItem._id);
+
+    // Set main data
+    setSelectedService(serviceItem);
+    setServiceObj(serviceItem);
+    setModalMainImage(serviceItem.additional_images?.[0] || "");
+
+    // Check if item is in cart and restore selected add-ons
+    if (inCartItem) {
+      setSelectedAddOns(inCartItem.addOns.map(a => ({
+        _id: a.id,
+        service_name: a.name,
+        price: a.price,
+        category: a.category,
+      })));
+      setIsInCart(true);
+    } else {
+      setSelectedAddOns([]);
+      setIsInCart(false);
+    }
+
+    // Fetch Add-ons
+    if (service._id && serviceItem.service_subcategory) {
+      await fetchAddOnsList(service._id, serviceItem.service_subcategory);
+    }
+
+    setOpenBook(true);
+  };
+
+  const fetchAddOnsList = async (vendorId, category) => {
+    try {
+      if (!vendorId || !category) {
+        console.warn("Missing vendorId or category for add-ons fetch", { vendorId, category });
+        return;
+      }
+      const encodedCategory = encodeURIComponent(category);
+      const addonsRes = await axios.get(
+        `https://api.nithyaevent.com/api/addons/get-addons-by-vendorid/?vendor_id=${vendorId}&category=${encodedCategory}`
+      );
+      if (addonsRes.status === 200) {
+        setAddOnsList(Array.isArray(addonsRes.data.addOns) ? addonsRes.data.addOns : []);
+      } else {
+        console.warn("Unexpected status code:", addonsRes.status);
+        setAddOnsList([]);
+      }
+    } catch (error) {
+      console.error("Error fetching add-ons:", error.response?.data || error.message);
+      setAddOnsList([]);
     }
   };
 
   useEffect(() => {
     fetchService();
-  }, [id]);
+  }, [id, cartItems]); // Add cartItems to dependencies to update isInCart when cart changes
 
-  console.log("service data profike", service);
+  const handleCheckboxChange = useCallback(
+    (addon) => {
+      setSelectedAddOns((prevSelected) => {
+        const updatedAddons = prevSelected.some((item) => item._id === addon._id)
+          ? prevSelected.filter((item) => item._id !== addon._id)
+          : [...prevSelected, addon];
 
-  useEffect(() => {
-    // Simulate API call in the future
-    // fetch("YOUR_API_ENDPOINT")
-    //   .then((res) => res.json())
-    //   .then((data) => setService(data));
-  }, []);
+        // Update cart with new add-ons
+        if (serviceObj) {
+          updateServiceInCart(serviceObj, updatedAddons);
+        }
 
-  // const handleWishlistClick = async () => {
-  //   const payload = {
-  //     service_name: service.service_name,
-  //     service_id: service._id,
-  //     service_image: service.service_image[0],
-  //     price: service.pricing,
-  //     user_id: userId,
-  //   };
+        return updatedAddons;
+      });
+    },
+    [serviceObj]
+  );
 
-  //   try {
-  //     await axios.post(
-  //       "http://192.168.1.103:9000/api/wishlist/add-wishlist",
-  //       payload,
-  //       { headers: { "Content-Type": "application/json" } }
-  //     );
-  //     setWishlist([...wishlist, service._id]);
-  //     alert("Service added to wishlist!");
-  //   } catch (error) {
-  //     console.error("Wishlist API Error:", error);
-  //     alert("Error adding service to wishlist");
-  //   }
-  // };
-  // const handleAddToCart = (serviceItem) => {
-  //   if (!serviceItem) return;
+  const handleAddToCart = async (serviceItem) => {
+    // Check if the service is already in the cart
+    const existingItem = cartItems.find((item) => item.id === serviceItem._id);
+    if (existingItem) {
+      // Update existing item with new add-ons
+      updateServiceInCart(serviceItem, selectedAddOns);
+      setIsInCart(true);
+      setOpenBook(true); // Keep dialog open for further add-on changes
+      return;
+    }
 
-  //   const payload = {
-  //     orderId: Date.now().toString(),
-  //     id: serviceItem._id,
-  //     context: "service",
-  //     store: "123rooms",
-  //     productName: serviceItem.service_name,
-  //     productPrice: serviceItem.price,
-  //     imageUrl: serviceItem.additional_images?.[0] || "",
-  //     sellerName: serviceItem.vendor_name || "Unknown Seller",
-  //     sellerId: serviceItem.vendor_id,
-  //     totalPrice: serviceItem.price,
-  //     quantity: 1,
-  //     eventStartDate: new Date().toISOString().split("T")[0],
-  //     eventEndDate: new Date().toISOString().split("T")[0],
-  //     commissionTax: 18,
-  //     commissionPercentage: 22,
-  //   };
+    // Fetch add-ons before adding to cart (if not already fetched)
+    if (service._id && serviceItem.service_subcategory && addOnsList.length === 0) {
+      await fetchAddOnsList(service._id, serviceItem.service_subcategory || serviceItem.service_category);
+    }
 
-  //   dispatch(addService(payload));
-  //   alert("Service added to cart!");
-  // };
-
-  const handleAddToCart = (serviceItem) => {
-    console.log("function call inside scope");
-    console.log("serviceItem ind=side cscope", serviceItem);
-    console.log("selectedService ind=side cscope", selectedService);
-
-    // if (!selectedService) return;
-
+    // Create payload for new cart item
     const payload = {
       orderId: Date.now().toString(),
       id: serviceItem._id,
@@ -192,38 +204,67 @@ const SingleService = () => {
       imageUrl: serviceItem.additional_images?.[0] || "",
       sellerName: serviceItem.vendor_name || "Unknown Seller",
       sellerId: serviceItem.vendor_id,
-      totalPrice: serviceItem.price,
+      totalPrice: (serviceItem.price || 0) + selectedAddOns.reduce((sum, addon) => sum + (addon.price || 0), 0),
       quantity: 1,
       eventStartDate: startDate || new Date().toISOString().split("T")[0],
       eventEndDate: endDate || new Date().toISOString().split("T")[0],
       commissionTax: 18,
       commissionPercentage: 22,
+      addOns: selectedAddOns.map((addon) => ({
+        id: addon._id,
+        name: addon.service_name,
+        price: addon.price,
+        category: addon.category,
+      })),
     };
 
     dispatch(addService(payload));
-    alert("Service added to cart!");
-    setOpenBook(false);
+    setIsInCart(true);
+    alert("Service and add-ons added to cart!");
+    setOpenBook(true);
+  };
+
+  const updateServiceInCart = (serviceItem, updatedAddOns = selectedAddOns) => {
+    const existingItem = cartItems.find((item) => item.id === serviceItem._id);
+    if (!existingItem) return;
+
+    const updatedPayload = {
+      ...existingItem,
+      addOns: updatedAddOns.map((addon) => ({
+        id: addon._id,
+        name: addon.service_name,
+        price: addon.price,
+        category: addon.category,
+      })),
+      totalPrice: (serviceItem.price || 0) + updatedAddOns.reduce((sum, addon) => sum + (addon.price || 0), 0),
+    };
+
+    dispatch(addService(updatedPayload));
+    setIsInCart(true);
   };
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
+
   const handleCardClick = (serviceItem) => {
     setSelectedService(serviceItem);
-    setModalMainImage(serviceItem.image);
+    setModalMainImage(serviceItem.additional_images?.[0] || "");
     setOpenModal(true);
   };
+
   const handleCloseBook = () => {
     setOpenBook(false);
+    setSelectedAddOns([]);
+    setAddOnsList([]);
   };
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setBookingDetails({ ...bookingDetails, [name]: value });
-  };
+
   const handleCloseModal = () => {
     setOpenModal(false);
     setSelectedService(null);
+    setModalMainImage("");
   };
+
   const imageList = [
     service.shop_image_or_logo,
     ...(service.additional_images || []),
@@ -233,6 +274,10 @@ const SingleService = () => {
     if (!reviews || reviews.length === 0) return 0;
     const total = reviews.reduce((sum, review) => sum + review.ratings, 0);
     return (total / reviews.length).toFixed(1);
+  };
+
+  const calculateTotalPrice = () => {
+    return (serviceObj?.price || 0) + selectedAddOns.reduce((sum, addon) => sum + (addon.price || 0), 0);
   };
 
   const sliderSettings = {
@@ -254,9 +299,7 @@ const SingleService = () => {
           gap: "8rem",
         }}
       >
-        {/* Left Column: Image Section */}
         <Grid item xs={12} md={6}>
-          {/* Main Image Display */}
           <Box
             sx={{
               textAlign: "center",
@@ -277,7 +320,6 @@ const SingleService = () => {
             />
           </Box>
 
-          {/* Thumbnail Slider */}
           {imageList.length > 1 && (
             <Box sx={{ maxWidth: "400px", margin: "0 auto" }}>
               <Slider {...sliderSettings}>
@@ -285,7 +327,7 @@ const SingleService = () => {
                   <div key={index} onClick={() => setMainImage(img)}>
                     <img
                       src={img}
-                      alt={`Thumbnail-${index}`}
+                      alt={`Thumbnail-R${index}`}
                       style={{
                         width: "80px",
                         height: "80px",
@@ -307,7 +349,6 @@ const SingleService = () => {
           )}
         </Grid>
 
-        {/* Right: Service Details */}
         <Box sx={{ width: isMobile ? "100%" : "50%" }}>
           <Typography
             variant="h4"
@@ -321,7 +362,6 @@ const SingleService = () => {
             {service.profession_category}
           </Typography>
 
-          {/* Rating and Wishlist */}
           <Box
             sx={{
               display: "flex",
@@ -331,16 +371,8 @@ const SingleService = () => {
             }}
           >
             <Typography>{calculateAverageRating(service.Reviews)}</Typography>
-            {/* <Typography variant="p" sx={{ fontSize: "0.8rem" }}>
-              {service.Reviews?.length || 0} 
-            </Typography> */}
             <Star sx={{ color: "yellow" }} />
-            {/* <IconButton onClick={handleWishlistClick} sx={{ color: "#c026d3" }}>
-              {wishlist.includes(service._id) ? <FavoriteOutlinedIcon /> : <FavoriteBorderOutlinedIcon />}
-            </IconButton> */}
           </Box>
-
-          {/* Pricing */}
 
           <Box
             sx={{
@@ -351,75 +383,26 @@ const SingleService = () => {
             }}
           >
             <Typography variant="h6">Description</Typography>
-            <Typography
-              sx={{
-                fontSize: "1rem",
-              }}
-            >
+            <Typography sx={{ fontSize: "1rem" }}>
               {service?.shop_name} has been in business for{" "}
               {service?.experience_in_business} years and was established in{" "}
               {service?.year_of_establishment}.
             </Typography>
-            <Typography
-              sx={{
-                fontSize: "1rem",
-              }}
-            >
+            <Typography sx={{ fontSize: "1rem" }}>
               With {service?.experience_in_business} years of experience,{" "}
               {service?.shop_name} has been serving customers since{" "}
               {service?.year_of_establishment}.
             </Typography>
           </Box>
-
-          {/* Contact Buttons */}
-          {/* <Box sx={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
-            <IconButton href={`https://wa.me/${service.mobile_number}`} target="_blank">
-              <WhatsAppIcon sx={{ color: "#25D366", fontSize: "2rem" }} />
-            </IconButton>
-            <IconButton href={`tel:${service.mobile_number}`} target="_blank">
-              <PhoneIcon sx={{ color: "#c026d3", fontSize: "2rem" }} />
-            </IconButton>
-          </Box> */}
-
-          {/* Booking & Wishlist Buttons */}
-          {/* <Box sx={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: "#c026d3",
-                color: "white",
-                fontWeight: "bold",
-                textTransform: "capitalize",
-                width: "50%",
-              }}
-            >
-              Book Service
-            </Button>
-            <Button
-              variant="outlined"
-              sx={{
-                borderColor: "#c026d3",
-                color: "#c026d3",
-                fontWeight: "bold",
-                textTransform: "capitalize",
-                width: "50%",
-              }}
-              onClick={handleWishlistClick}
-            >
-              Add to Wishlist
-            </Button>
-          </Box> */}
         </Box>
       </Box>
 
-      {/* Tabs Section */}
       <Tabs
         value={activeTab}
         onChange={handleTabChange}
         centered
         sx={{
           padding: "0.8rem 5rem",
-
           "& .MuiTabs-indicator": {
             backgroundColor: "#c026d3",
           },
@@ -435,10 +418,8 @@ const SingleService = () => {
       >
         <Tab label="Service Details" />
         <Tab label="Reviews" />
-        {/* <Tab label="Photos" /> */}
       </Tabs>
 
-      {/* Tab Content */}
       {activeTab === 0 && (
         <Box
           sx={{
@@ -461,8 +442,8 @@ const SingleService = () => {
             >
               <CardMedia
                 component="img"
-                image={serviceItem.additional_images[0]}
-                alt={serviceItem.name}
+                image={serviceItem.additional_images?.[0] || ""}
+                alt={serviceItem.service_name || "Service Image"}
                 sx={{ width: "180px", height: "120px", borderRadius: "6px" }}
                 onClick={() => handleCardClick(serviceItem)}
               />
@@ -474,28 +455,18 @@ const SingleService = () => {
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                   {serviceItem.service_name}
                 </Typography>
-
                 <Typography variant="body2" sx={{ marginBottom: "0.5rem" }}>
                   {serviceItem.service_category}
                 </Typography>
-
                 <Typography
-                  style={{margin: 0, fontSize: "0.9rem" }}
+                  style={{ margin: 0, fontSize: "0.9rem" }}
                   variant="body2"
                   sx={{ marginBottom: "0.5rem" }}
                 >
                   {serviceItem.service_description}
                 </Typography>
-                {/* <ul style={{ paddingLeft: "1rem", margin: 0 }}>
-                  {serviceItem.service_description.map((feature, index) => (
-                    <li key={index} style={{ fontSize: "0.9rem", color: "#555" }}>
-                      {feature}
-                    </li>
-                  ))}
-                </ul> */}
               </CardContent>
 
-              {/* <Grid item xs={6} sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}   onClick={() => handleAddToCart(serviceItem)} > */}
               <Grid
                 item
                 xs={6}
@@ -504,34 +475,24 @@ const SingleService = () => {
                   flexDirection: "column",
                   alignItems: "flex-end",
                 }}
-                // onClick={() => setOpenBook(true)}
               >
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  ₹{serviceItem?.price?.toLocaleString()}
+                  ₹{serviceItem?.price?.toLocaleString() || "0"}
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#888" }}>
-                  + ₹{serviceItem?.taxes?.toLocaleString()} taxes & fees
+                  + ₹{serviceItem?.taxes?.toLocaleString() || "0"} taxes & fees
                 </Typography>
                 <Button
                   variant="outlined"
                   sx={{
-                    borderColor: "red",
-                    color: "red",
+                    borderColor: "#c026d3",
+                    color: "#c026d3",
                     fontWeight: "bold",
                     marginTop: "10px",
                   }}
-                  onClick={() => {
-                    setSelectedService(serviceItem);
-
-                    if (service?.profession === "Hotels") {
-                      setOpenBook(true);
-                      setServiceObj(serviceItem);
-                    } else {
-                      handleAddToCart(serviceItem);
-                    }
-                  }}
+                  onClick={() => handleOpenBookDialog(serviceItem)}
                 >
-                  Book Now
+                  View
                 </Button>
               </Grid>
             </Card>
@@ -541,142 +502,9 @@ const SingleService = () => {
 
       {activeTab === 1 && <ReviewSection id={id} userId={userId} />}
 
-      {/* {activeTab === 2 && (
-        <Box sx={{ marginTop: "2rem" }}>
-          <Typography variant="h6">Photos</Typography>
-          <img src={service.additional_images[0]} alt="Service" style={{ width: "100%", borderRadius: "10px" }} />
-        </Box>
-      )} */}
-      {/* Modal for Service Details */}
-
-      <Dialog
-        open={openModal}
-        onClose={handleCloseModal}
-        maxWidth="md"
-        fullWidth
-        sx={{
-          "& .MuiDialog-paper": {
-            borderRadius: "12px",
-            padding: "20px",
-            boxShadow: "0px 5px 20px rgba(0,0,0,0.2)",
-          },
-        }}
-      >
-        <DialogTitle
-          sx={{
-            fontWeight: "bold",
-            fontSize: "1.8rem",
-            textAlign: "center",
-            paddingBottom: "10px",
-          }}
-        >
-          {selectedService?.service_name}
-          <IconButton
-            aria-label="close"
-            onClick={handleCloseModal}
-            sx={{
-              position: "absolute",
-              right: 16,
-              top: 16,
-              color: "#555",
-              transition: "0.3s",
-              "&:hover": { color: "#c026d3" },
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-
-        <DialogContent dividers sx={{ padding: "20px" }}>
-          {/* Large Main Image */}
-
-          {/* Image Slider */}
-          <Box sx={{ maxWidth: "80%", margin: "0 auto", textAlign: "center" }}>
-            <Slider {...sliderSettings}>
-              {selectedService?.additional_images.map((img, index) => (
-                <div key={index} onClick={() => setModalMainImage(img)}>
-                  <img
-                    src={img}
-                    alt={`Thumbnail-${index}`}
-                    style={{
-                      width: "98%",
-                      height: "280px",
-                      objectFit: "cover",
-                      borderRadius: "10px",
-                      cursor: "pointer",
-                      transition: "0.3s",
-                      border:
-                        img === modalMainImage
-                          ? "3px solid #c026d3"
-                          : "2px solid transparent",
-                      "&:hover": { transform: "scale(1.1)" },
-                    }}
-                  />
-                </div>
-              ))}
-            </Slider>
-          </Box>
-
-          {/* Service Details */}
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "bold", marginTop: "20px", color: "#c026d3" }}
-          >
-            Service Details
-          </Typography>
-          <Typography
-            sx={{ fontSize: "1rem", color: "#555", marginTop: "5px" }}
-          >
-            <strong>Category:</strong> {selectedService?.service_category}
-          </Typography>
-          <Typography
-            sx={{ fontSize: "1rem", color: "#777", marginTop: "5px" }}
-          >
-            <strong>Description:</strong> {selectedService?.service_description}
-          </Typography>
-
-          {/* Amenities Section */}
-          {selectedService?.additional_services && (
-            <>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: "bold", marginTop: "20px", color: "#c026d3" }}
-              >
-                Amenities
-              </Typography>
-
-              <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-                {selectedService?.additional_services.map((item, index) => (
-                  <Grid item xs={6} sm={4} key={index}>
-                    <Card
-                      sx={{
-                        background: "#fafafa",
-                        borderRadius: "10px",
-                        padding: "10px",
-                        boxShadow: "0px 2px 10px rgba(0,0,0,0.1)",
-                        textAlign: "center",
-                      }}
-                    >
-                      <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                        {item.name}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: "#777" }}>
-                        {item.value}
-                      </Typography>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            </>
-          )}
-        </DialogContent>
-
-        {/* Buttons */}
-      </Dialog>
-
       <Dialog open={openBook} onClose={handleCloseBook} maxWidth="sm" fullWidth>
         <DialogTitle>
-          Checkout
+          Service Details
           <IconButton
             aria-label="close"
             onClick={handleCloseBook}
@@ -686,41 +514,94 @@ const SingleService = () => {
           </IconButton>
         </DialogTitle>
         <DialogContent dividers>
-          {/* Booking Date */}
-          <Typography variant="body1">Booking Date</Typography>
-          <TextField
-            fullWidth
-            // type="date"
-            name="bookingDate"
-            value={bookingDetails.bookingDate}
-            onChange={handleInputChange}
-            sx={{ marginBottom: "1rem" }}
-          />
+          {serviceObj?.additional_images?.length > 0 ? (
+            <Box sx={{ maxWidth: "80%", margin: "0 auto", textAlign: "center" }}>
+              <Slider {...sliderSettings}>
+                {serviceObj.additional_images.map((img, index) => (
+                  <div key={index} onClick={() => setModalMainImage(img)}>
+                    <img
+                      src={img}
+                      alt={`Thumbnail-R${index}`}
+                      style={{
+                        width: "98%",
+                        height: "280px",
+                        objectFit: "cover",
+                        borderRadius: "10px",
+                        cursor: "pointer",
+                        transition: "0.3s",
+                        border:
+                          img === modalMainImage
+                            ? "3px solid #c026d3"
+                            : "2px solid transparent",
+                      }}
+                    />
+                  </div>
+                ))}
+              </Slider>
+            </Box>
+          ) : (
+            <Typography>No images available</Typography>
+          )}
 
-          {/* Guest Section */}
-          <Typography variant="h6" sx={{ marginBottom: "1rem" }}>
-            Guests
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: "bold", marginTop: "1rem" }}
+          >
+            Amount: ₹{serviceObj?.price?.toLocaleString() || "0"}
           </Typography>
-          <TextField
-            fullWidth
-            type="number"
-            name="adult"
-            label="Adults"
-            value={bookingDetails.adult}
-            onChange={handleInputChange}
-            sx={{ marginBottom: "1rem" }}
-          />
-          <TextField
-            fullWidth
-            type="number"
-            name="child"
-            label="Children"
-            value={bookingDetails.child}
-            onChange={handleInputChange}
-          />
+          <Typography variant="body2" sx={{ color: "#888" }}>
+            + ₹{serviceObj?.taxes?.toLocaleString() || "0"} taxes & fees
+          </Typography>
+          {/* <Typography
+            variant="h6"
+            sx={{ fontWeight: "bold", marginTop: "1rem" }}
+          >g
+            Total: ₹{calculateTotalPrice().toLocaleString()}
+          </Typography> */}
+          {addOnsList.length > 0 ? (
+            <>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: "bold", marginTop: "1rem" }}
+              >
+                Add-ons
+              </Typography>
+
+              <Box sx={{ marginTop: "0.5rem", display: "flex", flexDirection: "column", gap: 1 }}>
+                {addOnsList.map((addon) => (
+                  <Box
+                    key={addon._id}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Typography sx={{ fontSize: "1rem" }}>
+                        {addon.service_name}
+                      </Typography>
+                    </Box>
+
+                    <Typography sx={{ fontWeight: 500 }}>
+                      ₹{addon.price?.toLocaleString() || "0"}/day
+                    </Typography>
+
+                    <Checkbox
+                      checked={selectedAddOns.some((item) => item._id === addon._id)}
+                      onChange={() => handleCheckboxChange(addon)}
+                      sx={{
+                        color: "#c026d3",
+                        "&.Mui-checked": { color: "#c026d3" },
+                      }}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </>
+          ) : null}
         </DialogContent>
 
-        {/* Modal Actions */}
         <DialogActions>
           <Button onClick={handleCloseBook} color="secondary">
             Cancel
@@ -728,9 +609,9 @@ const SingleService = () => {
           <Button
             variant="contained"
             sx={{ backgroundColor: "#c026d3" }}
-            onClick={() => handleAddToCart(serviceObj)}
+            onClick={() => (isInCart ? navigate("/cart") : handleAddToCart(serviceObj))}
           >
-            Add to Cart
+            {isInCart ? "View Cart" : "Add to Cart"}
           </Button>
         </DialogActions>
       </Dialog>

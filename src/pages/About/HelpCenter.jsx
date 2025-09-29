@@ -30,15 +30,14 @@ const HelpCenter = () => {
             experience for your event planing and rentals.
           </Typography>
           <strong>Contact Us</strong>
-          <Typography paragraph>support@nithyaevent.com</Typography>
+          <Typography paragraph>support@nithyaevents.com</Typography>
 
-          <Typography paragraph>Phone: 99801370001</Typography>
+          <Typography paragraph>Phone: 9743888803</Typography>
 
           <strong>Address</strong>
 
           <Typography>
-            NO 31, 1st Floor, Venkatappa Road, Tasker Town, Off Queens Road,
-            Bengaluru - 560051
+           Kadagam Ventures Private Limited, No: 34 Venkatappa Road, Tasker Town, Off Queens Road, Bangalore 560051.
           </Typography>
           <br />
           <Typography paragraph>
