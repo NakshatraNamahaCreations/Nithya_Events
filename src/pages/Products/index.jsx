@@ -1,4 +1,664 @@
-import React, { useEffect, useState } from "react";
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate, useLocation } from "react-router-dom";
+// import {
+//   Box,
+//   Typography,
+//   Card,
+//   CardContent,
+//   Button,
+//   MenuItem,
+//   Select,
+//   FormControl,
+//   IconButton,
+//   Collapse,
+//   FormControlLabel,
+//   Checkbox,
+//   Modal,
+// } from "@mui/material";
+// import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+// import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+// import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+// import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
+// import authService from "../../api/ApiService";
+// import { getErrorMessage } from "../../utils/helperFunc";
+// import { useDispatch, useSelector } from "react-redux";
+// import { setLoading } from "../../redux/slice/LoaderSlice";
+// import Slider from "../../components/Sliders";
+// import BreadCrumb from "../../components/BreadCrumb";
+// import StarRating from "../../components/StarRating";
+// import Pagination from "../../components/Pagination";
+// import DiscountSlider from "./components/DiscountSlider";
+// import axios from "axios";
+// import ModalItem from "./SingleProducts/components/Modal";
+// import { ToastContainer, toast } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
+// import "./styles.scss";
+
+// const Products = () => {
+//   const { category } = useParams();
+//   const [products, setProducts] = useState([]);
+//   const [filteredItems, setFilteredItems] = useState([]);
+//   const [categories] = useState([
+//     "All",
+//     "Sound",
+//     "Lighting",
+//     "Genset",
+//     "Video",
+//     "Fabrication",
+//     "Shamiana",
+//   ]);
+//   const [activeCategory, setActiveCategory] = useState("All");
+//   const [sortOption, setSortOption] = useState("default");
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [selectedPriceRange, setSelectedPriceRange] = useState([0, 50000]);
+//   const [currentPage, setCurrentPage] = useState(1);
+
+//   // ✅ Show 8 products per page, as requested
+//   const itemsPerPage = 9;
+
+//   const [wishlist, setWishlist] = useState([]);
+//   const [productList, setProductList] = useState([]);
+//   const [open, setOpen] = useState(false);
+//   const [modalType, setModalType] = useState("success");
+//   const [modalMessage, setModalMessage] = useState("");
+//   const [openSections, setOpenSections] = useState({
+//     categories: true,
+//     priceRange: false,
+//     availability: false,
+//   });
+//   const [lowStockChecked, setLowStockChecked] = useState(false);
+//   const [highStockChecked, setHighStockChecked] = useState(false);
+//   const [animate, setAnimate] = useState(null);
+
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+//   const location = useLocation();
+//   const { numberOfDays } = useSelector((state) => state.date);
+
+//   const userDetail = sessionStorage.getItem("userDetails");
+//   let userId = null;
+//   if (userDetail) {
+//     try {
+//       const userDetails = JSON.parse(userDetail);
+//       userId = userDetails?._id || null;
+//     } catch (error) {
+//       console.error("Error parsing userDetails from sessionStorage:", error);
+//     }
+//   }
+
+//   const toggleSection = (section) => {
+//     setOpenSections((prev) => ({
+//       ...prev,
+//       [section]: !prev[section],
+//     }));
+//   };
+
+//   const fetchProducts = async () => {
+//     dispatch(setLoading(true));
+//     try {
+//       const res = await authService.rentalProduct();
+//       console.log("yogi", res.data);
+//       setProducts(res.data.data);
+//       setFilteredItems(res.data.data);
+//       dispatch(setLoading(false));
+//     } catch (error) {
+//       dispatch(setLoading(false));
+//       getErrorMessage(error);
+//     }
+//   };
+
+//   const fetchWishlist = async () => {
+//     if (!userId) {
+//       setWishlist([]);
+//       return;
+//     }
+//     try {
+//       const res = await axios.get(
+//         `https://api.nithyaevent.com/api/wishlist/get-my-wishlist/${userId}`,
+//         { headers: { "Content-Type": "application/json" } }
+//       );
+//       if (res.data?.wishlist && Array.isArray(res.data.wishlist)) {
+//         const wishlistItems = res.data.wishlist.map((item) => item.product_id);
+//         setWishlist(wishlistItems);
+//         setProductList(res.data.wishlist);
+//       } else {
+//         setWishlist([]);
+//         setProductList([]);
+//       }
+//     } catch (error) {
+//       console.error("Wishlist fetch error:", error);
+//       setWishlist([]);
+//       setProductList([]);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchProducts();
+//   }, []);
+
+//   useEffect(() => {
+//     fetchWishlist();
+//   }, [userId]);
+
+//   useEffect(() => {
+//     const params = new URLSearchParams(location.search);
+//     const search = params.get("search") || "";
+//     setSearchQuery(search);
+//   }, [location.search]);
+
+//   // Add this useEffect to debug categories
+//   useEffect(() => {
+//     if (products.length > 0) {
+//       const availableCategories = [
+//         ...new Set(products.map((item) => item.product_category)),
+//       ];
+//       console.log("Available categories in data:", availableCategories);
+//       console.log("Active category:", activeCategory);
+//     }
+//   }, [products, activeCategory]);
+
+//   // Filtering & side effects
+//   useEffect(() => {
+//     let filtered = [...products];
+
+//     console.log("activeCategory:", activeCategory);
+
+//     // ✅ Category
+//     if (activeCategory !== "All") {
+//       filtered = filtered.filter((item) => {
+//         const itemCategory = item.product_category?.trim().toLowerCase();
+//         const activeCat = activeCategory.trim().toLowerCase();
+//         return itemCategory === activeCat;
+//       });
+//     }
+
+//     // ✅ Number of days filter (only if numberOfDays > 0)
+//     if (numberOfDays && numberOfDays > 0 && activeCategory !== "All") {
+//       filtered = filtered.filter((item) => item.stock_in_hand >= numberOfDays);
+//     }
+
+//     // ✅ Price range (only if valid numeric values)
+//     if (
+//       selectedPriceRange &&
+//       selectedPriceRange.length === 2 &&
+//       !isNaN(selectedPriceRange[0]) &&
+//       !isNaN(selectedPriceRange[1])
+//     ) {
+//       filtered = filtered.filter((item) => {
+//         const price = parseFloat(item.product_price);
+//         return (
+//           !isNaN(price) &&
+//           price >= selectedPriceRange[0] &&
+//           price <= selectedPriceRange[1]
+//         );
+//       });
+//     }
+
+//     // ✅ Search
+//     if (searchQuery?.trim()) {
+//       filtered = filtered.filter((item) =>
+//         item.product_name
+//           ?.toLowerCase()
+//           .includes(searchQuery.toLowerCase().trim())
+//       );
+//     }
+
+//     // ✅ Stock conditions (mutually exclusive)
+//     if (lowStockChecked && !highStockChecked) {
+//       filtered = filtered.filter((item) => item.stock_in_hand < 50);
+//     } else if (highStockChecked && !lowStockChecked) {
+//       filtered = filtered.filter((item) => item.stock_in_hand >= 50);
+//     }
+
+//     // ✅ Sorting
+//     let sorted = [...filtered];
+//     if (sortOption === "priceLowToHigh") {
+//       sorted.sort(
+//         (a, b) => parseFloat(a.product_price) - parseFloat(b.product_price)
+//       );
+//     } else if (sortOption === "priceHighToLow") {
+//       sorted.sort(
+//         (a, b) => parseFloat(b.product_price) - parseFloat(a.product_price)
+//       );
+//     } else if (sortOption === "newest") {
+//       sorted = sorted.reverse();
+//     }
+
+//     console.log("Final Filtered Count:", sorted.length);
+//     setFilteredItems(sorted);
+//     setCurrentPage(1);
+//   }, [
+//     products,
+//     activeCategory,
+//     numberOfDays,
+//     selectedPriceRange,
+//     searchQuery,
+//     lowStockChecked,
+//     highStockChecked,
+//     sortOption,
+//   ]);
+
+//   console.log({
+//     products: products.length,
+//     activeCategory,
+//     numberOfDays,
+//     selectedPriceRange,
+//     searchQuery,
+//     lowStockChecked,
+//     highStockChecked,
+//     // filteredCount: filtered.length,
+//   });
+
+//   const handleWishlistClick = async (item) => {
+//     if (!userId) {
+//       toast.error("You need to login", {
+//         position: "top-right",
+//         autoClose: 2000,
+//       });
+//       return;
+//     }
+
+//     const isInWishlist = wishlist.includes(item._id);
+//     if (isInWishlist) {
+//       toast.error("This item is already in your wishlist!", {
+//         position: "top-right",
+//         autoClose: 2000,
+//       });
+//       return;
+//     }
+
+//     try {
+//       await axios.post(
+//         "https://api.nithyaevent.com/api/wishlist/add-wishlist",
+//         {
+//           product_name: item.product_name,
+//           product_id: item._id,
+//           product_image: item.product_image[0],
+//           product_price: item.product_price,
+//           mrp_price: item.mrp_price,
+//           discount: item.discount,
+//           user_id: userId,
+//         },
+//         { headers: { "Content-Type": "application/json" } }
+//       );
+
+//       setWishlist((prev) => [...prev, item._id]);
+//       setAnimate(item._id);
+//       toast.success("Item added to wishlist!", {
+//         position: "top-right",
+//         autoClose: 2000,
+//       });
+//       setTimeout(() => setAnimate(null), 500);
+//     } catch (error) {
+//       const msg = error?.response?.data?.message?.includes(
+//         "Product already exists"
+//       )
+//         ? "This product is already in your wishlist!"
+//         : "Failed to add item. Try again!";
+//       toast.error(msg, { autoClose: 2000 });
+//     }
+//   };
+
+//   const handleSortChange = (option) => {
+//     setSortOption(option);
+//   };
+
+//   const getPaginatedData = () => {
+//     const startIndex = (currentPage - 1) * itemsPerPage;
+//     return filteredItems.slice(startIndex, startIndex + itemsPerPage);
+//   };
+
+//   const handlePageChange = (page) => {
+//     setCurrentPage(page);
+//     window.scrollTo({ top: 0, behavior: "smooth" });
+//   };
+
+//   const breadcrumbPaths = [{ label: "Home", link: "/" }, { label: "Products" }];
+
+//   const calculateAverageRating = (reviews = []) => {
+//     const total = reviews.reduce((sum, curr) => sum + (curr?.ratings || 0), 0);
+//     return reviews.length ? (total / reviews.length).toFixed(1) : 0;
+//     // If StarRating expects a number, this is fine even for "0"
+//   };
+
+//   return (
+//     <>
+//       <Slider />
+//       <ToastContainer />
+//       <BreadCrumb paths={breadcrumbPaths} />
+
+//       <Box className="products-page">
+//         {/* Sidebar */}
+//         <Box className="filters-sidebar">
+//           {/* Categories */}
+//           <Box className="filter-group">
+//             <Box
+//               sx={{
+//                 display: "flex",
+//                 justifyContent: "space-between",
+//                 alignItems: "center",
+//                 cursor: "pointer",
+//               }}
+//               onClick={() => toggleSection("categories")}
+//             >
+//               <Typography variant="p">Categories</Typography>
+//               <IconButton size="small">
+//                 {openSections.categories ? (
+//                   <ExpandLessIcon />
+//                 ) : (
+//                   <ExpandMoreIcon />
+//                 )}
+//               </IconButton>
+//             </Box>
+//             <Collapse in={openSections.categories}>
+//               <Box sx={{ marginTop: "0.5rem" }}>
+//                 {categories?.map((category) => (
+//                   <FormControlLabel
+//                     key={category}
+//                     control={
+//                       <Checkbox
+//                         checked={category === activeCategory}
+//                         onChange={() => setActiveCategory(category)}
+//                       />
+//                     }
+//                     label={category}
+//                     sx={{ display: "block", color: "#555" }}
+//                   />
+//                 ))}
+//               </Box>
+//             </Collapse>
+//           </Box>
+
+//           {/* Price Range */}
+//           <Box className="filter-group">
+//             <Box
+//               sx={{
+//                 display: "flex",
+//                 justifyContent: "space-between",
+//                 alignItems: "center",
+//                 cursor: "pointer",
+//               }}
+//               onClick={() => toggleSection("priceRange")}
+//             >
+//               <Typography variant="subtitle1">Price Range</Typography>
+//               <IconButton size="small">
+//                 {openSections.priceRange ? (
+//                   <ExpandLessIcon />
+//                 ) : (
+//                   <ExpandMoreIcon />
+//                 )}
+//               </IconButton>
+//             </Box>
+//             <Collapse in={openSections.priceRange}>
+//               <Box sx={{ marginTop: "0.5rem" }}>
+//                 <Box className="p-6 bg-white shadow-lg rounded-lg max-w-md mx-auto">
+//                   <Typography variant="subtitle1" gutterBottom>
+//                     ₹{selectedPriceRange[0]} - ₹{selectedPriceRange[1]}
+//                   </Typography>
+//                   <DiscountSlider
+//                     min={0}
+//                     max={50000}
+//                     step={1000}
+//                     value={selectedPriceRange}
+//                     onChange={setSelectedPriceRange}
+//                     label={"Range"}
+//                   />
+//                 </Box>
+//               </Box>
+//             </Collapse>
+//           </Box>
+
+//           {/* Availability */}
+//           <Box className="filter-group">
+//             <Box
+//               sx={{
+//                 display: "flex",
+//                 justifyContent: "space-between",
+//                 alignItems: "center",
+//                 cursor: "pointer",
+//               }}
+//               onClick={() => toggleSection("availability")}
+//             >
+//               <Typography variant="p">Availability</Typography>
+//               <IconButton size="small">
+//                 {openSections.availability ? (
+//                   <ExpandLessIcon />
+//                 ) : (
+//                   <ExpandMoreIcon />
+//                 )}
+//               </IconButton>
+//             </Box>
+//             <Collapse in={openSections.availability}>
+//               <Box sx={{ marginTop: "0.5rem", width: "15rem" }}>
+//                 <Box className={`filters-sidebar`}>
+//                   <FormControlLabel
+//                     sx={{ width: "15rem" }}
+//                     control={
+//                       <Checkbox
+//                         checked={lowStockChecked}
+//                         onChange={() => setLowStockChecked((v) => !v)}
+//                       />
+//                     }
+//                     label="Quantity less than 50"
+//                   />
+//                   <FormControlLabel
+//                     sx={{ width: "15rem" }}
+//                     control={
+//                       <Checkbox
+//                         checked={highStockChecked}
+//                         onChange={() => setHighStockChecked((v) => !v)}
+//                       />
+//                     }
+//                     label="Quantity more than 50"
+//                   />
+//                 </Box>
+//               </Box>
+//             </Collapse>
+//           </Box>
+//         </Box>
+
+//         {/* Main content */}
+//         <Box className="main-content">
+//           <Box className="sorting-header">
+//             <Typography variant="p">
+//               Showing {filteredItems?.length} results
+//             </Typography>
+//             <Box
+//               sx={{
+//                 display: "flex",
+//                 justifyContent: "space-between",
+//                 alignItems: "center",
+//                 marginBottom: "1rem",
+//               }}
+//             >
+//               <FormControl sx={{ minWidth: 220, borderRadius: "10px" }}>
+//                 <Select
+//                   value={sortOption}
+//                   onChange={(e) => handleSortChange(e.target.value)}
+//                   displayEmpty
+//                   sx={{
+//                     borderRadius: "10px",
+//                     color: "#000",
+//                     fontWeight: "bold",
+//                     height: "45px",
+//                     border: "1px solid #ddd",
+//                   }}
+//                 >
+//                   <MenuItem value="default">Default</MenuItem>
+//                   <MenuItem value="priceLowToHigh">Price: Low to High</MenuItem>
+//                   <MenuItem value="priceHighToLow">Price: High to Low</MenuItem>
+//                   <MenuItem value="newest">Newest</MenuItem>
+//                 </Select>
+//               </FormControl>
+//             </Box>
+//           </Box>
+
+//           {/* ✅ Robust responsive grid: won't drop last 2 items */}
+//           <Box
+//             className="products-grid"
+//             sx={{
+//               display: "grid",
+//               gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+//               gap: "1.5rem",
+//               alignItems: "stretch",
+//             }}
+//           >
+//             {getPaginatedData().map((item) => (
+//               <Card
+//                 key={item._id}
+//                 className="product-card"
+//                 // onClick={() => navigate(`/products/${item._id}`)}
+//                 onClick={() =>
+//                   navigate(
+//                     `/products/${encodeURIComponent(
+//                       item.product_category?.toLowerCase()
+//                     )}/${encodeURIComponent(
+//                       item.product_name?.toLowerCase().replace(/\s+/g, "-") +
+//                         "-rental"
+//                     )}`
+//                   )
+//                 }
+//                 sx={{
+//                   borderRadius: "12px",
+//                   overflow: "hidden",
+//                   cursor: "pointer",
+//                   transition: "0.3s",
+//                   "&:hover": { boxShadow: "0px 4px 20px rgba(0,0,0,0.15)" },
+//                   display: "flex",
+//                   flexDirection: "column",
+//                   height: "100%",
+//                   minHeight: "320px",
+//                 }}
+//               >
+//                 <img
+//                   src={item.product_image[0]}
+//                   alt={item.product_name}
+//                   style={{
+//                     width: "100%",
+//                     height: "180px",
+//                     objectFit: "contain",
+//                     backgroundColor: "#fafafa",
+//                   }}
+//                 />
+
+//                 <CardContent
+//                   sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
+//                 >
+//                   <Box
+//                     sx={{ display: "flex", justifyContent: "space-between" }}
+//                   >
+//                     <Typography
+//                       variant="h6"
+//                       sx={{
+//                         fontWeight: "bold",
+//                         fontSize: "1rem",
+//                         color: "#343a40",
+//                         overflow: "hidden",
+//                         textOverflow: "ellipsis",
+//                         whiteSpace: "nowrap",
+//                         maxWidth: "80%",
+//                       }}
+//                     >
+//                       {item.product_name}
+//                     </Typography>
+
+//                     <Button
+//                       onClick={(e) => {
+//                         e.stopPropagation();
+//                         handleWishlistClick(item);
+//                       }}
+//                       sx={{ color: "#c026d3", position: "relative" }}
+//                     >
+//                       {wishlist.includes(item._id) ? (
+//                         <FavoriteOutlinedIcon
+//                           className={animate === item._id ? "animate-pop" : ""}
+//                           style={{ transition: "transform 0.3s" }}
+//                         />
+//                       ) : (
+//                         <FavoriteBorderIcon
+//                           style={{ transition: "transform 0.3s" }}
+//                         />
+//                       )}
+//                     </Button>
+//                   </Box>
+
+//                   <Box sx={{ display: "flex", gap: "1rem", mt: 0.5 }}>
+//                     <StarRating
+//                       rating={parseFloat(
+//                         calculateAverageRating(item.Reviews || [])
+//                       )}
+//                     />
+//                     <Typography variant="p" style={{ fontSize: "0.8rem" }}>
+//                       {item.Reviews?.length || 0} Reviews
+//                     </Typography>
+//                   </Box>
+
+//                   <Box
+//                     sx={{
+//                       display: "flex",
+//                       alignItems: "center",
+//                       gap: "0.7rem",
+//                       mt: 0.5,
+//                     }}
+//                   >
+//                     <Typography
+//                       variant="p"
+//                       sx={{
+//                         fontWeight: "bold",
+//                         color: "#000",
+//                         fontSize: "1rem",
+//                       }}
+//                     >
+//                       ₹{item.product_price}
+//                     </Typography>
+
+//                     {item.discount < item.product_price && (
+//                       <Typography
+//                         variant="p"
+//                         sx={{
+//                           textDecoration: "line-through",
+//                           color: "red",
+//                           fontSize: "1rem",
+//                         }}
+//                       >
+//                         ₹{item.mrp_rate || "2500"}
+//                       </Typography>
+//                     )}
+//                     <Typography sx={{ color: "red" }}>Per day</Typography>
+//                   </Box>
+//                 </CardContent>
+//               </Card>
+//             ))}
+//           </Box>
+
+//           {/* ✅ Pagination reflects 8 per page */}
+//           <Pagination
+//             currentPage={currentPage}
+//             totalPages={Math.ceil(filteredItems.length / itemsPerPage)}
+//             onPageChange={handlePageChange}
+//           />
+//         </Box>
+
+//         <Modal
+//           open={open}
+//           onClose={() => setOpen(false)}
+//           aria-labelledby="modal-title"
+//           aria-describedby="modal-description"
+//         >
+//           <ModalItem
+//             modalMessage={modalMessage}
+//             modalType={modalType}
+//             onClose={() => setOpen(false)}
+//           />
+//         </Modal>
+//       </Box>
+//     </>
+//   );
+// };
+
+// export default Products;
+
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
@@ -6,23 +666,19 @@ import {
   Card,
   CardContent,
   Button,
-  TextField,
   MenuItem,
   Select,
-  InputLabel,
   FormControl,
-  Modal,
-} from "@mui/material";
-import {
-  Checkbox,
-  FormControlLabel,
-  Collapse,
   IconButton,
+  Collapse,
+  FormControlLabel,
+  Checkbox,
+  Modal,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import CustomSort from "../Category/components/CustomSort";
-import "./styles.scss";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 import authService from "../../api/ApiService";
 import { getErrorMessage } from "../../utils/helperFunc";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,12 +688,11 @@ import BreadCrumb from "../../components/BreadCrumb";
 import StarRating from "../../components/StarRating";
 import Pagination from "../../components/Pagination";
 import DiscountSlider from "./components/DiscountSlider";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import FavoriteOutlinedIcon from "@mui/icons-material/FavoriteOutlined";
 import axios from "axios";
 import ModalItem from "./SingleProducts/components/Modal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./styles.scss";
 
 const Products = () => {
   const { category } = useParams();
@@ -55,37 +710,32 @@ const Products = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [sortOption, setSortOption] = useState("default");
   const [searchQuery, setSearchQuery] = useState("");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
-  const [wishlist, setWishlist] = useState([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState([0, 50000]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const itemsPerPage = 9;
+
+  const [wishlist, setWishlist] = useState([]);
+  const [productList, setProductList] = useState([]);
   const [open, setOpen] = useState(false);
-  const [successType, setSuccessType] = useState("");
   const [modalType, setModalType] = useState("success");
   const [modalMessage, setModalMessage] = useState("");
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  const { numberOfDays } = useSelector((state) => state.date);
   const [openSections, setOpenSections] = useState({
     categories: true,
     priceRange: false,
-    discount: false,
+    availability: false,
   });
-  const [showFilters, setShowFilters] = useState(false);
   const [lowStockChecked, setLowStockChecked] = useState(false);
   const [highStockChecked, setHighStockChecked] = useState(false);
-  const [productList, setProductList] = useState([]);
-  const [selectedDiscount, setSelectedDiscount] = useState([0, 100]);
-  const breadcrumbPaths = [{ label: "Home", link: "/" }, { label: "Products" }];
-  const location = useLocation();
   const [animate, setAnimate] = useState(null);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const { numberOfDays } = useSelector((state) => state.date);
 
   const userDetail = sessionStorage.getItem("userDetails");
   let userId = null;
-
   if (userDetail) {
     try {
       const userDetails = JSON.parse(userDetail);
@@ -106,9 +756,8 @@ const Products = () => {
     dispatch(setLoading(true));
     try {
       const res = await authService.rentalProduct();
+      console.log("Fetched products:", res.data);
       setProducts(res.data.data);
-      console.log(res);
-
       setFilteredItems(res.data.data);
       dispatch(setLoading(false));
     } catch (error) {
@@ -116,14 +765,12 @@ const Products = () => {
       getErrorMessage(error);
     }
   };
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const search = params.get("search") || "";
-    setSearchQuery(search);
-  }, [location.search]);
-  const fetchWishlist = async () => {
-    dispatch(setLoading(true));
 
+  const fetchWishlist = async () => {
+    if (!userId) {
+      setWishlist([]);
+      return;
+    }
     try {
       const res = await axios.get(
         `https://api.nithyaevent.com/api/wishlist/get-my-wishlist/${userId}`,
@@ -132,69 +779,206 @@ const Products = () => {
       if (res.data?.wishlist && Array.isArray(res.data.wishlist)) {
         const wishlistItems = res.data.wishlist.map((item) => item.product_id);
         setWishlist(wishlistItems);
-        console.log("the wishlist items", wishlist);
-        
+        setProductList(res.data.wishlist);
       } else {
         setWishlist([]);
+        setProductList([]);
       }
-
-      setProductList(res.data.wishlist);
-
-      dispatch(setLoading(false));
     } catch (error) {
-      dispatch(setLoading(false));
-      if (error.response && error.response.status === 404) {
-        setWishlist([]);
-      } else {
-        alert("Error fetching wishlist. Please try again.");
-      }
-      console.error(
-        "API Error:",
-        error.response ? error.response.data : error.message
-      );
+      console.error("Wishlist fetch error:", error);
+      setWishlist([]);
+      setProductList([]);
     }
   };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    fetchWishlist();
+  }, [userId]);
+
+  // Handle URL category parameter
+  useEffect(() => {
+    if (category) {
+      // Handle different URL formats
+      const urlCategory = category.toLowerCase();
+      console.log("URL Category:", urlCategory);
+
+      if (urlCategory === "all") {
+        setActiveCategory("All");
+      } else {
+        // Map URL category to our category names
+        const categoryMap = {
+          sound: "Sound",
+          lighting: "Lighting",
+          genset: "Genset",
+          video: "Video",
+          fabrication: "Fabrication",
+          shamiana: "Shamiana",
+        };
+
+        const mappedCategory =
+          categoryMap[urlCategory] ||
+          urlCategory.charAt(0).toUpperCase() + urlCategory.slice(1);
+
+        console.log("Mapped category:", mappedCategory);
+        setActiveCategory(mappedCategory);
+      }
+    }
+  }, [category]);
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const search = params.get("search") || "";
     setSearchQuery(search);
+  }, [location.search]);
 
-    if (search.trim()) {
-      const filtered = products.filter((item) =>
-        item.product_name.toLowerCase().includes(search.toLowerCase())
-      );
-      setFilteredItems(filtered);
-    } else {
-      setFilteredItems(products);
+  // Debug available categories
+  useEffect(() => {
+    if (products.length > 0) {
+      const availableCategories = [
+        ...new Set(products.map((item) => item.product_category)),
+      ];
+      console.log("Available categories in data:", availableCategories);
+      console.log("Active category:", activeCategory);
+
+      // Check if active category exists in data (case-insensitive)
+      if (activeCategory !== "All") {
+        const categoryExists = products.some((item) => {
+          const itemCategory = item.product_category?.trim().toLowerCase();
+          const activeCat = activeCategory.trim().toLowerCase();
+          return itemCategory === activeCat;
+        });
+        console.log("Category exists in data:", categoryExists);
+
+        if (!categoryExists) {
+          console.warn(`Category "${activeCategory}" not found in data`);
+        }
+      }
     }
-  }, [location.search, products]);
+  }, [products, activeCategory]);
+
+  // Derive the real price range from the loaded products so the default
+  // filter never silently hides products priced above a hard-coded cap.
+  const priceBounds = useMemo(() => {
+    const prices = products
+      .map((item) => parseFloat(item.product_price))
+      .filter((n) => !isNaN(n));
+    const maxPrice = prices.length ? Math.max(...prices) : 50000;
+    // round up to the nearest 1000, and keep at least the old 50000 span
+    return [0, Math.max(50000, Math.ceil(maxPrice / 1000) * 1000)];
+  }, [products]);
+
+  // Initialise the slider to the full range once, without overriding a
+  // selection the user has already made.
+  const priceRangeInitialized = useRef(false);
+  useEffect(() => {
+    if (products.length && !priceRangeInitialized.current) {
+      setSelectedPriceRange(priceBounds);
+      priceRangeInitialized.current = true;
+    }
+  }, [products, priceBounds]);
+
+  // Enhanced Filtering & side effects
+  useEffect(() => {
+    let filtered = [...products];
+
+    // ✅ CATEGORY FILTERING
+    if (activeCategory && activeCategory.toLowerCase() !== "all") {
+      const selectedCategory = activeCategory.trim().toLowerCase();
+      filtered = filtered.filter((item) => {
+        const itemCategory = (item.product_category || "").trim().toLowerCase();
+        return itemCategory === selectedCategory;
+      });
+      console.log("filtered data", filtered);
+    }
+
+    // ✅ FILTER BY NUMBER OF DAYS
+    // if (numberOfDays && numberOfDays > 0) {
+    //   filtered = filtered.filter((item) => item.stock_in_hand >= numberOfDays);
+    // }
+
+    // ✅ PRICE RANGE
+    if (
+      selectedPriceRange &&
+      selectedPriceRange.length === 2 &&
+      !isNaN(selectedPriceRange[0]) &&
+      !isNaN(selectedPriceRange[1])
+    ) {
+      filtered = filtered.filter((item) => {
+        const price = parseFloat(item.product_price);
+        // Keep items whose price isn't a parseable number instead of
+        // silently dropping them from the count.
+        if (isNaN(price)) return true;
+        return price >= selectedPriceRange[0] && price <= selectedPriceRange[1];
+      });
+    }
+
+    // ✅ SEARCH FILTER
+    if (searchQuery?.trim()) {
+      filtered = filtered.filter((item) =>
+        item.product_name
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase().trim())
+      );
+    }
+
+    // ✅ STOCK LEVEL FILTER
+    if (lowStockChecked && !highStockChecked) {
+      filtered = filtered.filter((item) => item.stock_in_hand < 50);
+    } else if (highStockChecked && !lowStockChecked) {
+      filtered = filtered.filter((item) => item.stock_in_hand >= 50);
+    }
+
+    // ✅ SORTING
+    let sorted = [...filtered];
+    if (sortOption === "priceLowToHigh") {
+      sorted.sort(
+        (a, b) => parseFloat(a.product_price) - parseFloat(b.product_price)
+      );
+    } else if (sortOption === "priceHighToLow") {
+      sorted.sort(
+        (a, b) => parseFloat(b.product_price) - parseFloat(a.product_price)
+      );
+    } else if (sortOption === "newest") {
+      sorted = sorted.reverse();
+    }
+
+    // ✅ SET FILTERED ITEMS
+    setFilteredItems(sorted);
+    setCurrentPage(1);
+  }, [
+    products,
+    activeCategory,
+    numberOfDays,
+    selectedPriceRange,
+    searchQuery,
+    lowStockChecked,
+    highStockChecked,
+    sortOption,
+  ]);
+
   const handleWishlistClick = async (item) => {
-    console.log("the items", item);
-    
-    const isInWishlist = wishlist.includes(item._id);
     if (!userId) {
       toast.error("You need to login", {
         position: "top-right",
         autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
       });
-
       return;
     }
-    const wishlistId = productList.find((w) => w.product_id === item._id);
+
+    const isInWishlist = wishlist.includes(item._id);
+    if (isInWishlist) {
+      toast.error("This item is already in your wishlist!", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+      return;
+    }
+
     try {
-      // if (!isInWishlist) {
-        if (isInWishlist) {
-          toast.error("This item is already in your wishlist!", {
-            position: "top-right",
-            autoClose: 2000,
-          });
-          return;
-        }
       await axios.post(
         "https://api.nithyaevent.com/api/wishlist/add-wishlist",
         {
@@ -208,197 +992,26 @@ const Products = () => {
         },
         { headers: { "Content-Type": "application/json" } }
       );
-setAnimate(item._id)
+
       setWishlist((prev) => [...prev, item._id]);
+      setAnimate(item._id);
       toast.success("Item added to wishlist!", {
         position: "top-right",
         autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
       });
-      setTimeout(() => {
-        setAnimateProductId(null);
-      }, 500);
-  
+      setTimeout(() => setAnimate(null), 500);
     } catch (error) {
-      // setModalType("success");
-      // setModalMessage("The product has been successfully added to your wishlist.");
-      // setOpen(true);
-      // setTimeout(() => {
-      //   setOpen(false);
-      // }, 1800);
-      // }
-      // else {
-
-      //   await axios.delete(
-      //     `https://api.nithyaevent.com/api/wishlist/remove-wishlist-list/${wishlistId._id}`
-      //   );
-
-      //   setWishlist((prev) => prev.filter((id) => id !== item._id));
-
-      //      toast.error("Failed to add item to cart. Try again!", {
-      //           position: "top-right",
-      //           autoClose: 2000,
-      //           hideProgressBar: false,
-      //           closeOnClick: true,
-      //           pauseOnHover: true,
-      //           draggable: true,
-      //           progress: undefined,
-      //         });
-      //   // setModalType("success");
-      //   // setModalMessage("The product has been successfully deleted from your wishlist.");
-      //   // setOpen(true);
-      //   // setTimeout(() => {
-      //   //   setOpen(false);
-      //   // }, 1800);
-      // }
-      // }
-      let errorMessage = "Something went wrong. Please try again.";
-
-      if (error.response && error.response.data?.message) {
-        errorMessage = error.response.data.message.includes(
-          "Product already exists"
-        )
-          ? "This product is already in your wishlist!"
-          : `Error: ${error.response.data.message}`;
-
-        toast.error(errorMessage, {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-
-        return;
-      }
-
-      toast.error("Failed to add item to cart. Try again!", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+      const msg = error?.response?.data?.message?.includes(
+        "Product already exists"
+      )
+        ? "This product is already in your wishlist!"
+        : "Failed to add item. Try again!";
+      toast.error(msg, { autoClose: 2000 });
     }
-  };
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const filterProducts = () => {
-    let filtered = products;
-
-    if (activeCategory !== "All") {
-      filtered = filtered.filter(
-        (item) => item.product_category === activeCategory
-      );
-    }
-
-    if (numberOfDays) {
-      filtered = filtered.filter((item) => item.stock_in_hand >= numberOfDays);
-    }
-    if (selectedPriceRange && selectedPriceRange.length === 2) {
-      filtered = filtered.filter(
-        (item) =>
-          parseFloat(item.product_price) >= selectedPriceRange[0] &&
-          parseFloat(item.product_price) <= selectedPriceRange[1]
-      );
-    }
-    if (searchQuery) {
-      filtered = filtered.filter((item) =>
-        item.product_name?.toLowerCase().includes(searchQuery?.toLowerCase())
-      );
-    }
-    if (lowStockChecked) {
-      filtered = filtered.filter((item) => item.stock_in_hand < 50);
-    }
-
-    if (highStockChecked) {
-      filtered = filtered.filter((item) => item.stock_in_hand >= 50);
-    }
-    filtered = filtered.filter(
-      (item) =>
-        item.discount >= selectedDiscount[0] &&
-        item.discount <= selectedDiscount[1]
-    );
-
-    setFilteredItems(filtered);
-    setCurrentPage(1);
-  };
-
-  useEffect(() => {
-    filterProducts();
-    fetchWishlist();
-  }, [
-    products,
-    activeCategory,
-    minPrice,
-    maxPrice,
-    selectedPriceRange,
-    numberOfDays,
-    searchQuery,
-    lowStockChecked,
-    highStockChecked,
-    selectedDiscount,
-  ]);
-
-  const handleCategoryChange = (category) => {
-    setActiveCategory(category);
-  };
-
-  const handlePriceFilter = () => {
-    let filtered = products;
-    if (numberOfDays) {
-      filtered = filtered.filter((item) => item.stock_in_hand >= numberOfDays);
-    }
-    if (minPrice || maxPrice) {
-      filtered = filtered.filter(
-        (item) =>
-          (!minPrice || item.product_price >= parseFloat(minPrice)) &&
-          (!maxPrice || item.product_price <= parseFloat(maxPrice))
-      );
-    }
-    setFilteredItems(filtered);
-    setCurrentPage(1);
   };
 
   const handleSortChange = (option) => {
     setSortOption(option);
-
-    let sortedItems = [...filteredItems];
-
-    if (option === "newest") {
-      sortedItems.sort((a, b) => b.id - a.id);
-    } else if (option === "priceLowToHigh") {
-      sortedItems.sort(
-        (a, b) => parseFloat(a.product_price) - parseFloat(b.product_price)
-      );
-    } else if (option === "priceHighToLow") {
-      sortedItems.sort(
-        (a, b) => parseFloat(b.product_price) - parseFloat(a.product_price)
-      );
-    }
-
-    setFilteredItems(sortedItems);
-    setCurrentPage(1);
-  };
-
-  const calculateAverageRating = (review) => {
-    const total = review.reduce((sum, curr) => sum + curr.ratings, 0);
-
-    return review.length ? (total / review.length).toFixed(1) : 0;
-  };
-
-  const handleOpen = (id) => {
-    navigate(`/products/${id}`);
   };
 
   const getPaginatedData = () => {
@@ -408,19 +1021,53 @@ setAnimate(item._id)
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-  };
-  const handleLowStockChange = (event) => {
-    setLowStockChecked(event.target.checked);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleHighStockChange = (event) => {
-    setHighStockChecked(event.target.checked);
+  // Update breadcrumb to show active category
+  const breadcrumbPaths = [
+    { label: "Home", link: "/" },
+    { label: "Products" },
+    ...(activeCategory !== "All" ? [{ label: activeCategory }] : []),
+  ];
+
+  const calculateAverageRating = (reviews = []) => {
+    const total = reviews.reduce((sum, curr) => sum + (curr?.ratings || 0), 0);
+    return reviews.length ? (total / reviews.length).toFixed(1) : 0;
   };
 
-  const handleCloseSuccessModal = () => {
-    setOpen(false);
-    console.log("The function is working");
-  };
+  // Show message when no products found
+  const NoProductsMessage = () => (
+    <Box
+      sx={{
+        gridColumn: "1 / -1",
+        textAlign: "center",
+        padding: "3rem",
+        backgroundColor: "white",
+        borderRadius: "12px",
+        boxShadow: "0 5px 15px rgba(0, 0, 0, 0.08)",
+      }}
+    >
+      <Typography variant="h5" color="textSecondary" gutterBottom>
+        No products found
+      </Typography>
+      <Typography variant="body1" color="textSecondary">
+        {activeCategory !== "All"
+          ? `No products found in the "${activeCategory}" category. Try selecting a different category.`
+          : "No products match your current filters. Try adjusting your search criteria."}
+      </Typography>
+      {activeCategory !== "All" && (
+        <Button
+          variant="contained"
+          sx={{ mt: 2 }}
+          onClick={() => setActiveCategory("All")}
+        >
+          Show All Products
+        </Button>
+      )}
+    </Box>
+  );
+
   return (
     <>
       <Slider />
@@ -428,8 +1075,9 @@ setAnimate(item._id)
       <BreadCrumb paths={breadcrumbPaths} />
 
       <Box className="products-page">
+        {/* Sidebar */}
         <Box className="filters-sidebar">
-          {/* Categories Section */}
+          {/* Categories */}
           <Box className="filter-group">
             <Box
               sx={{
@@ -468,6 +1116,7 @@ setAnimate(item._id)
             </Collapse>
           </Box>
 
+          {/* Price Range */}
           <Box className="filter-group">
             <Box
               sx={{
@@ -495,7 +1144,7 @@ setAnimate(item._id)
                   </Typography>
                   <DiscountSlider
                     min={0}
-                    max={50000}
+                    max={priceBounds[1]}
                     step={1000}
                     value={selectedPriceRange}
                     onChange={setSelectedPriceRange}
@@ -506,40 +1155,7 @@ setAnimate(item._id)
             </Collapse>
           </Box>
 
-          {/* <Box className="filter-group">
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                cursor: "pointer",
-              }}
-              onClick={() => toggleSection("discount")}
-            >
-              <Typography variant="p">Discount</Typography>
-              <IconButton size="small">
-                {openSections.discount ? (
-                  <ExpandLessIcon />
-                ) : (
-                  <ExpandMoreIcon />
-                )}
-              </IconButton>
-            </Box>
-            <Collapse in={openSections.discount}>
-              <Box sx={{ marginTop: "0.5rem" }}>
-                <Box className="p-6 bg-white shadow-lg rounded-lg max-w-md mx-auto">
-                  <DiscountSlider
-                    value={selectedDiscount}
-                    onChange={setSelectedDiscount}
-                    min={0}
-                    max={100}
-                    step={100}
-                  />
-                </Box>
-              </Box>
-            </Collapse>
-          </Box> */}
-
+          {/* Availability */}
           <Box className="filter-group">
             <Box
               sx={{
@@ -561,13 +1177,13 @@ setAnimate(item._id)
             </Box>
             <Collapse in={openSections.availability}>
               <Box sx={{ marginTop: "0.5rem", width: "15rem" }}>
-                <Box className={`filters-sidebar ${showFilters ? "open" : ""}`}>
+                <Box className={`filters-sidebar`}>
                   <FormControlLabel
                     sx={{ width: "15rem" }}
                     control={
                       <Checkbox
                         checked={lowStockChecked}
-                        onChange={handleLowStockChange}
+                        onChange={() => setLowStockChecked((v) => !v)}
                       />
                     }
                     label="Quantity less than 50"
@@ -577,7 +1193,7 @@ setAnimate(item._id)
                     control={
                       <Checkbox
                         checked={highStockChecked}
-                        onChange={handleHighStockChange}
+                        onChange={() => setHighStockChecked((v) => !v)}
                       />
                     }
                     label="Quantity more than 50"
@@ -588,10 +1204,12 @@ setAnimate(item._id)
           </Box>
         </Box>
 
+        {/* Main content */}
         <Box className="main-content">
           <Box className="sorting-header">
             <Typography variant="p">
               Showing {filteredItems?.length} results
+              {activeCategory !== "All" && ` in ${activeCategory}`}
             </Typography>
             <Box
               sx={{
@@ -601,24 +1219,7 @@ setAnimate(item._id)
                 marginBottom: "1rem",
               }}
             >
-              {/* <Typography
-                variant="h4"
-                sx={{
-                  fontWeight: "bold",
-                  color: "#1E2A38",
-                  fontSize: "1rem",
-                }}
-              >
-                Sort By:
-              </Typography> */}
-
-              <FormControl
-                sx={{
-                  minWidth: 220,
-                  borderRadius: "10px",
-                  padding: "0.5rem",
-                }}
-              >
+              <FormControl sx={{ minWidth: 220, borderRadius: "10px" }}>
                 <Select
                   value={sortOption}
                   onChange={(e) => handleSortChange(e.target.value)}
@@ -628,10 +1229,7 @@ setAnimate(item._id)
                     color: "#000",
                     fontWeight: "bold",
                     height: "45px",
-                    boxShadow: "none",
-                    outline: "none",
                     border: "1px solid #ddd",
-                 
                   }}
                 >
                   <MenuItem value="default">Default</MenuItem>
@@ -643,162 +1241,163 @@ setAnimate(item._id)
             </Box>
           </Box>
 
-          <Box className="products-grid">
-            {getPaginatedData().map((item) => (
-              <Card
-                key={item.id}
-                className="product-card"
-                onClick={() => handleOpen(item._id)}
-              >
-                <img
-                  src={item.product_image[0]}
-                  alt={item.product_name}
-                  className="product-image"
-                />
-                <CardContent>
-                  <Box
-                    sx={{ display: "flex", justifyContent: "space-between" }}
-                  >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: "bold",
-                        fontSize: "1rem",
-                        color: "#343a40",
-                      }}
-                    >
-                      {item.product_name.length > 15
-                        ? item.product_name.slice(0, 15) + "..."
-                        : item.product_name}
-                    </Typography>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleWishlistClick(item);
-                    
-                      }}
-                      sx={{ color: "#c026d3", position: "relative" }}
-                    >
-                      {wishlist.includes(item._id) ? (
-                        <FavoriteOutlinedIcon
-                        className={animate === item._id ? "animate-pop" : ""}
-                        style={{
-                          position: "absolute",
-                          transition: "transform 0.3s",
-                        }}
-                     
-                        />
-                      ) : (
-                        <FavoriteBorderIcon
-                          className={animate ? "animate-pop" : ""}
-                          style={{
-                            position: "absolute",
-                            transition: "transform 0.3s",
-                          }}
-                        />
-                      )}
-                    </Button>
-                  </Box>
-
-                  {/* <Typography
-                    variant="p"
-                    sx={{
-                      color: "#6c757d",
+          {/* Products Grid */}
+          <Box
+            className="products-grid"
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+              gap: "1.5rem",
+              alignItems: "stretch",
+            }}
+          >
+            {getPaginatedData().length > 0 ? (
+              getPaginatedData().map((item) => (
+                <Card
+                  key={item._id}
+                  className="product-card"
+                  onClick={() =>
+                    navigate(
+                      `/products/${encodeURIComponent(
+                        item.product_category?.toLowerCase()
+                      )}/${encodeURIComponent(
+                        item.product_name?.toLowerCase().replace(/\s+/g, "-") +
+                          "-rental"
+                      )}`
+                    )
+                  }
+                  sx={{
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    transition: "0.3s",
+                    "&:hover": { boxShadow: "0px 4px 20px rgba(0,0,0,0.15)" },
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100%",
+                    minHeight: "320px",
+                  }}
+                >
+                  <img
+                    src={item.product_image[0]}
+                    alt={item.product_name}
+                    style={{
+                      width: "100%",
+                      height: "180px",
+                      objectFit: "contain",
+                      backgroundColor: "#fafafa",
                     }}
-                  >
-                    {item.brand}
-                  </Typography> */}
-                  <Box
-                    sx={{ display: "flex", gap: "1rem", marginTop: "0.2rem" }}
-                  >
-                    <StarRating
-                      rating={parseFloat(calculateAverageRating(item.Reviews))}
-                      // style={{ marginRight: '2rem' }}
-                    />
-                    <Typography variant="p" style={{ fontSize: "0.8rem" }}>
-                      {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}
-                      Reviews
-                      {/* {item.Reviews && item.Reviews.length > 0
-                      ? calculateAverageRating(item.Reviews)
-                      : "No Ratings"} */}
-                    </Typography>
-                  </Box>
-                  <Box
+                  />
+
+                  <CardContent
                     sx={{
+                      flexGrow: 1,
                       display: "flex",
-                      alignItems: "center",
-                      gap: "0.7rem",
-                      marginTop: "0.3rem",
+                      flexDirection: "column",
                     }}
                   >
-                    <Typography
-                      variant="p"
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: "bold",
+                          fontSize: "1rem",
+                          color: "#343a40",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: "80%",
+                        }}
+                      >
+                        {item.product_name}
+                      </Typography>
+
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleWishlistClick(item);
+                        }}
+                        sx={{ color: "#c026d3", position: "relative" }}
+                      >
+                        {wishlist.includes(item._id) ? (
+                          <FavoriteOutlinedIcon
+                            className={
+                              animate === item._id ? "animate-pop" : ""
+                            }
+                            style={{ transition: "transform 0.3s" }}
+                          />
+                        ) : (
+                          <FavoriteBorderIcon
+                            style={{ transition: "transform 0.3s" }}
+                          />
+                        )}
+                      </Button>
+                    </Box>
+
+                    <Box sx={{ display: "flex", gap: "1rem", mt: 0.5 }}>
+                      <StarRating
+                        rating={parseFloat(
+                          calculateAverageRating(item.Reviews || [])
+                        )}
+                      />
+                      <Typography variant="p" style={{ fontSize: "0.8rem" }}>
+                        {item.Reviews?.length || 0} Reviews
+                      </Typography>
+                    </Box>
+
+                    <Box
                       sx={{
-                        fontWeight: "bold",
-                        color: "#000",
-                        fontSize: "1rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.7rem",
+                        mt: 0.5,
                       }}
                     >
-                      ₹{item.product_price}
-                    </Typography>
-
-                    {item.discount < item.product_price && (
                       <Typography
                         variant="p"
                         sx={{
-                          textDecoration: "line-through",
-                          color: "red",
+                          fontWeight: "bold",
+                          color: "#000",
                           fontSize: "1rem",
-                          display: "flex",
-                          alignItems: "center",
                         }}
                       >
-                        ₹{item.mrp_rate || "2500"}
+                        ₹{item.product_price}
                       </Typography>
-                    )}
-                    <Typography sx={{ color: "red", marginLeft: "-0.2rem" }}>
-                      Per day
-                    </Typography>
-                  </Box>
 
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      margin: "0 auto",
-                    }}
-                  >
-                    {/* <Button
-                      variant="outlined"
-                      size="small"
-                      sx={{
-                        width: "15rem",
-                        textTransform: "capitalize",
-                        fontWeight: "bold",
-                        marginTop: "1rem",
-                        backgroundColor: "#c026d3",
-                        color: "white",
-                        border: "none",
-                        "&:hover": {
-                          borderColor: "black",
-                          boxShadow: "none",
-                        },
-                      }}
-                    >
-                      View More
-                    </Button> */}
-                  </Box>
-                </CardContent>
-              </Card>
-            ))}
+                      {item.discount < item.product_price && (
+                        <Typography
+                          variant="p"
+                          sx={{
+                            textDecoration: "line-through",
+                            color: "red",
+                            fontSize: "1rem",
+                          }}
+                        >
+                          ₹{item.mrp_rate || "2500"}
+                        </Typography>
+                      )}
+                      <Typography sx={{ color: "red" }}>Per day</Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <NoProductsMessage />
+            )}
           </Box>
 
-          <Pagination
-            currentPage={currentPage}
-            totalPages={Math.ceil(filteredItems.length / itemsPerPage)}
-            onPageChange={handlePageChange}
-          />
+          {/* Pagination - Only show if there are products */}
+          {filteredItems.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil(filteredItems.length / itemsPerPage)}
+              onPageChange={handlePageChange}
+            />
+          )}
         </Box>
+
         <Modal
           open={open}
           onClose={() => setOpen(false)}
@@ -808,7 +1407,7 @@ setAnimate(item._id)
           <ModalItem
             modalMessage={modalMessage}
             modalType={modalType}
-            onClose={handleCloseSuccessModal}
+            onClose={() => setOpen(false)}
           />
         </Modal>
       </Box>

@@ -14,6 +14,7 @@ export const getErrorMessage = (error) => {
     return "An unexpected error occurred.";
   }
 };
+
 export async function getCurrentCity() {
   const GOOGLE_API_KEY = "AIzaSyDLyeYKWC3vssuRVGXktAT_cY-8-qHEA_g";
 
@@ -36,19 +37,21 @@ export async function getCurrentCity() {
           if (data.status === "OK" && data.results.length > 0) {
             const addressComponents = data.results[0].address_components;
 
-            const city = addressComponents.find((component) =>
-              component.types.includes("locality")
-            )?.long_name;
+            console.log("addressComponents", addressComponents);
+            const city =
+              addressComponents.find((c) => c.types.includes("locality"))
+                ?.long_name || "City not found";
 
-            const town = addressComponents.find((component) =>
-              component.types.includes("sublocality_level_1")
-            )?.long_name;
+            const town =
+              addressComponents.find((c) =>
+                c.types.includes("sublocality_level_1")
+              )?.long_name || "Town not found";
 
             resolve({
               lat: latitude,
               lng: longitude,
-              city: city || "City not found",
-              town: town || "Town not found",
+              city,
+              town,
             });
           } else {
             resolve({
@@ -65,9 +68,61 @@ export async function getCurrentCity() {
       (error) => {
         reject(error.message || "Error getting location.");
       },
-      { enableHighAccuracy: true }
+      {
+        enableHighAccuracy: true, // ✅ Requests GPS/Wi-Fi precision
+        timeout: 10000, // Wait max 10s
+        maximumAge: 0, // Don’t use cached results
+      }
     );
   });
+}
+
+// Forward-geocode a typed location (e.g. "Bangalore") into city/town/coords,
+// so users can manually choose a location instead of relying on geolocation.
+export async function getCityFromQuery(query) {
+  const GOOGLE_API_KEY = "AIzaSyDLyeYKWC3vssuRVGXktAT_cY-8-qHEA_g";
+
+  if (!query || !query.trim()) {
+    throw new Error("Please enter a location.");
+  }
+
+  const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+    query.trim()
+  )}&key=${GOOGLE_API_KEY}`;
+
+  const response = await fetch(geocodingUrl);
+  const data = await response.json();
+
+  if (data.status === "OK" && data.results.length > 0) {
+    const result = data.results[0];
+    const addressComponents = result.address_components || [];
+
+    const city =
+      addressComponents.find((c) => c.types.includes("locality"))?.long_name ||
+      addressComponents.find((c) =>
+        c.types.includes("administrative_area_level_2")
+      )?.long_name ||
+      query.trim();
+
+    const town =
+      addressComponents.find((c) => c.types.includes("sublocality_level_1"))
+        ?.long_name ||
+      addressComponents.find((c) =>
+        c.types.includes("administrative_area_level_1")
+      )?.long_name ||
+      "";
+
+    const loc = result.geometry?.location || {};
+
+    return {
+      lat: loc.lat,
+      lng: loc.lng,
+      city,
+      town,
+    };
+  }
+
+  throw new Error("Location not found. Try a different search.");
 }
 
 export const formatCurrencyIntl = (amount) => {
@@ -122,7 +177,7 @@ export const formatDate1 = (date) => {
 //   // return date.toLocaleString("en-US", options);
 //   return new Intl.DateTimeFormat("en-GB", options).format(date);
 // };
-export const formatTicketDate  = (dateStr) => {
+export const formatTicketDate = (dateStr) => {
   const date = new Date(dateStr);
 
   // const options = {
@@ -131,13 +186,13 @@ export const formatTicketDate  = (dateStr) => {
   //   day:'numeric'
   // }
 
-  const day = String(date.getDate()).padStart(2,'1');
-  const month = String(date.getMonth() + 1).padStart(2,'0');
+  const day = String(date.getDate()).padStart(2, "1");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
 
   return `${day}/${month}/${year}`;
   // return new Intl.DateTimeFormat('en-GB', options).format(date);
-}
+};
 
 export const formatProperDate = (dateString) => {
   const date = new Date(dateString);

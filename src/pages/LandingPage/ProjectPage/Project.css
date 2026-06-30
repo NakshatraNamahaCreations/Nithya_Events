@@ -1,0 +1,180 @@
+/* PalettePage.css - styles for PalettePage.jsx */
+:root{
+  --bg: #ffffff;
+  --panel: #f5f5f5;
+  --border: #eee;
+  --muted: #888;
+  --accent: #067804;
+  --pink: #c44dbf;
+  --shadow: rgba(0,0,0,0.04);
+  --text: #222;
+}
+
+.palette-page {
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 18px;
+  font-family: "poppins", sans-serif;
+  color: var(--text);
+}
+
+/* header */
+.pp-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
+}
+.pp-title { margin:0; font-size:1.125rem; font-weight:700; }
+.pp-sub { font-size: 0.8125; color:#666; margin-top:6px; }
+.pp-actions { display:flex; gap:8px; align-items:center; }
+.pp-back { color:#555; text-decoration:none; margin-right:8px; }
+.pp-link { background:transparent; border:0; color:var(--pink); font-weight:700; cursor:pointer; padding:8px; border-radius:6px; font-size:  0.875rem; }
+.pp-btn { background:transparent; border:1px solid var(--border); padding:8px 10px; border-radius:6px; cursor:pointer; }
+
+/* main layout */
+.pp-main {
+  display:grid;
+  grid-template-columns: 200px 1fr;
+  gap:16px;
+  align-items:start;
+}
+
+/* sidebar (palette) */
+.pp-sidebar {
+  width:200px;
+  background: var(--panel);
+  border:1px solid var(--border);
+  padding:10px;
+  border-radius:8px;
+  box-shadow: 0 6px 18px var(--shadow);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.pp-list {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  overflow:auto;
+  max-height: calc(100vh - 220px);
+  padding-right:4px;
+}
+
+.pp-item {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:6px;
+  border-radius:8px;
+  transition: background .12s ease, transform .06s ease;
+}
+.pp-item:hover { background:#fff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+
+.pp-thumb {
+  width:44px;
+  height:44px;
+  background:#fff;
+  border-radius:6px;
+  border:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  padding:4px;
+}
+.pp-thumb img {
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+}
+
+.pp-controls {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  min-width:54px;
+  justify-content:flex-end;
+}
+.pp-qty {
+  width:28px;
+  height:24px;
+  border-radius:6px;
+  border:1px solid var(--border);
+  background: rgb(224, 255, 224);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 1rem;
+  cursor:pointer;
+}
+.pp-count { min-width:18px; text-align:center; font-weight:700; color:var(--text); }
+
+/* footer */
+.pp-footer { margin-top:auto; border-top:1px solid var(--border); padding-top:8px; display:flex; justify-content:center; align-items:center; }
+.pp-summary { display:flex; gap:8px; align-items:center; }
+.pp-label { color:var(--muted); font-size : 0.8125rem; }
+.pp-value { font-weight:700; }
+
+/* canvas */
+.pp-canvas {
+  background: var(--panel);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:18px;
+  min-height: 520px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.pp-canvas-inner { text-align:center; color:var(--muted); max-width:800px; }
+.pp-note { margin:0 0 12px 0; color:#777; }
+
+/* placeholder rect */
+.pp-placeholder-rect { margin-top:14px; }
+
+/* responsive tweaks */
+@media (max-width: 900px) {
+  .pp-main { grid-template-columns: 96px 1fr; gap:12px; }
+  .pp-sidebar { width:96px; }
+  .pp-thumb { width:36px; height:36px; }
+  .pp-qty { width:24px; height:22px; }
+}
+@media (max-width: 640px) {
+  .pp-main { grid-template-columns: 1fr; }
+  .pp-sidebar { order:2; width:100%; display:flex; flex-direction:row; gap:8px; overflow:auto; padding:8px; max-height:none; }
+  .pp-list { flex-direction:row; gap:12px; max-height:none; }
+  .pp-item { min-width:84px; flex-direction:column; align-items:center; }
+  .pp-canvas { order:1; min-height:320px; padding:12px; }
+}
+
+/* vertical icon + label buttons */
+.pp-btn-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 68px;
+  height: 64px;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.pp-btn-vertical .pp-icon {
+  color: #444;
+}
+
+.pp-btn-vertical:hover .pp-icon {
+  color: var(--pink);
+}
+
+.pp-maintitle{
+    font-size: 1rem;
+    font-weight: 500;
+    color: #444;
+}

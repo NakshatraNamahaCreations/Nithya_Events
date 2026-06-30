@@ -1,0 +1,87 @@
+.ne-header { background: #fff; border-bottom: 1px solid #eee; position: relative; }
+.ne-container { max-width: 1300px; margin: 0 auto; display: flex; align-items: center; gap: 20px; }
+
+
+/* LEFT */
+.ne-left { display:flex; align-items:center; gap:12px; min-width: 220px; }
+.ne-logo { width:160px; height:108px; display:flex; align-items:center; justify-content:center; border-radius:6px; overflow:hidden; }
+.ne-logo img { width:100%; height:100%; object-fit:contain; }
+.ne-location { display:none; flex-direction:column; }
+.ne-location-title { color:#7c2aa6; font-weight:600; display:flex; align-items:center; gap:6px; }
+.ne-location-sub { color:#777; font-size: 0.75rem; }
+.ne-pin { vertical-align:middle; }
+.ne-logo h4 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5625rem; 
+  font-weight: 600;
+  letter-spacing: 0.7px;
+  color: #222; /* You can set your brand color here */
+  margin: 0;
+}
+
+/* Ensures link inherits color and removes underline */
+.ne-logo-link {
+  color: inherit;
+  text-decoration: none;
+  display: inline-block;
+}
+
+
+
+/* CENTER */
+.ne-center { flex:1; }
+.ne-search { width: 100%; position:relative; max-width:700px; margin:0 auto; }
+.ne-search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#bdbdbd; }
+.ne-search-input { width:100%; padding:12px 16px 12px 40px; border-radius:28px; border:1px solid #e6e6e6; box-shadow:0 1px 3px rgba(0,0,0,0.03); font-size: 0.93; font-family: 'poppinsmed', sans-serif; }
+.ne-location-input { width:60%; padding:12px 16px 12px 40px; border-radius:10px; border:1px solid #e6e6e6; box-shadow:0 1px 3px rgba(0,0,0,0.03); font-size: 14px; font-family: 'poppinsmed', sans-serif; margin-left: 150px; }
+.ne-loc-icon { position:absolute; left:170px; top:32%; transform:translateY(-50%); color:#bdbdbd; }
+
+.ne-loc { width: 100%; position:relative; max-width:700px; margin:0 auto; margin-top: 30px; }
+
+
+/* RIGHT */
+.ne-right { display:flex; gap:18px; align-items:center; }
+.ne-icon-btn { background:transparent; border:none; display:flex; flex-direction:column; align-items:center; font-size: 0.75rem; color:#bdbdbd; cursor:pointer; gap:4px; font-family: 'poppinsmed' ,sans-serif; }
+.ne-icon-btn span { font-size: 0.75rem; }
+
+
+/* Hamburger for small screens */
+.ne-hamburger { display:none; background:transparent; border:none; margin-left:8px; cursor:pointer; }
+
+
+/* MOBILE DRAWER */
+.ne-mobile-drawer { display:none; }
+.ne-mobile-drawer.open { display:block; border-top:1px solid #eee; background:#fff; }
+.ne-mobile-inner { padding:12px 16px; }
+.ne-mobile-location { display:flex; gap:10px; align-items:center; margin-bottom:10px; }
+.ne-mobile-loc-title { font-weight:600; }
+.ne-mobile-loc-sub { font-size: 0.8125rem; color:#666; }
+.ne-mobile-search input { width:100%; padding:8px 10px; border-radius:20px; border:1px solid #eee; }
+.ne-mobile-actions { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+.ne-mobile-action { text-align:left; padding:8px 10px; border-radius:6px; border:none; background:#fafafa; cursor:pointer; }
+.ne-mobile-arrow{
+      position: relative;
+    bottom: 37px;
+    left: 85%;
+    color: #a1a1a1;
+}
+
+
+/* RESPONSIVE */
+@media (min-width:600px) {
+.ne-location { display:flex; }
+}
+
+
+@media (max-width:900px) {
+.ne-right { display:none; }
+.ne-hamburger { display:block; }
+.ne-container { padding:10px 12px; }
+}
+
+
+@media (max-width:420px) {
+.ne-container { gap:8px; }
+.ne-logo { width:52px; height:40px; }
+.ne-search-input { padding-left:36px; }
+}

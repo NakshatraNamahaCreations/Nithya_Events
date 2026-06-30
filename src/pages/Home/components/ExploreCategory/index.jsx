@@ -1,4 +1,4 @@
-// React and react related imports
+// React and related imports
 import React from "react";
 import {
   Grid,
@@ -24,69 +24,33 @@ import "./styles.scss";
 const categories = [
   {
     title: "Sound",
-    color: "#f8f9fa",
+    color: "linear-gradient(135deg, #f8f9fa 0%, #e8e8e8 100%)",
     img: Sound,
-    shopNow: true,
-    cols: 4,
-    left: "10rem",
-    width: "10rem",
-    height: "198px",
-    top: "0rem",
   },
   {
     title: "Lighting",
-    color: "#d4edf8",
+    color: "linear-gradient(135deg, #d4edf8 0%, #bde4f3 100%)",
     img: Lights,
-    cols: 3,
-    left: "0rem",
-    shopNow: true,
-    width: "15rem",
-    height: "198px",
-    top: "0rem",
   },
   {
     title: "Shamiana",
-    color: "#fef9c4",
+    color: "linear-gradient(135deg, #fff9d6 0%, #fbeec0 100%)",
     img: Shamiana,
-    cols: 3,
-    left: "0rem",
-    width: "15rem",
-    shopNow: true,
-    height: "308px",
-    top: "6.5rem",
   },
   {
     title: "Fabrication",
-    color: "#f2e7e3",
+    color: "linear-gradient(135deg, #f2e7e3 0%, #e8dcd7 100%)",
     img: Fabrication,
-    cols: 3,
-    left: "0rem",
-    shopNow: true,
-    width: "12rem",
-    height: "198px",
-    top: "-2rem",
   },
   {
     title: "Video",
-    color: "#e3f2e6",
+    color: "linear-gradient(135deg, #e3f2e6 0%, #c9ebd2 100%)",
     img: Video,
-    cols: 3,
-    shopNow: true,
-    left: "0rem",
-    width: "12rem",
-    height: "198px",
-    top: "0rem",
   },
   {
     title: "Genset",
-    color: "#fae8e8",
+    color: "linear-gradient(135deg, #fae8e8 0%, #f4d2d2 100%)",
     img: Genset,
-    shopNow: true,
-    cols: 4,
-    left: "8rem",
-    width: "12rem",
-    height: "198px",
-    top: "3rem",
   },
 ];
 
@@ -94,95 +58,153 @@ const ExploreCategory = () => {
   const navigate = useNavigate();
 
   const handleClick = (category) => {
-    navigate(`/category/${category}`);
+    navigate(`/category/${category.toLowerCase()}`);
   };
 
   return (
-    <div className="category-container">
+    <Box className="category-container" sx={{ py: 6, px: 3 }}>
+      {/* Header */}
       <Box
-        className="card-header"
         sx={{
           textAlign: "center",
-          marginBottom: "2rem",
+          mb: 5,
           display: "flex",
           justifyContent: "center",
-          marginTop: "2rem",
         }}
       >
         <Typography
           variant="h4"
-          className="small-title"
-          sx={{ color: "#1a365d", fontWeight: 600, fontSize: "1.5rem" }}
+          sx={{
+            color: "#1a365d",
+            fontWeight: 700,
+            fontSize: "2rem",
+            position: "relative",
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              bottom: -6,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "70px",
+              height: "4px",
+              borderRadius: "2px",
+              background: "linear-gradient(90deg, #c026d3, #7b2cbf)",
+            },
+          }}
         >
-          Categories
+          Explore Our Categories
         </Typography>
       </Box>
 
+      {/* Grid Layout */}
       <Grid
         container
         spacing={3}
         justifyContent="center"
-        sx={{ display: "flex", flexDirection: { xs: "column", md: "row" } }}
+        alignItems="stretch"
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "repeat(1, 1fr)",
+            sm: "repeat(2, 1fr)",
+            md: "repeat(3, 1fr)",
+          },
+          gap: "2rem",
+          px: { xs: 2, md: 8 },
+        }}
       >
         {categories.map((category, index) => (
-          <Grid item lg={category.cols} key={index}>
-            <Card
-              className="category-card"
-              style={{ backgroundColor: category.color }}
-              onClick={() => handleClick(category.title.toLowerCase())}
+          <Card
+            key={index}
+            onClick={() => handleClick(category.title)}
+            sx={{
+              background: category.color,
+              borderRadius: "18px",
+              cursor: "pointer",
+              overflow: "hidden",
+              position: "relative",
+              boxShadow: "0 10px 20px rgba(0,0,0,0.1)",
+              transition: "transform 0.3s ease, box-shadow 0.3s ease",
+              "&:hover": {
+                transform: "translateY(-10px)",
+                boxShadow: "0 14px 25px rgba(0,0,0,0.2)",
+              },
+            }}
+          >
+            <CardContent
+              sx={{
+                textAlign: "center",
+                position: "relative",
+                height: "300px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                alignItems: "center",
+                p: 3,
+              }}
             >
-              <CardContent className="card-content">
-                <Typography
-                  variant="h5"
-                  style={{
-                    fontSize: "1.6rem",
-                    fontWeight: "600",
-                    color: "#858585",
-                  }}
-                  className="category-name"
-                >
-                  {category.title}
-                </Typography>
-          
-                <div className="image-container">
-                  <img
-                    src={category.img}
-                    alt={category.title}
-                    style={{
-                      left: category.left,
-                      width: category.width,
-                      height: category.height,
-                      marginTop: category.top,
-                    }}
-                    className="category-image"
-                  />
-                </div>
-                {category.shopNow && (
-                  <Button
-                    variant="contained"
-                    style={{ backgroundColor: "black", marginTop: "3rem" }}
-                    className="shop-now-button"
-                  >
-                    Rent Now →
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontSize: "1.6rem",
+                  fontWeight: "600",
+                  color: "#333",
+                  textTransform: "capitalize",
+                  mb: 1,
+                }}
+              >
+                {category.title}
+              </Typography>
 
-          </Grid>
-          
+              <Box
+                sx={{
+                  position: "relative",
+                  width: "100%",
+                  height: "180px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Box
+                  component="img"
+                  src={category.img}
+                  alt={category.title}
+                  sx={{
+                    width: "auto",
+                    height: "160px",
+                    objectFit: "contain",
+                    transition: "transform 0.4s ease",
+                    "&:hover": { transform: "scale(1.1)" },
+                  }}
+                />
+              </Box>
+
+              <Button
+                variant="contained"
+                sx={{
+                  mt: 2,
+                  background: "linear-gradient(90deg, #c026d3, #7b2cbf)",
+                  fontWeight: 600,
+                  color: "#fff",
+                  px: 3,
+                  py: 1,
+                  borderRadius: "30px",
+                  boxShadow: "0 4px 10px rgba(192,38,211,0.4)",
+                  transition: "0.3s ease",
+                  "&:hover": {
+                    background: "linear-gradient(90deg, #a21caf, #6d28d9)",
+                    boxShadow: "0 6px 14px rgba(0,0,0,0.2)",
+                  },
+                }}
+              >
+                Rent Now →
+              </Button>
+            </CardContent>
+          </Card>
         ))}
       </Grid>
-
-      {/* <Button
-        variant="contained"
-        sx={{ marginTop: "4rem", backgroundColor: "#c026d3" }}
-        className="view-all-button"
-        onClick={() => handleClick(categories.title)}
-      >
-        View All
-      </Button> */}
-    </div>
+    </Box>
   );
 };
 

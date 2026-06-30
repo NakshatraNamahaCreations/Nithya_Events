@@ -1,0 +1,296 @@
+:root{
+  --content-width: 1150px;
+  --text: #111;
+  --muted: #65686b;
+  --card-radius: 10px;
+}
+
+/* Outer section */
+.rd-section {
+  background: #fff;
+  padding: 48px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Inner wrapper */
+.rd-inner {
+  width: 100%;
+  max-width: var(--content-width);
+  margin: 0 auto;
+}
+
+/* Heading */
+.rd-heading {
+  font-family: "Poppinsmed", sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 6px 0 28px 4px;
+}
+
+/* Grid for cards */
+.rd-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 40px;
+  align-items: start;
+}
+
+/* Individual card */
+.rd-card {
+  background: transparent; /* keep transparent so it feels like screenshot */
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+}
+
+/* small decorative horizontal bar (thin, near top of card) */
+.rd-accent-bar {
+  width: 90%;
+  height: 14px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  /* placed visually above the image in the screenshot */
+}
+
+/* media area: image + colored block behind */
+.rd-media {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 170px;
+}
+
+/* colored rectangle behind the image (offset like screenshot) */
+.rd-media-bg {
+  position: absolute;
+  left: 4%;
+  bottom: 8px;
+  width: 88%;
+  height: 84px;
+  border-radius: 8px;
+  z-index: 1;
+  box-shadow: none;
+}
+
+/* actual image */
+.rd-thumb {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  display: block;
+}
+
+/* meta: date + title */
+.rd-meta {
+  padding-top: 6px;
+}
+
+.rd-date {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+  font-family: 'poppinsreg';
+}
+
+.rd-title {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.25;
+  color: #222;
+  font-weight: 500;
+  font-family: "Poppinsmed", sans-serif;
+}
+
+/* Responsive behavior */
+@media (max-width: 980px) {
+  .rd-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rd-thumb {
+    height: 240px;
+  }
+
+  .rd-media-bg {
+    height: 90px;
+  }
+}
+
+/* small screens: tighten spacing */
+@media (max-width: 480px) {
+  .rd-section {
+    padding: 28px 16px;
+  }
+
+  .rd-heading {
+    font-size: 26px;
+    margin-bottom: 18px;
+  }
+
+  .rd-thumb {
+    height: 180px;
+  }
+
+  .rd-accent-bar {
+    height: 12px;
+    width: 95%;
+  }
+}
+
+
+
+
+
+
+
+.rb-section {
+  background: #fff;
+  padding: 48px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Inner wrapper */
+.rb-inner {
+  width: 100%;
+  max-width: var(--content-width);
+  margin: 0 auto;
+}
+
+/* Heading */
+.rb-heading {
+  font-family: "Poppinsmed", sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 6px 0 28px 4px;
+}
+
+/* Grid for cards */
+.rb-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+/* Individual card */
+.rb-card {
+  background: transparent; /* keep transparent so it feels like screenshot */
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+}
+
+/* small decorative horizontal bar (thin, near top of card) */
+.rb-accent-bar {
+  width: 90%;
+  height: 14px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  /* placed visually above the image in the screenshot */
+}
+
+/* media area: image + colored block behind */
+.rb-media {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 170px;
+}
+
+/* colored rectangle behind the image (offset like screenshot) */
+.rb-media-bg {
+  position: absolute;
+  left: 4%;
+  bottom: 8px;
+  width: 88%;
+  height: 84px;
+  border-radius: 8px;
+  z-index: 1;
+  box-shadow: none;
+}
+
+/* actual image */
+.rb-thumbimg {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  display: block;
+}
+
+/* meta: date + title */
+.rb-meta {
+  padding-top: 6px;
+}
+
+.rb-date {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+  font-family: 'poppinsreg';
+}
+
+.rb-title {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.25;
+  color: #222;
+  font-weight: 500;
+  font-family: "Poppinsmed", sans-serif;
+}
+
+.rd-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Responsive behavior */
+@media (max-width: 980px) {
+  .rb-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rb-thumb {
+    height: 240px;
+  }
+
+  .rb-media-bg {
+    height: 90px;
+  }
+}
+
+/* small screens: tighten spacing */
+@media (max-width: 480px) {
+  .rb-section {
+    padding: 28px 16px;
+  }
+
+  .rb-heading {
+    font-size: 26px;
+    margin-bottom: 18px;
+  }
+
+  .rb-thumb {
+    height: 180px;
+  }
+
+  .rb-accent-bar {
+    height: 12px;
+    width: 95%;
+  }
+}

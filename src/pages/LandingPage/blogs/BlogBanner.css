@@ -1,0 +1,61 @@
+.blg-bg {
+  max-width: 1400px;
+  margin: 0 auto;
+  background-image: url('/media/wooden1.jpg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 400px;
+
+  display: flex;
+  align-items: center;
+}
+
+.blg-section {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr; 
+  align-items: center;
+  width: 100%;
+  padding: 0 40px;
+}
+
+/* LEFT — BLOG HEADING */
+.blg-heading h2 {
+  font-family: 'poppinsmed';
+  font-size: 58px;
+  color: #000;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* RIGHT — BLOG IMAGE */
+.blg-image {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.blg-image img {
+  
+  height: 400px;
+  object-fit: cover;
+  position: relative;
+  right: 20%;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .blg-section {
+    grid-template-columns: 1fr; /* stack */
+    text-align: center;
+  }
+
+  .blg-image {
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .blg-heading h2 {
+    font-size: 42px;
+  }
+}

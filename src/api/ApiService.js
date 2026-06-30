@@ -32,9 +32,13 @@ const authService = {
   getAllServices: () => api.get(config.GET_ALL_SERVICE),
   getService: (service) =>
     api.get(`${config.GET_SERVICES_BY_SERVICE_NAME}/${service}`),
+  // Approved vendor-created services (same source as the admin Service List,
+  // limited to Approved). Filtered by category on the client.
+  getApprovedVendorServices: () =>
+    api.get(config.GET_APPROVED_VENDOR_SERVICES),
 
   // Wishlist
-  addWishlist: (payload) => api.post(`${config.ADD_WISHLIST}`,payload),
+  addWishlist: (payload) => api.post(`${config.ADD_WISHLIST}`, payload),
   getIndividualService: (id) => api.get(`${config.GET_SERVICE_NEW}${id}`),
 
   // Product Section

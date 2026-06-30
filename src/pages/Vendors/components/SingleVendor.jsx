@@ -13,6 +13,11 @@ import "./styles.scss";
 import { Box, Button } from "@mui/material";
 import Review from "./Review";
 
+// Local inline placeholder (no network dependency) used when an image is
+// missing or fails to load.
+const NO_IMAGE =
+  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='300'%3E%3Crect%20width='100%25'%20height='100%25'%20fill='%23eeeeee'/%3E%3Ctext%20x='50%25'%20y='50%25'%20fill='%23999999'%20font-family='sans-serif'%20font-size='18'%20text-anchor='middle'%20dominant-baseline='middle'%3ENo%20Image%3C/text%3E%3C/svg%3E";
+
 const SingleVendor = () => {
   const { id } = useParams();
   const [vendor, setVendor] = useState(null);
@@ -104,18 +109,26 @@ const SingleVendor = () => {
                 Review
               </Button> */}
               <img
-                src={vendor.shop_image_or_logo || "/assets/vendor-logo.png"}
-                alt="Vendor Logo"
+                src={vendor.shop_image_or_logo || NO_IMAGE}
+                alt={vendor.vendor_name || "Vendor Logo"}
                 className="vendor-logo"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = NO_IMAGE;
+                }}
               />
             </Box>
             <Box className="vendor-info">
               <h2>{vendor.vendor_name}</h2>
               <p> Mobile: {vendor.mobile_number}</p>
-              <p>{vendor?.address[0]?.roadArea}</p>
-              <p>{vendor?.address[0]?.cityDownVillage}</p>
+              <p>{vendor?.address?.[0]?.houseFlatBlock}</p>
+              <p>{vendor?.address?.[0]?.cityDownVillage}</p>
               <p>
-                {vendor?.address[0]?.distric}, {vendor?.address[0]?.state}
+                {vendor?.address?.[0]?.distric}
+                {vendor?.address?.[0]?.distric && vendor?.address?.[0]?.state
+                  ? ", "
+                  : ""}
+                {vendor?.address?.[0]?.state}
               </p>
               <Box className="vendor-rating">
                 {[...Array(5)]?.map((_, i) => (
@@ -146,8 +159,16 @@ const SingleVendor = () => {
                 >
                   <Box className="item-image">
                     <img
-                      src={item.product_image || "/assets/default-item.png"}
-                      alt={item.title}
+                      src={
+                        (Array.isArray(item.product_image)
+                          ? item.product_image[0]
+                          : item.product_image) || NO_IMAGE
+                      }
+                      alt={item.product_name || "Product"}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = NO_IMAGE;
+                      }}
                     />
                   </Box>
                   <Box className="item-info">

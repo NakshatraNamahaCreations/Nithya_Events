@@ -1,0 +1,331 @@
+/* Container and section spacing */
+.pg-section {
+  padding: 48px 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  color: #111827;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+.pg-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.pg-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+/* Title */
+.pg-title {
+  font-size: 2.5rem;
+  margin: 0 0 8px;
+  font-weight: 700;
+  color: #111827;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pg-subtitle {
+  font-size: 1.1rem;
+  color: #6b7280;
+  font-weight: 400;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Grid: 4 columns on desktop */
+.pg-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+/* Card */
+.pg-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+/* Hover Effects */
+.pg-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+  border-color: #3b82f6;
+}
+
+/* Media area */
+.pg-card-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pg-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.pg-card:hover .pg-card-media img {
+  transform: scale(1.05);
+}
+
+/* Discount Badge */
+.pg-discount-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* Body */
+.pg-card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-grow: 1;
+}
+
+/* Category */
+.pg-category {
+  font-size: 0.8rem;
+  color: #3b82f6;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Item title */
+.pg-item-title {
+  font-size: 1.1rem;
+  margin: 0;
+  color: #111827;
+  font-weight: 600;
+  line-height: 1.4;
+  font-family: 'Poppins', sans-serif;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.8em;
+}
+
+/* Meta container */
+.pg-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+/* Rating */
+.pg-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+.pg-star {
+  color: #fbbf24;
+  flex-shrink: 0;
+}
+
+.pg-rating-num {
+  font-weight: 600;
+  font-size: 0.85rem;
+  font-family: 'Poppins', sans-serif;
+  color: #111827;
+}
+
+.pg-reviews {
+  color: #6b7280;
+  font-size: 0.8rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Price Container */
+.pg-price-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pg-price {
+  margin: 0;
+}
+
+.pg-price-amt {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #111827;
+  display: inline-flex;
+  align-items: baseline;
+  font-family: 'Poppins', sans-serif;
+}
+
+.pg-price-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+/* Original Price */
+.pg-original-price {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pg-mrp {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
+}
+
+.pg-discount-text {
+  font-size: 0.8rem;
+  color: #10b981;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Rent Button */
+.pg-rent-btn {
+  background: linear-gradient(135deg, #809cc9 0%, #3f5eb4 100%);
+  color: white;
+  border: none;
+  padding: 12px 0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.3s ease;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pg-rent-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Load More Button */
+.pg-load-more-container {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.pg-load-more-btn {
+  background: transparent;
+  color: #3b82f6;
+  border: 2px solid #3b82f6;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.pg-load-more-btn:hover {
+  background: #3b82f6;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+.pg-arrow-icon {
+  transition: transform 0.3s ease;
+}
+
+.pg-load-more-btn:hover .pg-arrow-icon {
+  transform: translateX(4px);
+}
+
+/* No Products */
+.pg-no-products {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  font-size: 1.1rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .pg-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 992px) {
+  .pg-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pg-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .pg-grid {
+    grid-template-columns: 1fr;
+  }
+  .pg-container {
+    padding: 0 16px;
+  }
+  .pg-title {
+    font-size: 1.75rem;
+  }
+  .pg-card-media {
+    padding: 16px;
+  }
+  .pg-card-body {
+    padding: 16px;
+  }
+}

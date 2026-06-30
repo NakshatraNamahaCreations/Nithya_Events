@@ -1,0 +1,212 @@
+:root {
+  --ps-max: 1170px;
+  --muted: #666;
+  --accent: #111;
+  --card-radius: 12px;
+  --gap: 48px;
+  --bg: #ffffff;
+  --card-bg: #f6f7f8;
+}
+
+/* section */
+.ps-section {
+  width: 100%;
+  background: #f5f5f5;
+  padding: 28px 16px;
+  margin-top: 50px;
+}
+
+/* page container */
+.ps-container {
+  max-width: var(--ps-max);
+  margin: 0 auto;
+}
+
+/* header */
+.ps-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.ps-header h3 {
+  margin: 0;
+  font-size: 2rem;
+  color: #353535;
+  font-weight: 500;
+  font-family: "Poppins", sans-serif;
+}
+
+/* --------- NEW: Carousel nav buttons ---------- */
+.ps-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ps-nav-btn {
+  border: none;
+  outline: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: #f6f3f2;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  color: #333;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+
+/* ---------- GRID / CAROUSEL TRACK ---------- */
+.ps-track-grid {
+  display: grid;
+  gap: var(--gap);
+  padding: 8px 0 24px 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* optional: soft transition between slides */
+.ps-track-carousel {
+  transition: opacity 0.25s ease-in-out;
+}
+
+/* item wrapper */
+.ps-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;   
+  flex: 0 0 30.333% !important;   
+}
+
+
+.ps-card {
+  background: var(--card-bg);
+  border-radius: 16px;    
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+.ps-card-img {
+  height: 240px;
+}
+
+
+.ps-card-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+  padding-left: 4px;   
+  font-family: "Poppins", sans-serif;
+  margin-top: 10px;
+}
+
+.ps-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(15, 17, 20, 0.08);
+}
+
+
+.ps-card-img {
+  width: 100%;
+  height: 220px;
+  background: transparent;
+  overflow: hidden;
+  border-radius: var(--card-radius);
+}
+.ps-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+@media (min-width: 1100px) {
+  .ps-card-img {
+    height: 320px;
+  }
+}
+
+@media (max-width: 900px) {
+  .ps-header h3 {
+    font-size: 1.375rem;
+  }
+  .ps-card-img {
+    height: 160px;
+  }
+  /* (inline style from React will still control columns based on "visible") */
+  .ps-track-grid {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 520px) {
+  .ps-track-grid {
+    gap: 16px;
+  }
+  .ps-card-img {
+    height: 140px;
+  }
+  .ps-header h3 {
+    font-size: 1.125rem;
+  }
+  .ps-nav-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 16px;
+  }
+}
+
+/* Wrapper around list + bar */
+.ps-scroll-outer {
+  margin-top: 4px;
+}
+
+/* Horizontal scroll row (native scrollbar hidden) */
+.ps-scroll-row {
+  display: flex;
+  gap: var(--gap);
+  padding: 8px 0 8px 0;
+  margin: 0;
+  list-style: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none;      
+}
+.ps-scroll-row::-webkit-scrollbar {
+  display: none;                
+}
+
+
+.ps-custom-scrollbar {
+  margin-top: 18px;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: #e8eaef;
+  overflow: hidden;
+  position: relative;        
+}
+
+.ps-custom-scrollbar-thumb {
+  height: 100%;
+  border-radius: inherit;
+  background: #c3c6cf;
+  position: absolute;       
+  top: 0;                  
+  left: 0;                 
+  transition: left 0.15s ease-out, width 0.15s ease-out;
+}
+
+

@@ -1,0 +1,243 @@
+/* components/DownloadApp.css */
+
+:root {
+  --da-max: 1200px;
+  --bg: #ededed;
+  --card-bg: #ffffff;
+  --muted: #6f6f6f;
+  --title: #0f1720;
+  --radius: 14px;
+  --phone-border: #111;
+  --phone-bg: #fff;
+}
+
+.da-section {
+ max-width: 1280px;
+  background: #f2f2f2;
+  padding: 36px 16px;
+  margin: 0 auto;
+  border-radius: 15px;
+}
+
+.da-container {
+  max-width: var(--da-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 28px;
+  align-items: center;
+}
+
+/* Left content */
+.da-left {
+  padding: 18px 20px;
+}
+
+.da-image img{
+  position: relative;
+  width: 60px;
+  height: 60px;
+  top: 20px;
+left: -60px;
+}
+
+.da-title {
+  font-size: 30px;
+  margin: -36px 0 10px;
+  color: var(--title);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-family: 'poppinsmed', sans-serif;
+  padding-left: 10px;
+  max-width: 500px;
+}
+
+.da-sub {
+  color: var(--muted);
+  margin: 0 0 18px 0;
+  max-width: 640px;
+  font-size: 15px;
+  line-height: 1.5;
+  font-family: 'poppins' , sans-serif;
+  padding-left: 10px;
+}
+
+/* Badges */
+.da-badges {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.da-badge {
+  display: inline-block;
+  text-decoration: none;
+  background: transparent;
+  border-radius: 8px;
+  padding: 6px;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.da-badge img {
+  height: 40px; /* badges scale to same height */
+  display: block;
+  object-fit: contain;
+}
+
+/* hover */
+.da-badge:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(15, 17, 20, 0.08);
+}
+
+/* Right - stylized phone with QR */
+.da-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+}
+
+
+
+/* PHONE FRAME AND QR OVERLAY */
+.da-phone-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+
+.da-phone-wrapper img {
+  width: 410px !important ;
+  height: 370px !important;
+  display: block;
+  z-index: 1;
+  object-fit: cover;
+}
+
+/* overlay QR inside the phone */
+.da-qr-overlay {
+  position: absolute;
+  top: 23%;       /* adjust these to fit your phone frame screen */
+  left: 22%;
+  width: 56%;
+  height: 54%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.da-qr {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
+}
+
+/* label text under phone */
+.da-qr-label {
+  margin-top: 10px;
+  font-size: 0.8125rem;
+  color: #666;
+  text-align: center;
+}
+
+/* responsive fix */
+@media (max-width: 520px) {
+  .da-phone-frame {
+    width: 220px;
+  }
+  .da-qr-overlay {
+    top: 23%;
+    left: 22%;
+    width: 56%;
+    height: 54%;
+  }
+}
+
+
+/* QR wrap (white inner card) */
+.da-qr-wrap {
+  width: 78%;
+  height: 62%;
+  background: #fff;
+  border-radius: 8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.da-qr {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 4px;
+}
+
+/* phone bottom decoration */
+.da-phone-bottom {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0,0,0,0.08);
+}
+
+/* small label under phone */
+.da-qr-label {
+  margin-top: 10px;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+/* If you want a soft background card to mimic screenshot */
+.da-section .da-container::before {
+  content: "";
+  position: absolute;
+  left: calc(50% - var(--da-max)/2 - 16px);
+  right: calc(50% - var(--da-max)/2 - 16px);
+  top: calc(100% - 320px);
+  height: 12px;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 980px) {
+  .da-container {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .da-right {
+    order: 2;
+  }
+  .da-left {
+    order: 1;
+  }
+  .da-phone-frame {
+    margin: 0 auto;
+  }
+}
+
+/* Smaller phones */
+@media (max-width: 520px) {
+  .da-title { font-size: 1.25rem; }
+  .da-sub { font-size: 0.875rem; }
+  .da-phone-frame { width: 220px; height: 320px; border-radius: 28px; }
+  .da-badge img { height: 34px; }
+}

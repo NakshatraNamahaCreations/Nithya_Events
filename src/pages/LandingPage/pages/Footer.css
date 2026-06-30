@@ -1,0 +1,267 @@
+:root{
+  --footer-bg: #f2f3f6;
+  --panel-bg: #f2f3f6;
+  --muted: #6b7280;
+  --text: #111827;
+  --max-w: 1280px;
+  --sep: #e1e2e6;
+}
+
+/* Footer outer */
+.fe-footer{
+  background: var(--footer-bg);
+  padding: 32px 16px;
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* inner container */
+.fe-inner{
+  max-width: var(--max-w);
+  margin: 0 auto;
+  background: var(--panel-bg);
+  padding: 28px 28px 18px;
+  border-radius: 4px;
+  box-shadow: 0 1px 0 rgba(16,24,40,0.02);
+}
+
+/* top layout */
+.fe-top{
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+/* Brand block */
+/* Center logo above columns */
+.fe-brand-top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  width: 100%;
+}
+
+.fe-brand-top .fe-logo {
+  width: 108px;
+  height: 108px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  padding: 6px;
+}
+
+.fe-brand-top .fe-brand-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #353535;
+  font-family: 'Poppinsmed', sans-serif;
+ 
+}
+
+/* Adjust spacing between logo and links */
+.fe-links {
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  text-align: left;
+  font-family: 'poppinsreg', sans-serif;
+}
+
+/* Responsive adjustments for stacked layout */
+@media (max-width: 768px) {
+  .fe-brand-top {
+    margin-bottom: 20px;
+  }
+  .fe-links {
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+    text-align: center;
+  }
+  .fe-col {
+    flex: 1 1 100%;
+  }
+  .fe-list a {
+    text-align: center;
+  }
+}
+
+
+/* links area */
+.fe-links{
+  display: flex;
+  gap: 28px;
+  flex: 1 1 auto;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* each column */
+.fe-col{
+  min-width: 140px;
+  flex: 1 1 140px;
+}
+
+.fe-col-title{
+  font-size: 1.125rem;
+  font-weight: 500;
+  margin: 0 0 12px 0;
+  font-family: 'poppinsmed', sans-serif;
+}
+
+/* simple link list */
+.fe-list{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fe-list a{
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.fe-list a:hover{
+  color: var(--text);
+}
+
+/* social / badges column adjustments */
+.fe-col-social{
+  min-width: 180px;
+  flex: 0 0 220px;
+}
+
+.fe-social-row{
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.fe-social{
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background .15s ease, color .15s ease;
+}
+
+.fe-social:hover{
+  background: rgba(0,0,0,0.04);
+  color: var(--text);
+}
+
+/* app copy and badges */
+.fe-app-copy{
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.fe-badges{
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.fe-badges img{
+  height: 46px;
+  width: auto;
+  display: block;
+  border-radius: 4px;
+  padding: 4px 6px;
+  box-shadow: 0 1px 0 rgba(16,24,40,0.03);
+  margin-left: -10px;
+}
+
+/* separator */
+.fe-sep{
+  border: 0;
+  height: 2px;
+  background: #353535;
+  margin: 18px 0;
+}
+
+/* bottom row */
+.fe-bottom{
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 0.875rem;
+  padding-bottom: 6px;
+  font-family: 'poppinsmed', sans-serif;
+  flex-direction: column;
+}
+
+.fe-location{
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* copyright */
+.fe-copy{
+  margin-left: 8px;
+}
+
+/* responsive */
+@media (max-width: 920px){
+  .fe-links{
+    gap: 16px;
+  }
+  .fe-col{
+    flex: 1 1 45%;
+    min-width: 140px;
+  }
+
+  .fe-brand{
+    flex: 0 0 100%;
+  }
+
+  .fe-top{
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 560px){
+  .fe-inner{
+    padding: 20px;
+  }
+
+  .fe-links{
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .fe-col{
+    flex: 1 1 100%;
+  }
+
+  .fe-col-social{
+    flex: 1 1 100%;
+  }
+
+  .fe-brand{
+    justify-content: flex-start;
+  }
+
+  .fe-bottom{
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+  }
+}

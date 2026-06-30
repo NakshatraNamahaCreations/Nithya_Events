@@ -1,8 +1,6 @@
-// React Related imports
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Logo from "../../assets/logo2.png";
-
 
 // Third party library
 import {
@@ -28,27 +26,22 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-// import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import EditCalendarOutlinedIcon from "@mui/icons-material/EditCalendarOutlined";
-// import FmdGoodOutlinedIcon from "@mui/icons-material/FmdGoodOutlined";
-// import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
-// import CloseIcon from "@mui/icons-material/Close";
-// import { Add } from "@mui/icons-material";
-// import RemoveIcon from "@mui/icons-material/Remove";
-
-// Custom Components
 import { useDispatch, useSelector } from "react-redux";
-import { formatCurrencyIntl, getCurrentCity } from "../../utils/helperFunc";
+import {
+  formatCurrencyIntl,
+  getCurrentCity,
+  getCityFromQuery,
+} from "../../utils/helperFunc";
 import { logout } from "../../redux/slice/authSlice";
-// import {
-//   quantityDecrement,
-//   quantityIncrement,
-//   removeFromCart,
-// } from "../../redux/slice/CartSlice";
 
 // Assests
 import Calenders from "../../assets/Calenders.png";
@@ -57,9 +50,6 @@ import AnalyticsImg from "../../assets/pieChart.png";
 import Delivery from "../../assets/deliveryHome.png";
 import Calendar from "../../pages/Calender";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
-
-// import ShoppingCart from "../../assets/shoppingCart.png";
-// import ShoppingCart from "../../assets/carts.png";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import DesignServicesOutlinedIcon from "@mui/icons-material/DesignServicesOutlined";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -84,13 +74,26 @@ import { config } from "../../api/config";
 import { setLoading } from "../../redux/slice/LoaderSlice";
 import axios from "axios";
 import authService from "../../api/ApiService";
-import { toast } from "react-toastify"; // Add this import
-import "react-toastify/dist/ReactToastify.css"; // Ensure CSS for toast is imported
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import {
+  addToCart,
+  clearCart,
+  quantityDecrement,
+  quantityIncrement,
+  removeFromCart,
+} from "../../redux/slice/CartSlice";
+import { clearServices } from "../../redux/slice/serviceSlice";
+import { clearTechnicians } from "../../redux/slice/technicianSlice";
 
 const PageHeader = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestedProducts, setSuggestedProducts] = useState([]);
   const [currLocation, setCurrLocation] = useState({ city: "", town: "" });
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const [locationQuery, setLocationQuery] = useState("");
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState("");
   const [anchorEl, setAnchorEl] = useState(null);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const userDetails = useSelector((state) => state.auth.userDetails);
@@ -111,15 +114,13 @@ const PageHeader = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [originalDetails, setOriginalDetails] = useState({
-
     profileImage: "",
   });
-
   const [updatedDetails, setUpdatedDetails] = useState({
-
     profileImage: "",
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   const menuItems = [
     {
@@ -127,7 +128,6 @@ const PageHeader = () => {
       icon: <AccountCircleOutlinedIcon />,
       path: "/profile",
     },
-    // { label: "My Bookings", icon: <AccountCircleOutlinedIcon />, path: "/account" },
     {
       label: "My Bookings",
       icon: <EditCalendarOutlinedIcon />,
@@ -147,6 +147,7 @@ const PageHeader = () => {
       path: "/TermsAndCondition",
     },
   ];
+
   const [activePath, setActivePath] = useState(location.pathname);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -159,32 +160,23 @@ const PageHeader = () => {
       setSuggestedProducts([]);
       return;
     }
-
     const fetchProducts = async () => {
-      // setLoading(true);
-      // dispatch(setLoading(true));
       try {
         const res = await axios.post(
           `${config.BASEURL}/product/search-product?limit=5&name=${searchTerm}`
         );
-
         setSuggestedProducts(res.data.products || []);
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
-      // dispatch(setLoading(false));
     };
-
     const debounceSearch = setTimeout(fetchProducts, 300);
     return () => clearTimeout(debounceSearch);
   }, [searchTerm]);
 
   const handleSuggestionClick = (productName) => {
-    setSearchTerm(productName);
-
     setSearchTerm("");
     setSuggestedProducts([]);
-
     setTimeout(() => {
       navigate(`/products?search=${encodeURIComponent(productName)}`);
     }, 50);
@@ -200,27 +192,34 @@ const PageHeader = () => {
   const closeMenuAndNavigate = (path) => {
     setActivePath(path);
     setMenuOpen(false);
+    setMenuAnchor(null); // Ensure menu closes
     navigate(path);
   };
 
-  const toggleDrawer = (open) => () => {
-    setDrawerOpen(open);
-  };
+  const toggleDrawer = (open) => () => setDrawerOpen(open);
 
   useEffect(() => {
     const homeVisited = sessionStorage.getItem("homeVisited");
-
     if (!homeVisited) {
       setIsCalendarOpen(true);
       sessionStorage.setItem("homeVisited", "true");
     }
   }, []);
 
-  const handleCalendarClose = () => {
-    setIsCalendarOpen(false);
-  };
+  const handleCalendarClose = () => setIsCalendarOpen(false);
 
   useEffect(() => {
+    // Prefer a location the user has explicitly chosen before; otherwise
+    // auto-detect via geolocation.
+    const saved = localStorage.getItem("selectedLocation");
+    if (saved) {
+      try {
+        setCurrLocation(JSON.parse(saved));
+        return;
+      } catch (e) {
+        // fall through to auto-detect on parse error
+      }
+    }
     const fetchCity = async () => {
       try {
         const locationData = await getCurrentCity();
@@ -229,110 +228,129 @@ const PageHeader = () => {
         setCurrLocation(error);
       }
     };
-
     fetchCity();
   }, []);
 
-  const handleMenuOpen = (event) => {
-    setMenuAnchor(event.currentTarget);
+  const persistLocation = (loc) => {
+    setCurrLocation(loc);
+    try {
+      localStorage.setItem("selectedLocation", JSON.stringify(loc));
+    } catch (e) {
+      // ignore storage errors
+    }
   };
 
-  const handleMenuClose = () => {
-    setMenuAnchor(null);
+  const openLocationDialog = () => {
+    setLocationError("");
+    setLocationQuery("");
+    setLocationDialogOpen(true);
   };
 
-  // Logout User
-  // const handleLogout = () => {
-  //   dispatch(logout());
-  //   navigate("/login");
-  // };
+  const handleUseCurrentLocation = async () => {
+    setLocating(true);
+    setLocationError("");
+    try {
+      const locationData = await getCurrentCity();
+      persistLocation(locationData);
+      setLocationDialogOpen(false);
+    } catch (error) {
+      setLocationError(
+        typeof error === "string"
+          ? error
+          : "Could not detect your location. Please allow location access or search manually."
+      );
+    } finally {
+      setLocating(false);
+    }
+  };
 
-const handleLogout = () => {
-  // toast.warn("You have been logged out", {
-  //   position: "top-right",
-  //   autoClose: 3000,
-  //   pauseOnHover: true,
-  //   draggable: true,
-  //   theme: "colored",
-  // });
+  const handleApplyTypedLocation = async () => {
+    setLocating(true);
+    setLocationError("");
+    try {
+      const locationData = await getCityFromQuery(locationQuery);
+      persistLocation(locationData);
+      setLocationDialogOpen(false);
+    } catch (error) {
+      setLocationError(
+        error?.message || "Location not found. Try a different search."
+      );
+    } finally {
+      setLocating(false);
+    }
+  };
 
-  alert('you have been logged out');
+  const handleMenuOpen = (event) => setMenuAnchor(event.currentTarget);
+  const handleMenuClose = () => setMenuAnchor(null);
 
-  dispatch(logout());
-  navigate("/login");
-};
+  const handleLogoutClick = () => {
+    setLogoutDialogOpen(true);
+  };
 
+  const handleLogoutConfirm = () => {
+    setLogoutDialogOpen(false);
+    navigate("/login");
+
+    dispatch(clearCart());
+    dispatch(clearTechnicians());
+    dispatch(logout());
+    dispatch(clearServices());
+  };
+
+  const handleLogoutCancel = () => {
+    setLogoutDialogOpen(false);
+  };
 
   const handleProfileImageChange = (e) => {
     const file = e.target.files[0];
-
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        // Update the profileImage in the state
         setUpdatedDetails({
           ...updatedDetails,
-          profileImage: reader.result, // Base64 image data
+          profileImage: reader.result,
         });
       };
-      reader.readAsDataURL(file); // Read the file as base64 string
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSave = async () => {
-    console.log("handleSave triggered");
     setIsSaving(true);
     try {
       const formData = new FormData();
       formData.append("username", updatedDetails.name);
-  
       if (updatedDetails.profileImage) {
         formData.append("profile_image", updatedDetails.profileImage);
       }
-  
-  
-      const res = await axios.put(
-        `https://api.nithyaevent.com/api/user/edit-profile/${userId}`,
+      await axios.put(
+        `https://api.nithyaevent.com/api/user/edit-profile/${userDetails._id}`,
         formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
-  
-      console.log("API Response", res);
       toast.success("Profile updated successfully");
     } catch (error) {
-      console.log("API Error", error);
       toast.error("Error updating profile");
     }
     setIsSaving(false);
   };
-  
 
   useEffect(() => {
     const getUser = async () => {
       try {
         const res = await authService.getUserProfile(userDetails._id);
-        setUpdatedDetails(res.data); // Update the state with the fetched data
-        console.log("the udpateddetails", res.data.profile_image);
+        setUpdatedDetails(res.data);
       } catch (error) {
         console.error("Error fetching user data", error);
       }
     };
-
     getUser();
   }, [userDetails._id]);
 
   return (
     <>
       <Box className="header-main">
-        <AppBar
-          position="static"
-          sx={{
-            background: "white",
-            width: "100% ",
-          }}
-        >
+        <AppBar position="static" sx={{ background: "white", width: "100%" }}>
           <Toolbar
             sx={{
               display: "flex",
@@ -343,147 +361,36 @@ const handleLogout = () => {
               position: "relative",
             }}
           >
+            {/* Logo Section */}
             <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              {/* <Typography
-                variant="h5"
-                component={Link}
-                to="/"
-                sx={{
-                  color: "white",
-                  textDecoration: "none",
-                  fontWeight: "bold",
-                }}
-              > */}
               <img
                 src={Logo}
                 alt="Logo"
                 style={{ cursor: "pointer" }}
                 className="logo-image"
                 onClick={() => navigate("/")}
-                // cursor: pointer;
-                // height: 7rem;
-                // position: absolute;
-                // right: -107%;
-                // width: 8rem;
-                // z-index: 1;
-                // top: -16%;
-                // left: 0rem;
               />
-              {/* </Typography> */}
-
-              {/* <Box
-                sx={{
-                  display: { xs: "none", md: "flex" },
-                  gap: "1.5rem",
-                  alignItems: "center",
-                }}
-              >
-                <Link
-                  to="/"
-                  style={{
-                    textDecoration: "none",
-                    color: "black",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <img
-                    src={Homes}
-                    alt="Not found"
-                    style={{ width: "18px", marginTop: "1px" }}
-                  />
-                  <Typography variant="p">Home</Typography>
-                </Link>
-
-                <Link
-                  to="/products"
-                  style={{
-                    textDecoration: "none",
-                    color: "black",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <img
-                    src={Products}
-                    alt="Not found"
-                    style={{ width: "17px", marginTop: "1.5px" }}
-                  />
-                  Products
-                </Link> */}
-              {/* <Link
-                  to={"/booking"}
-                  style={{
-                    textDecoration: "none",
-                    color: "black",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <img
-                    src={Settings}
-                    alt="Not found"
-                    style={{ width: "17px", marginTop: "1.5px" }}
-                  />
-                  Setting
-                </Link> */}
-              {/* <Link
-                  to={"/services"}
-                  style={{
-                    textDecoration: "none",
-                    color: "black",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <img
-                    src={Serv}
-                    alt="Not found"
-                    style={{ width: "17px", marginTop: "1.5px" }}
-                  />
-                  Services
-                </Link> */}
-              {/* <Link
-                  to={"/booking"}
-                  style={{
-                    textDecoration: "none",
-                    color: "black",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <img
-                    src={Calend}
-                    alt="Not found"
-                    style={{ width: "17px", marginTop: "1.5px" }}
-                  />
-                  Booking
-                </Link>
-              </Box> */}
             </Box>
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: "0.2rem" }}>
-              {/* <FmdGoodOutlinedIcon sx={{ color: "black", fontSize: 24 }} /> */}
+            {/* Location */}
+            <Box
+              onClick={openLocationDialog}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.2rem",
+                cursor: "pointer",
+                borderRadius: "8px",
+                p: "4px 6px",
+                "&:hover": { backgroundColor: "#f4f4f4" },
+              }}
+              title="Select your location"
+            >
               <img
                 src={Locations}
                 alt="Not found"
-                style={{
-                  width: "1.5rem",
-                  height: "25px",
-                  display: "flex",
-                  alignItems: "center",
-                }}
+                style={{ width: "1.5rem", height: "25px" }}
               />
-              {/* height: 51px;
-    display: flex
-;
-    justify-content: center;
-    align-items: center; */}
               <Box
                 sx={{
                   display: "flex",
@@ -491,115 +398,106 @@ const handleLogout = () => {
                   fontSize: "0.8rem",
                 }}
               >
-                <Typography
-                  variant="p"
-                  sx={{ color: "black", fontSize: "0.85rem" }}
-                >
-                  Your Location
+                <Typography sx={{ color: "black", fontSize: "0.85rem" }}>
+                  Your Location ▾
                 </Typography>
                 <Typography
-                  variant="p"
                   sx={{
                     fontWeight: "400",
                     color: "black",
                     fontSize: { xs: "0.575rem", md: "0.75rem" },
-                    justifyContent: "center",
                   }}
-                  // sx={{ display: { xs: "none", md: "block" } }}
                 >
                   {currLocation.city
-                    ? `${currLocation.city}, ${currLocation.town}`
-                    : "Fetching location..."}
+                    ? `${currLocation.city}${
+                        currLocation.town ? `, ${currLocation.town}` : ""
+                      }`
+                    : "Select location"}
                 </Typography>
               </Box>
             </Box>
 
-            {/* Search Bar.................. */}
+            {/* Search */}
             {!isMobile && (
-              <>
-                <Paper
-                  component="form"
+              <Paper
+                component="form"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  width: { xs: "100%", md: "32%" },
+                  borderRadius: "50px",
+                  boxShadow: "none",
+                  border: "1px solid #e0e0e0",
+                  backgroundColor: "#f4f4f4",
+                }}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSearch();
+                }}
+              >
+                <SearchIcon sx={{ color: "#9e9e9e", marginLeft: "8px" }} />
+                <InputBase
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    width: { xs: "100%", md: "32%" },
-                    borderRadius: "50px",
-                    boxShadow: "none",
-                    border: "1px solid #e0e0e0",
-                    backgroundColor: "#f4f4f4",
+                    flex: 1,
+                    color: "#757575",
+                    height: "50px",
+                    p: "2px 10px",
+                    fontWeight: "500",
+                    fontSize: "18px",
+                    backgroundColor: "transparent",
                   }}
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSearch();
-                  }}
-                >
-                  <SearchIcon sx={{ color: "#9e9e9e", marginLeft: "8px" }} />
-
-                  <InputBase
-                    sx={{
-                      flex: 1,
-                      color: "#757575",
-                      height: "50px",
-                      p: "2px 10px",
-                      fontWeight: "500",
-                      fontSize: "18px",
-                      backgroundColor: "transparent",
-                    }}
-                    placeholder='Search "Products"'
-                    inputProps={{ "aria-label": "search products" }}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </Paper>
-              </>
+                  placeholder='Search "Products"'
+                  inputProps={{ "aria-label": "search products" }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </Paper>
             )}
 
-            {/* Search Suggestions */}
+            {/* Suggested Products */}
             {suggestedProducts.length > 0 && searchTerm && (
-               <Paper
-               sx={{
-                 position: "absolute",
-                 top: "100%",
-                 left: "50%",  
-                 transform: "translateX(-50%)",
-                 width: "100%", 
-                 maxWidth: "400px",  
-                 backgroundColor: "white",
-                 zIndex: 10,
-                 boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
-                 maxHeight: "400px",
-                 overflowY: "auto",  
-                 borderRadius: "8px",
-                 marginTop: "5px",
-                 padding: "10px",
-               }}
-             >
+              <Paper
+                sx={{
+                  position: "absolute",
+                  top: "100%",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: "100%",
+                  maxWidth: "400px",
+                  backgroundColor: "white",
+                  zIndex: 10,
+                  boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+                  maxHeight: "400px",
+                  overflowY: "auto",
+                  borderRadius: "8px",
+                  marginTop: "5px",
+                  padding: "10px",
+                }}
+              >
                 <List>
-                  {suggestedProducts.length > 0 &&
-                    suggestedProducts.map((product) => (
-                      <ListItem
-                        key={product.id}
-                        button
-                        onClick={() =>
-                          handleSuggestionClick(product.product_name)
-                        }
-                        sx={{ padding: "10px" }}
-                      >
-                        <ListItemText
-                          primary={product.product_name}
-                          sx={{ color: "#333", fontWeight: "bold" }}
-                        />
-                      </ListItem>
-                    ))}
+                  {suggestedProducts.map((product) => (
+                    <ListItem
+                      key={product.id}
+                      button
+                      onClick={() =>
+                        handleSuggestionClick(product.product_name)
+                      }
+                      sx={{ padding: "10px" }}
+                    >
+                      <ListItemText
+                        primary={product.product_name}
+                        sx={{ color: "#333", fontWeight: "bold" }}
+                      />
+                    </ListItem>
+                  ))}
                 </List>
               </Paper>
             )}
 
-            {/* Last menu icons ................... */}
+            {/* Icons and Profile */}
             <Box sx={{ display: { xs: "none", md: "block" } }}>
               <Box sx={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-                {/* Wishlist............. */}
-
+                {/* Wishlist */}
                 <Box
                   sx={{
                     display: "flex",
@@ -609,21 +507,14 @@ const handleLogout = () => {
                   onClick={() => navigate("/wishlist")}
                 >
                   <FavoriteBorderIcon
-                    fontSize="medium"
                     sx={{ color: "#e389eb", cursor: "pointer" }}
                   />
-                  <Typography
-                    sx={{
-                      color: "#6f6a6a",
-                      fontFamily: "poppins",
-                      fontSize: "0.8rem",
-                    }}
-                  >
+                  <Typography sx={{ color: "#6f6a6a", fontSize: "0.8rem" }}>
                     Wishlist
                   </Typography>
                 </Box>
 
-                {/* Cart .......... */}
+                {/* Cart */}
                 <Box
                   sx={{
                     display: "flex",
@@ -633,13 +524,7 @@ const handleLogout = () => {
                 >
                   <Link
                     to="/cart"
-                    style={{
-                      textDecoration: "none",
-                      color: "black",
-                      display: "flex",
-                      alignItems: "center",
-                      position: "relative",
-                    }}
+                    style={{ textDecoration: "none", color: "black" }}
                   >
                     <Badge
                       badgeContent={totalItems.length}
@@ -648,35 +533,19 @@ const handleLogout = () => {
                         "& .MuiBadge-badge": {
                           fontSize: "10px",
                           fontWeight: "bold",
-                          minWidth: "16px",
-                          height: "16px",
-                          padding: "4px",
                         },
                       }}
                     >
-                      <ShoppingCartOutlinedIcon
-                        fontSize="medium"
-                        sx={{
-                          color: "#e389eb",
-                        }}
-                      />
+                      <ShoppingCartOutlinedIcon sx={{ color: "#e389eb" }} />
                     </Badge>
                   </Link>
-
-                  <Typography
-                    sx={{
-                      color: "#6f6a6a",
-                      fontFamily: "poppins",
-                      fontSize: "0.8rem",
-                    }}
-                  >
+                  <Typography sx={{ color: "#6f6a6a", fontSize: "0.8rem" }}>
                     Cart
                   </Typography>
                 </Box>
 
-                {/* Mood Board.............  */}
-
-                <Box sx={{}}>
+                {/* Mood Board */}
+                <Box>
                   <Link
                     to={"/mood-board"}
                     style={{
@@ -688,36 +557,15 @@ const handleLogout = () => {
                     }}
                   >
                     <DesignServicesOutlinedIcon
-                      fontSize="medium"
                       sx={{ color: "#e389eb", cursor: "pointer" }}
                     />
-                    <Typography
-                      sx={{
-                        color: "#6f6a6a",
-                        fontFamily: "poppins",
-                        fontSize: "0.8rem",
-                      }}
-                    >
+                    <Typography sx={{ color: "#6f6a6a", fontSize: "0.8rem" }}>
                       Mood Board
                     </Typography>
                   </Link>
                 </Box>
-                {/* <Link
-                  to={"/cart"}
-                  style={{
-                    textDecoration: "none",
-                    color: "black",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                  }}
-                >
-                  <img
-                    src={Bell}
-                    alt="Not found"
-                    style={{ width: "17px", marginTop: "1.5px" }}
-                  />
-                </Link> */}
+
+                {/* Calendar */}
                 <Box
                   sx={{
                     display: "flex",
@@ -727,29 +575,20 @@ const handleLogout = () => {
                   onClick={() => setIsCalendarOpen(!isCalendarOpen)}
                 >
                   <CalendarMonthIcon
-                    fontSize="medium"
                     sx={{ color: "#e389eb", cursor: "pointer" }}
                   />
-                  <Typography
-                    sx={{
-                      color: "#6f6a6a",
-                      fontFamily: "poppins",
-                      fontSize: "0.8rem",
-                    }}
-                  >
+                  <Typography sx={{ color: "#6f6a6a", fontSize: "0.8rem" }}>
                     Calender
                   </Typography>
                 </Box>
-                {/* Account page................................. */}
+
+                {/* Profile */}
                 {isAuthenticated ? (
                   <>
                     <Box onClick={handleMenuOpen}>
                       {updatedDetails.profile_image ? (
-                          <Avatar
-                          src={
-                            updatedDetails.profile_image 
-                       
-                          }
+                        <Avatar
+                          src={updatedDetails.profile_image}
                           sx={{
                             width: 64,
                             height: 64,
@@ -760,23 +599,15 @@ const handleLogout = () => {
                           }}
                         />
                       ) : (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                          }}
-                        >
+                        <Box sx={{ textAlign: "center" }}>
                           <AccountCircleOutlinedIcon
-                            fontSize="medium"
                             sx={{ color: "#e389eb" }}
                           />
                           <Typography
                             sx={{
                               color: "#6f6a6a",
-                              fontFamily: "poppins",
-                                  cursor: "pointer",
                               fontSize: "0.8rem",
+                              cursor: "pointer",
                             }}
                           >
                             Profile
@@ -794,114 +625,27 @@ const handleLogout = () => {
                           width: "280px",
                           padding: "15px",
                           borderRadius: "12px",
-                          boxShadow: "0px 5px 15px rgba(0,0,0,0.2)",
                         },
                       }}
                     >
-                      {isAuthenticated ? (
-                        <Box
-                          sx={{ textAlign: "center", paddingBottom: "12px" }}
-                        >
-                          {/* <input
-                            type="file"
-                            accept="image/*"
-                            id="avatarUpload"
-                            style={{ display: "none" }}
-                            onChange={(e) => {
-                              const file = e.target.files[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                  // Update the image locally (you can also trigger API update here)
-                                  setUpdatedDetails({
-                                    ...updatedDetails,
-                                    profileImage: reader.result,
-                                  });
-
-                                  // Call handleSave to upload the profile image to the server immediately
-                                  handleSave(); // Save the image to the server immediately
-                                };
-                                reader.readAsDataURL(file); // Convert the selected file to base64
-                              }
-                            }}
-                          /> */}
-
-                          <label
-                            htmlFor="avatarUpload"
-                            style={{ position: "relative", cursor: "pointer" }}
-                          >
-                            <Avatar
-                              src={
-                                updatedDetails.profile_image 
-                           
-                              } // Use the selected image or the default image
-                              sx={{
-                              width:'3rem',
-                              height:'3rem',
-                                margin: "0 auto",
-                                mb: 1,
-                                border: "2px solid #ccc",
-                              }}
-                            />
-                            {/* <Box
-                              sx={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                width: 64,
-                                height: 64,
-                                borderRadius: "50%",
-                                bgcolor: "rgba(0,0,0,0.4)",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                opacity: 0,
-                                transition: "opacity 0.3s",
-                                "&:hover": {
-                                  opacity: 1,
-                                },
-                              }}
-                            >
-                              {/* <PhotoCamera sx={{ color: "white" }} /> */}
-                            {/* </Box> */}
-                          </label>
-{/* 
-                          <input
-                            type="file"
-                            accept="image/*"
-                            id="avatarUpload"
-                            style={{ display: "none" }}
-                            onChange={handleProfileImageChange} // Handle the file input change
-                          /> */}
-
-                          <Typography
-                            variant="h6"
-                            fontWeight="bold"
-                            sx={{ textTransform: "capitalize" }}
-                          >
-                            {userDetails.username}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            {userDetails.email}
-                          </Typography>
-                        </Box>
-                      ) : (
-                        <Box
-                          sx={{ textAlign: "center", paddingBottom: "12px" }}
-                        >
-                          <Avatar
-                            sx={{
-                              width: 64,
-                              height: 64,
-                              margin: "0 auto",
-                              mb: 1,
-                            }}
-                          />
-                          <Typography variant="h6" fontWeight="bold">
-                            Guest User
-                          </Typography>
-                        </Box>
-                      )}
+                      <Box sx={{ textAlign: "center", paddingBottom: "12px" }}>
+                        <Avatar
+                          src={updatedDetails.profile_image}
+                          sx={{
+                            width: "3rem",
+                            height: "3rem",
+                            margin: "0 auto",
+                            mb: 1,
+                            border: "2px solid #ccc",
+                          }}
+                        />
+                        <Typography variant="h6" fontWeight="bold">
+                          {userDetails.username}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {userDetails.email}
+                        </Typography>
+                      </Box>
 
                       <Divider sx={{ mb: 1 }} />
 
@@ -918,10 +662,7 @@ const handleLogout = () => {
                                   ? "#f3e5f5"
                                   : "transparent",
                                 "&:hover": { backgroundColor: "#f1f1f7" },
-                                padding: "10px 15px",
                                 borderRadius: "8px",
-                                color: isActive ? "#9c27b0" : "black",
-                                cursor: "pointer",
                               }}
                             >
                               {React.cloneElement(item.icon, {
@@ -933,11 +674,9 @@ const handleLogout = () => {
                               <ListItemText
                                 primary={
                                   <Typography
-                                    variant="p"
                                     sx={{
-                                      fontWeight: isActive ? "bold" : "normal",
                                       color: isActive ? "#9c27b0" : "black",
-                                      fontSize: "0.9rem",
+                                      fontWeight: isActive ? "bold" : "normal",
                                     }}
                                   >
                                     {item.label}
@@ -951,49 +690,29 @@ const handleLogout = () => {
 
                       <Divider sx={{ my: 1 }} />
 
-                      {isAuthenticated ? (
-                        <ListItem
-                          button
-                          onClick={() => {
-                            handleLogout();
-                            handleMenuClose();
-                          }}
-                          sx={{
-                            "&:hover": { backgroundColor: "#f1f1f7" },
-                            padding: "12px 15px",
-                            borderRadius: "8px",
-                          }}
-                        >
-                          <LogoutIcon
-                            sx={{ marginRight: "12px", color: "#d32f2f" }}
-                          />
-                          <ListItemText
-                            primary="Logout"
-                            sx={{ color: "#d32f2f", cursor: "pointer" }}
-                          />
-                        </ListItem>
-                      ) : (
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          fullWidth
-                          sx={{ borderRadius: "8px", marginTop: "10px" }}
-                          onClick={() => navigate("/login")}
-                        >
-                          Sign In
-                        </Button>
-                      )}
+                      <ListItem
+                        button
+                        onClick={() => {
+                          handleLogoutClick();
+                          handleMenuClose();
+                        }}
+                        sx={{
+                          "&:hover": { backgroundColor: "#f1f1f7" },
+                          padding: "12px 15px",
+                          borderRadius: "8px",
+                        }}
+                      >
+                        <LogoutIcon
+                          sx={{ marginRight: "12px", color: "#e389eb" }}
+                        />
+                        <ListItemText
+                          primary="Logout"
+                          sx={{ color: "#e389eb", cursor: "pointer" }}
+                        />
+                      </ListItem>
                     </Menu>
                   </>
                 ) : (
-                  // <Button
-                  //   color="primary"
-                  //   variant="contained"
-                  //   onClick={() => navigate("/login")}
-                  // >
-                  //   Signin
-                  // </Button>
-
                   <Box
                     sx={{
                       display: "flex",
@@ -1003,17 +722,8 @@ const handleLogout = () => {
                     }}
                     onClick={() => navigate("/login")}
                   >
-                    <AccountCircleOutlinedIcon
-                      fontSize="medium"
-                      sx={{ color: "#e389eb" }}
-                    />
-                    <Typography
-                      sx={{
-                        color: "#6f6a6a",
-                        fontFamily: "poppins",
-                        fontSize: "0.8rem",
-                      }}
-                    >
+                    <AccountCircleOutlinedIcon sx={{ color: "#e389eb" }} />
+                    <Typography sx={{ color: "#6f6a6a", fontSize: "0.8rem" }}>
                       Login
                     </Typography>
                   </Box>
@@ -1023,70 +733,103 @@ const handleLogout = () => {
 
             <IconButton
               edge="end"
-              aria-label="menu"
               sx={{ display: { xs: "block", md: "none" } }}
               onClick={toggleDrawer(true)}
             >
               <MenuIcon fill="black" />
             </IconButton>
           </Toolbar>
-
-          <Drawer
-            anchor="right"
-            open={drawerOpen}
-            onClose={toggleDrawer(false)}
-          >
-            <Box
-              sx={{
-                width: 250,
-                padding: "1rem",
-              }}
-              role="presentation"
-              onClick={toggleDrawer(false)}
-              onKeyDown={toggleDrawer(false)}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  textAlign: "center",
-                  marginBottom: "1rem",
-                  fontWeight: "bold",
-                }}
-              >
-                Menu
-              </Typography>
-              <Divider />
-
-              <List>
-                <ListItem button component={Link} to="/">
-                  <ListItemText primary="Home" />
-                </ListItem>
-                {/* <ListItem button component={Link} to="/about">
-                  <ListItemText primary="About" />
-                </ListItem> */}
-                <ListItem button component={Link} to="/profile">
-                  <ListItemText primary="My Profile" />
-                </ListItem>
-                <ListItem button component={Link} to="/Booking">
-                  <ListItemText primary="My Bookings" />
-                </ListItem>
-                <ListItem button component={Link} to="/my-tickets">
-                  <ListItemText primary="My Tickets" />
-                </ListItem>
-                <ListItem button component={Link} to="/faq">
-                  <ListItemText primary="Faq" />
-                </ListItem>
-                <ListItem button component={Link} to="/Privacy Policy">
-                  <ListItemText primary="privacyPolicy" />
-                </ListItem>
-                <ListItem button component={Link} to="/TermsAndCondition">
-                  <ListItemText primary="Terms & Conditions" />
-                </ListItem>
-              </List>
-            </Box>
-          </Drawer>
         </AppBar>
       </Box>
+
+      <Dialog
+        open={locationDialogOpen}
+        onClose={() => setLocationDialogOpen(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>Select your location</DialogTitle>
+        <DialogContent>
+          <Button
+            fullWidth
+            variant="outlined"
+            onClick={handleUseCurrentLocation}
+            disabled={locating}
+            sx={{
+              mb: 2,
+              textTransform: "none",
+              borderColor: "#e389eb",
+              color: "#9c27b0",
+            }}
+          >
+            {locating ? "Detecting…" : "📍 Use my current location"}
+          </Button>
+
+          <Typography
+            sx={{ textAlign: "center", color: "#999", fontSize: "0.8rem", mb: 1 }}
+          >
+            or search for a location
+          </Typography>
+
+          <TextField
+            fullWidth
+            size="small"
+            placeholder="Enter city or area (e.g. Bangalore)"
+            value={locationQuery}
+            onChange={(e) => setLocationQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleApplyTypedLocation();
+            }}
+          />
+
+          {locationError && (
+            <Typography sx={{ color: "red", fontSize: "0.8rem", mt: 1 }}>
+              {locationError}
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setLocationDialogOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleApplyTypedLocation}
+            variant="contained"
+            disabled={locating || !locationQuery.trim()}
+            sx={{
+              backgroundColor: "#e389eb",
+              "&:hover": { backgroundColor: "#d26cd4" },
+              color: "white",
+            }}
+          >
+            Apply
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={logoutDialogOpen} onClose={handleLogoutCancel}>
+        <DialogTitle>Confirm Logout</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to logout?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleLogoutCancel} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleLogoutConfirm}
+            variant="contained"
+            sx={{
+              backgroundColor: "#e389eb",
+              "&:hover": { backgroundColor: "#d26cd4" },
+              color: "white",
+            }}
+          >
+            Yes, Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Modal open={isCalendarOpen}>
         <Box
           sx={{
@@ -1096,35 +839,16 @@ const handleLogout = () => {
             transform: "translate(-50%, -50%)",
             bgcolor: "background.paper",
             borderRadius: "16px",
-            boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.3)",
             p: 4,
             width: "450px",
             maxWidth: "95%",
             textAlign: "center",
-            border: "none",
           }}
         >
-          <Box
-            sx={{
-              marginBottom: "20px",
-              borderRadius: "8px",
-              padding: "10px",
-            }}
-          >
-            <Calendar
-              handleCalendarClose={handleCalendarClose}
-              calendarClose={handleCalendarClose}
-            />
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              gap: "10px",
-              marginTop: "20px",
-            }}
-          ></Box>
+          <Calendar
+            handleCalendarClose={handleCalendarClose}
+            calendarClose={handleCalendarClose}
+          />
         </Box>
       </Modal>
     </>

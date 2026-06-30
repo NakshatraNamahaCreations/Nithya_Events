@@ -1,0 +1,300 @@
+:root{
+  --bg: #f2f3f6;
+  --muted: #7a7f85;
+  --text: #1a1a1a;
+  --max-width: 1150px;
+}
+
+/* Wrapper */
+.nnc-footer{
+  background: var(--bg);
+  padding: 48px 20px;
+  font-family: "Inter", sans-serif;
+  margin-top: 50px;
+  color: var(--muted);
+}
+
+.nnc-footer-inner{
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+/* ========= TOP LOGO ROW ========= */
+.nnc-logo-row{
+  width: 100%;
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.nnc-logo{
+  max-width: 100px;
+  height: auto;
+}
+
+.nnc-logo-row h3{
+    font-family: 'poppins';
+    color: #1a1a1a;
+}
+
+/* ========= COLUMN GRID ========= */
+.nnc-top{
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.nnc-columns{
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 34px;
+}
+
+/* COLUMN STYLES */
+.nnc-col h4{
+  margin-bottom: 14px;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+  font-family: 'poppinsmed';
+}
+
+.nnc-col ul{
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.nnc-col li{
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: var(--muted);
+  font-family: 'poppinsreg';
+}
+
+.nnc-col a{
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.nnc-col a:hover{
+  color: #1a1a1a;
+}
+
+/* App Store Buttons */
+.nnc-links-block{
+  margin-top: 18px;
+}
+
+.nnc-links-block h5{
+    font-family: 'poppinsmed';
+    font-size: 16px;
+    color: #1a1a1a;
+}
+
+.nnc-small{
+  font-size: 13px;
+  margin-bottom: 8px;
+  font-family: 'poppinsreg';
+}
+
+.nnc-store-badges img{
+  max-width: 110px;
+  margin-right: 8px;
+  margin-top: 8px;
+}
+
+.nnc-store-badges{
+    display: flex;
+}
+
+/* ========= MIDDLE ROW ========= */
+.nnc-mid{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 260px;
+  gap: 24px;
+  margin-top: 40px;
+}
+
+/* LEGAL */
+.nnc-legal h5{
+  margin-bottom: 14px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  font-family: 'poppinsmed';
+}
+
+.nnc-legal ul{
+  padding: 0;
+  list-style: none;
+}
+
+.nnc-legal li{
+  margin-bottom: 12px;
+}
+
+.nnc-legal li a{
+    color: inherit;
+    text-decoration: none;
+    font-family: 'poppinsreg';
+    font-size: 14px;
+}
+
+/* SOCIAL */
+.nnc-social-contact h5{
+  margin-bottom: 14px;
+  font-weight: 500;
+  color: var(--text);
+  font-family: 'poppinsmed';
+  font-size: 16px;
+}
+
+.nnc-social-icons{
+  display: flex;
+  gap: 1px;
+  margin-bottom: 15px;
+}
+
+.icon{
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+/* CONTACT */
+.nnc-contact h6{
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--text);
+  font-family: 'poppinsreg';
+}
+
+.nnc-email{
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'poppinsreg';
+}
+
+/* MAP */
+.nnc-map{
+  text-align: right;
+}
+
+.nnc-map img{
+  width: 230px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.06);
+  margin-bottom: 10px;
+}
+
+.nnc-map-address{
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6f7377;
+  text-align: left;
+}
+
+/* ========= BOTTOM ========= */
+.nnc-divider{
+  height: 1px;
+  background: rgba(0,0,0,0.08);
+  margin: 20px 0;
+}
+
+.nnc-copy{
+  color: #888;
+  font-size: 13px;
+}
+
+/* MAP BLOCK */
+.nnc-map {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* GOOGLE MAP IFRAME STYLE */
+.nnc-map-frame {
+  width: 240px;
+  height: 160px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  margin-bottom: 12px;
+}
+
+/* ADDRESS UNDER MAP */
+.nnc-map-address {
+  font-size: 14px;
+  color: #6f7377;
+  text-align: right;
+  line-height: 1.4;
+  max-width: 240px;
+  text-align: left;
+  font-family: 'poppinsreg';
+}
+
+.fe-bottom{
+  text-align: center;
+}
+
+
+
+/* RESPONSIVE */
+@media (max-width: 980px) {
+  .nnc-map {
+    align-items: flex-start;
+    text-align: left;
+  }
+  .nnc-map-frame {
+    width: 100%;
+    height: 180px;
+  }
+}
+@media (max-width: 480px) {
+  .nnc-map-frame {
+    width: 100%;
+    height: 150px;
+  }
+}
+
+
+/* ========= RESPONSIVE ========= */
+@media (max-width: 980px){
+  .nnc-columns{
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .nnc-mid{
+    grid-template-columns: 1fr;
+  }
+
+  .nnc-map{
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px){
+  .nnc-logo{
+    max-width: 180px;
+  }
+
+  .nnc-store-badges img{
+    max-width: 90px;
+  }
+
+  .nnc-map img{
+    width: 100%;
+    height: 130px;
+  }
+}

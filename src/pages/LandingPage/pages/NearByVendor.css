@@ -1,0 +1,175 @@
+.nearby-vendors {
+  background: #f2f3f6;
+  padding: 48px 16px;
+  font-family: Inter, system-ui, -apple-system;
+  color: #222;
+  margin-top: 50px;
+}
+
+.nv-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: #f2f3f6;
+  border-radius: 8px;
+  padding: 28px;
+  position: relative; /* IMPORTANT: makes the arrow position relative to this container */
+}
+
+/* header */
+.nv-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  align-items: center;
+}
+
+.nv-header h2 {
+  font-family: "Poppins", sans-serif;
+  font-size: 30px;
+  margin: 0;
+}
+
+/* search */
+.nv-search {
+  position: relative;
+  width: 280px;
+}
+.nv-search input {
+  width: 100%;
+  padding: 10px 14px 10px 38px; /* left padding for icon */
+  border-radius: 28px;
+  border: 1px solid #e1e6e8;
+  outline: none;
+  font-size: 14px;
+}
+.nv-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  color: #828282;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* wrapper that holds the list + arrow (arrow positioned relative to .nv-inner) */
+.nv-list-wrap {
+  position: relative;
+}
+
+/* grid/list — horizontal scroll capable, but displays as a responsive grid-like row */
+.nv-list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(240px, 1fr);
+  gap: 28px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  margin: 0;
+}
+
+/* make grid wrap into multiple rows on larger widths using media queries */
+@media (min-width: 900px) {
+  .nv-list {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    overflow: visible;
+  }
+}
+
+/* per-item/link */
+.nv-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+/* treat each item as nv-item (used by scroll logic) */
+.nv-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* visual card */
+.nv-card {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ececec;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+}
+
+.nv-thumb img {
+  width: 100%;
+  height: 219px;
+  object-fit: cover;
+  display: block;
+}
+
+/* text under card */
+.nv-meta {
+  margin-top: 8px;
+}
+.nv-meta h3 {
+  margin: 4px 0 0 8px;
+  font-size: 18px;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+}
+
+/* footer button */
+.nv-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 25px;
+  width: 100%;
+  text-align: center;
+}
+.nv-btn {
+  background: #2c2c2c;
+  color: #d2d2d2;
+  font-family: 'Poppins', sans-serif;
+  padding: 10px 25px;
+  border-radius: 5px;
+  border: none;
+}
+
+/* arrow button */
+.nv-arrow {
+  position: absolute;
+  right: -12px; /* place inside the container, slightly inset */
+  top: 50%;
+  transform: translateY(-50%);
+  height: 56px;
+  width: 56px;
+  border-radius: 50%;
+  border: none;
+  background: #f5f5f5;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+  z-index: 60;
+}
+.nv-arrow:hover {
+  transform: translateY(-50%) scale(1.03);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+}
+.nv-arrow svg {
+  font-size: 20px;
+  color: #5b5b5b;
+}
+
+/* hide arrow on narrow screens (optional) */
+@media (max-width: 900px) {
+  .nv-arrow {
+    display: none;
+  }
+}

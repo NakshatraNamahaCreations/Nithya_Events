@@ -1,0 +1,104 @@
+
+
+.filters {
+  border:1px solid #eef2f6;
+  border-radius:8px;
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* Accordion */
+.accordion-item {
+  border-bottom: 1px solid #f1f3f6;
+}
+
+.accordion-header {
+  margin: 0;
+}
+
+.accordion-button {
+  width: 100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  background: transparent;
+  border: 0;
+  padding: 12px 10px;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  color: #595959;
+}
+
+.accordion-button:focus {
+  outline: 3px solid rgba(17,24,39,0.08);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.accordion-chevron {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* panel hidden state */
+.accordion-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 220ms ease, padding 220ms ease;
+  padding: 0 10px;
+}
+
+/* panel open */
+.accordion-panel.open {
+  padding: 10px;
+  max-height: 420px; /* large enough for content */
+}
+
+/* filter list and items */
+.filter-list {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.filter-item {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* price form */
+.price-form .price-row {
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-bottom:8px;
+}
+.price-input {
+  width: 110px;
+  padding:8px;
+  border:1px solid #e6e9ec;
+  border-radius:6px;
+}
+.price-sep { color:#9aa3ad; }
+
+/* small primary button */
+.btn-primary.small {
+  background:#484848;
+  color:#fff;
+  padding:8px 12px;
+  border-radius:6px;
+  border:0;
+  cursor:pointer;
+}
+
+.accordion-button:not(.collapsed) {
+    color: #595959 !important;
+    font-weight: 400;
+    background-color: #f7f7f7 !important;
+    font-size: 15px;
+}

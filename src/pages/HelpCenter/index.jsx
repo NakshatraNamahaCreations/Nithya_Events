@@ -8,12 +8,12 @@ const HelpCentre = () => {
 
   const profileData = {
     contact_email: "support@nithyaevents.com",
-    contact_phone: "+91 9743888803",
+    contact_phone: "+91 9980137000",
     corporate_address: "Kadagam Ventures Private Limited, No: 34 Venkatappa Road, Tasker Town, Off Queens Road, Bangalore 560051.",
   };
 
   return (
-    <Container maxWidth="md" sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", py: 4 }}>
+    <Container maxWidth="md" sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", py: 2 }}>
       {/* Header Section */}
       <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
         <IconButton onClick={() => navigate(-1)} sx={{ paddingTop: "15px" }}>
@@ -35,7 +35,7 @@ const HelpCentre = () => {
           Contact Us
         </Typography>
         <Typography variant="body1">
-          <strong>{profileData.contact_email}</strong>
+          {/* <strong>{profileData.contact_email}</strong> */}
         </Typography>
         <Typography variant="body1">
           <strong>Phone: {profileData.contact_phone}</strong>

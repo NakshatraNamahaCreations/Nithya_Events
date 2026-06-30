@@ -2,8 +2,8 @@ export const config = {
   BASEURL: "https://api.nithyaevent.com/api",
   IMAGEURL: "https://api.nithyaevent.com/",
 
-  // BASEURL: "http://192.168.1.103:9000/api",
-  // IMAGEURL: "http://192.168.1.103:9000/",
+  // BASEURL: "http://localhost:9000/api",
+  // IMAGEURL: "http://localhost:9000/",
 
   // USER
   USER_REGISTER: "/user/user-register",
@@ -37,6 +37,7 @@ export const config = {
   GET_SERVICE_BY_SERVICE_NAME: "/vendor/get-vendor-by-servicename/",
   GET_PARTICULAR_SERVICE: "/vendor/getprofile/",
   GET_SERVICE_NEW: "/vendor-service/get-services-by-vendor-id/",
+  GET_APPROVED_VENDOR_SERVICES: "/vendor-service/get-approved-services",
 
   // SERVICE REVIEW
   GET_SERVICE_REVIEW: "/vendor/get-service-review/",

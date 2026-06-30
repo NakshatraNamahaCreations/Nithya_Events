@@ -11,7 +11,7 @@ import "./styles.scss";
 import { Box, Button, Typography } from "@mui/material";
 import get1 from "../../assets/getgp.png";
 import appPng from "../../assets/download1.jpg";
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 // import temp from "../../assets/temp.png";
 
 const Footer = () => {
@@ -31,7 +31,6 @@ const Footer = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -44,13 +43,27 @@ const Footer = () => {
         <Box className="footer-column">
           <h3>Shop by Category</h3>
           <ul>
-    <li onClick={() => window.location.href = "/category/sound"}>Sounds</li>
-    <li onClick={() => window.location.href = "/category/lighting"}>Lights</li>
-    <li onClick={() => window.location.href = "/category/fabrication"}>Fabrications</li>
-    <li onClick={() => window.location.href = "/category/shamiana"}>Shamiana</li>
-    <li onClick={() => window.location.href = "/category/video"}>Video</li>
-    <li onClick={() => window.location.href = "/category/genset"}>Genset</li>
-  </ul>
+            <li onClick={() => (window.location.href = "/category/sound")}>
+              Sounds
+            </li>
+            <li onClick={() => (window.location.href = "/category/lighting")}>
+              Lights
+            </li>
+            <li
+              onClick={() => (window.location.href = "/category/fabrication")}
+            >
+              Fabrications
+            </li>
+            <li onClick={() => (window.location.href = "/category/shamiana")}>
+              Shamiana
+            </li>
+            <li onClick={() => (window.location.href = "/category/video")}>
+              Video
+            </li>
+            <li onClick={() => (window.location.href = "/category/genset")}>
+              Genset
+            </li>
+          </ul>
         </Box>
 
         <Box className="footer-column">
@@ -71,12 +84,12 @@ const Footer = () => {
             <Link to="/services" style={{ textDecoration: "none" }}>
               <li>Services</li>
             </Link>
-            {/* <Link to="/contact-us" style={{ textDecoration: "none" }}>
-              <li>Contact Us</li>              
-            </Link> */}
-            {/* <p>Contact Us</p>
-            <p>Support@nithyaevents.com</p>
-            <p>Phone: +91 99801370001</p> */}
+            <Link to="/contact-us" style={{ textDecoration: "none" }}>
+              <li>Contact Us</li>
+            </Link>
+            <p>Contact Us</p>
+            <p>support@nithyaevents.com</p>
+            <p>Phone: +91 9743888803</p>
           </ul>
         </Box>
 
@@ -92,7 +105,6 @@ const Footer = () => {
           </ul>
         </Box>
 
-
         <Box className="footer-map-container">
           <Box>
             <iframe
@@ -105,63 +117,92 @@ const Footer = () => {
               referrerPolicy="no-referrer-when-downgrade"
             ></iframe>
           </Box>
-
-
         </Box>
-
       </Box>
 
       {/*  Google Maps Integration */}
       <Box className="footer-column-social">
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: '3rem', flexDirection: 'column' }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "3rem",
+            flexDirection: "column",
+          }}
+        >
           <Box>
-            <Typography sx={{ color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '8px', gap: '2rem' }}>
-
-           
-              <img style={{ width: '135px' }} src={get1} alt="Not Found" />
-              <img style={{ width: '135px' }} src={appPng} alt="Not Found" /></Typography>
+            <Typography
+              sx={{
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "8px",
+                gap: "2rem",
+              }}
+            >
+              <img style={{ width: "135px" }} src={get1} alt="Not Found" />
+              <img style={{ width: "135px" }} src={appPng} alt="Not Found" />
+            </Typography>
           </Box>
-          <Box className="social-media" sx={{ display: 'flex', justifyContent: 'center' }}>
-            <a href="https://www.facebook.com/people/Nithya-event/61571314384247/" target="_blank" rel="noopener noreferrer">
+          <Box
+            className="social-media"
+            sx={{ display: "flex", justifyContent: "center" }}
+          >
+            <a
+              href="https://www.facebook.com/people/Nithya-event/61571314384247/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Facebook className="icon" />
             </a>
-            <a href="https://www.instagram.com/nithya_event/" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://www.instagram.com/nithya_event/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Instagram className="icon" />
             </a>
-            <a href="https://x.com/Nithya_Event" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://x.com/Nithya_Event"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Twitter className="icon" />
             </a>
-            <a href="https://www.youtube.com/@nithyaevent" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://www.youtube.com/@nithyaevent"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <YouTube className="icon" />
             </a>
           </Box>
-
-
         </Box>
 
         <Box className="location">
           <LocationOn />
-          <span style={{fontSize:'0.9rem'}}>Bengaluru, India</span>
+          <span style={{ fontSize: "0.9rem" }}>Bengaluru, India</span>
         </Box>
-        <p style={{fontSize:'0.7rem'}}>© 2025 | copyrights its Kadagam Ventures Private Limited</p>
+        <p style={{ fontSize: "0.7rem" }}>
+          © 2025 | copyrights its Kadagam Ventures Private Limited
+        </p>
       </Box>
 
-
-
-      <Box sx={{ display: 'flex', justifyContent:'flex-end', alignItems: 'center', marginTop: '2rem' }}>
-
-            
-{showButton && (
-  <Button
-    onClick={scrollToTop}
-
-  >
-    <ArrowUpwardIcon sx={{ color: 'white' }} />
-  </Button>
-)}
-
-
-</Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          marginTop: "2rem",
+        }}
+      >
+        {showButton && (
+          <Button onClick={scrollToTop}>
+            <ArrowUpwardIcon sx={{ color: "white" }} />
+          </Button>
+        )}
+      </Box>
     </footer>
   );
 };

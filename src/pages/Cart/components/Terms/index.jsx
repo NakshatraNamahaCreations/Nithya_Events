@@ -34,8 +34,9 @@ const Terms = ({ open, onClose, onContinue, onTermsAccepted }) => {
 
   const handleAcceptTerms = (event) => {
     setIsAccepted(event.target.checked);
-    if (onTermsAccepted) onTermsAccepted(event.target.checked); // Notify parent
+    if (onTermsAccepted) onTermsAccepted(event.target.checked); 
   };
+
   const handleProceedToTerms = () => {
     //   if (
     //     !eventDetails.startTime ||
@@ -51,6 +52,7 @@ const Terms = ({ open, onClose, onContinue, onTermsAccepted }) => {
     setShowTerms(true);
     //   }
   };
+  
   const closeTerms = () => {
     setShowTerms(false);
     setIsCheckoutAllowed(true);

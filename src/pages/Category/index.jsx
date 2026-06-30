@@ -1,5 +1,5 @@
 // React and react related imports
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -244,6 +244,27 @@ const Category = () => {
     }
   };
 
+  // Derive the real price range from the loaded products so the default
+  // filter never silently hides products priced above a hard-coded cap.
+  const priceBounds = useMemo(() => {
+    const prices = data
+      .map((item) => parseFloat(item.product_price))
+      .filter((n) => !isNaN(n));
+    const maxPrice = prices.length ? Math.max(...prices) : 50000;
+    // round up to the nearest 1000, and keep at least the old 50000 span
+    return [0, Math.max(50000, Math.ceil(maxPrice / 1000) * 1000)];
+  }, [data]);
+
+  // Initialise the slider to the full range once, without overriding a
+  // selection the user has already made.
+  const priceRangeInitialized = useRef(false);
+  useEffect(() => {
+    if (data.length && !priceRangeInitialized.current) {
+      setSelectedPriceRange(priceBounds);
+      priceRangeInitialized.current = true;
+    }
+  }, [data, priceBounds]);
+
   const filterProducts = () => {
     let filtered = data;
 
@@ -265,11 +286,13 @@ const Category = () => {
     }
 
     if (selectedPriceRange && selectedPriceRange.length === 2) {
-      filtered = filtered.filter(
-        (item) =>
-          parseFloat(item.product_price) >= selectedPriceRange[0] &&
-          parseFloat(item.product_price) <= selectedPriceRange[1]
-      );
+      filtered = filtered.filter((item) => {
+        const price = parseFloat(item.product_price);
+        // Keep items whose price isn't a parseable number instead of
+        // silently dropping them from the count.
+        if (isNaN(price)) return true;
+        return price >= selectedPriceRange[0] && price <= selectedPriceRange[1];
+      });
     }
 
     if (lowStockChecked) {
@@ -386,8 +409,11 @@ const Category = () => {
 
     return review.length ? (total / review.length).toFixed(1) : 0;
   };
-  const handleOpen = (id) => {
-    navigate(`/products/${id}`);
+  // Updated handleOpen to use category and slug with -rental
+  const handleOpen = (item) => {
+    const categorySlug = item.product_category.toLowerCase();
+    const productSlug = item.product_name.toLowerCase().replace(/\s+/g, "-") + "-rental";
+    navigate(`/products/${categorySlug}/${productSlug}`);
   };
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -484,7 +510,7 @@ const Category = () => {
                     </Typography>
                     <DiscountSlider
                       min={0}
-                      max={50000}
+                      max={priceBounds[1]}
                       step={1000}
                       value={selectedPriceRange}
                       onChange={setSelectedPriceRange}
@@ -642,7 +668,7 @@ const Category = () => {
                   <Card
                     key={item.id}
                     className="product-card"
-                    onClick={() => handleOpen(item._id)}
+                    onClick={() => handleOpen(item)}
                   >
                     <img
                       src={item.product_image[0]}
@@ -713,7 +739,7 @@ const Category = () => {
                           rating={parseFloat(
                             calculateAverageRating(item.Reviews)
                           )}
-                          // style={{ marginRight: '2rem' }}
+                        // style={{ marginRight: '2rem' }}
                         />
                         <Typography variant="p" style={{ fontSize: "0.8rem" }}>
                           {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}

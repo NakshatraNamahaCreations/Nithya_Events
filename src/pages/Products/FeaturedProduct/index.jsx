@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -57,6 +57,7 @@ const FeaturedProduct = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
   const { numberOfDays } = useSelector((state) => state.date);
   const [openSections, setOpenSections] = useState({
     categories: true,
@@ -362,8 +363,11 @@ const FeaturedProduct = () => {
     return review.length ? (total / review.length).toFixed(1) : 0;
   };
 
-  const handleOpen = (id) => {
-    navigate(`/products/${id}`);
+  // Updated handleOpen to use category and slug with -rental
+  const handleOpen = (item) => {
+    const categorySlug = item.product_category.toLowerCase();
+    const productSlug = item.product_name.toLowerCase().replace(/\s+/g, "-") + "-rental";
+    navigate(`/products/${categorySlug}/${productSlug}`);
   };
 
   const getPaginatedData = () => {
@@ -386,9 +390,9 @@ const FeaturedProduct = () => {
     <>
       <ToastContainer />
       <Slider />
-      <Box sx={{marginTop:'4rem', marginLeft:'2rem'}}>
+      <Box sx={{ marginTop: '4rem', marginLeft: '2rem' }}>
 
-      <BreadCrumb paths={breadcrumbPaths} />
+        <BreadCrumb paths={breadcrumbPaths} />
       </Box>
 
       <Box className="products-page">
@@ -591,7 +595,7 @@ const FeaturedProduct = () => {
                     boxShadow: "none",
                     outline: "none",
                     border: "1px solid #ddd",
-      
+
                   }}
                 >
                   <MenuItem value="default">Default</MenuItem>
@@ -605,7 +609,7 @@ const FeaturedProduct = () => {
 
           <Box className="products-grid">
             {getPaginatedData().map((item) => (
-              <Card key={item.id} className="product-card">
+              <Card key={item.id} className="product-card" onClick={() => handleOpen(item)}>
                 <img
                   src={item.product_image[0]}
                   alt={item.product_name}
@@ -658,7 +662,7 @@ const FeaturedProduct = () => {
                   >
                     <StarRating
                       rating={parseFloat(calculateAverageRating(item.Reviews))}
-                      // style={{ marginRight: '2rem' }}
+                    // style={{ marginRight: '2rem' }}
                     />
                     <Typography variant="p" style={{ fontSize: "0.8rem" }}>
                       {item.Reviews.length > 0 ? item.Reviews.length : 0}{" "}

@@ -1,0 +1,179 @@
+/* header base */
+.ne-header {
+  width: 100%;
+  background: #ffffff;
+  box-shadow: 0 1px 0 rgba(16, 24, 40, 0.04);
+  position: relative;
+  z-index: 60;
+}
+
+/* container: three areas (logo | spacer | nav/hamburger) */
+.ne-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: flex-start; /* left align by default */
+}
+
+/* LEFT: logo */
+.ne-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto; /* keep logo size fixed */
+}
+.ne-logo h4 {
+  margin: 0;
+  font-size: 22px;
+  color: #0b1220;
+  font-family: 'poppinsmed', sans-serif;
+}
+.ne-logo-link {
+  text-decoration: none;
+  color: inherit;
+  font-family: 'poppinsmed', sans-serif;
+}
+
+/* DESKTOP NAV
+   We push the nav to the far right using margin-left: auto
+   so logo remains at the left corner and nav sits at the right corner. */
+.ne-nav {
+  margin-left: auto; /* <-- this pushes nav to the right */
+  display: block;
+  flex: 0 1 auto;
+}
+.ne-nav-list {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+.ne-nav-link {
+  display: inline-block;
+  padding: 8px 6px;
+  color: #414141;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s, transform 0.12s;
+  font-family: 'poppinsmed', sans-serif;
+  
+}
+
+.ne-nav-link:active,
+.ne-nav-link:focus {
+  color: #000;
+  font-weight: 600;
+  outline: none;
+}
+
+.ne-nav-link:hover {
+  outline: none;
+}
+
+/* HAMBURGER (mobile) - placed after nav in DOM but visually at far right */
+.ne-hamburger {
+  display: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  margin-left: 12px; /* small offset from the nav (desktop hidden) */
+}
+.ne-hamburger:focus {
+  outline: 3px solid rgba(37, 99, 235, 0.14);
+}
+
+/* MOBILE MENU (hidden by default) */
+.ne-mobile {
+  position: fixed;
+  inset: 0;
+  display: none;
+  pointer-events: none;
+}
+.ne-mobile.open {
+  display: block;
+  pointer-events: auto;
+}
+
+/* backdrop to darken the page */
+.ne-mobile-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 12, 20, 0.45);
+}
+
+/* mobile panel slides from right (keeps right-aligned UX) */
+.ne-mobile-panel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 280px;
+  background: #ffffff;
+  box-shadow: -18px 0 40px rgba(6, 12, 20, 0.12);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transform: translateX(0);
+  animation: slideIn 260ms ease both;
+}
+
+/* mobile nav list */
+.ne-mobile-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ne-mobile-link {
+  display: block;
+  padding: 12px 10px;
+  border-radius: 8px;
+  color: #0b1220;
+  text-decoration: none;
+  font-weight: 700;
+}
+.ne-mobile-link:hover,
+.ne-mobile-link:focus {
+  background: rgba(15, 23, 42, 0.04);
+  outline: none;
+}
+
+/* Animation */
+@keyframes slideIn {
+  from {
+    transform: translateX(10%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive behavior */
+@media (max-width: 920px) {
+  .ne-nav {
+    display: none; /* hide desktop nav on mobile */
+  }
+  .ne-hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto; /* hamburger sits at the far right on mobile */
+  }
+}
+
+/* small polish */
+.ne-nav-link[aria-current="page"] {
+  color: #ff6a1a;
+}

@@ -5,13 +5,21 @@ import { Button, Container, Typography, Paper, Box } from "@mui/material";
 const HelpCenter = () => {
   const navigate = useNavigate();
 
+   const profileData = {
+    contact_email: "support@nithyaevents.com",
+    contact_phone: "+91 9980137000",
+    corporate_address: "No. 34 1st Floor, Venkatappa Road, Tasker Town, Off Queens Road, Bengaluru- 560051",
+  };
+
   return (
     <Container maxWidth="md" sx={{ marginBottom: "4rem" }}>
       {/* Back Button */}
       <Button
         startIcon={<ArrowBack />}
         onClick={() => navigate(-1)}
-        sx={{ mb: 2, textTransform: "none", color: "gray" }}
+        sx={{ mb: 2, textTransform: "none", color: "gray",fontWeight:700,
+          fontSize:18,
+          marginTop:"40px",}}
       >
         Back
       </Button>
@@ -30,14 +38,14 @@ const HelpCenter = () => {
             experience for your event planing and rentals.
           </Typography>
           <strong>Contact Us</strong>
-          <Typography paragraph>support@nithyaevents.com</Typography>
+          <Typography paragraph>{profileData.contact_email}</Typography>
 
-          <Typography paragraph>Phone: 9743888803</Typography>
+          <Typography paragraph>Phone: {profileData.contact_phone}</Typography>
 
           <strong>Address</strong>
 
           <Typography>
-           Kadagam Ventures Private Limited, No: 34 Venkatappa Road, Tasker Town, Off Queens Road, Bangalore 560051.
+          {profileData.corporate_address}
           </Typography>
           <br />
           <Typography paragraph>

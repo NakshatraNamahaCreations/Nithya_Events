@@ -20,6 +20,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { FiShare2 } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 
 const MoodDetail = () => {
@@ -33,6 +34,16 @@ const MoodDetail = () => {
   const navigate = useNavigate();
 
   const saveLayout = () => {
+    // Validate before saving (match the mobile app): a project must exist and
+    // at least one item must be placed on the layout.
+    if (!project) {
+      alert("Please create or select a project before saving.");
+      return;
+    }
+    if (!objects || objects.length === 0) {
+      alert("Please add at least one item to the layout before saving.");
+      return;
+    }
     localStorage.setItem(`layout_${id}`, JSON.stringify(objects));
     setIsSaved(true);
     alert("Layout saved successfully!");
@@ -176,6 +187,61 @@ const MoodDetail = () => {
     });
   };
 
+  const shareDesign = async () => {
+    const projectName = project?.name || "My Mood Board";
+    const shareText = `Check out my "${projectName}" mood board on Nithya Events!`;
+
+    try {
+      // Preferred: share the rendered design as an image (matches the app's Share).
+      if (canvasRef.current && typeof navigator.canShare === "function") {
+        const canvas = await html2canvas(canvasRef.current);
+        const blob = await new Promise((resolve) =>
+          canvas.toBlob(resolve, "image/png")
+        );
+        if (blob) {
+          const file = new File([blob], `${projectName}.png`, {
+            type: "image/png",
+          });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: projectName,
+              text: shareText,
+            });
+            return;
+          }
+        }
+      }
+
+      // Fallback: share the page link/text via the native share sheet.
+      if (navigator.share) {
+        await navigator.share({
+          title: projectName,
+          text: shareText,
+          url: window.location.href,
+        });
+        return;
+      }
+
+      // Last resort: copy the link to the clipboard.
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(window.location.href);
+        alert("Mood board link copied to clipboard!");
+        return;
+      }
+      window.prompt(
+        "Copy this link to share your mood board:",
+        window.location.href
+      );
+    } catch (err) {
+      // Ignore the user dismissing the native share dialog.
+      if (err && err.name !== "AbortError") {
+        console.error("Share failed:", err);
+        alert("Could not share the mood board. Please try again.");
+      }
+    }
+  };
+
   const renderIcon = (type) => {
     switch (type) {
       case "chair":
@@ -244,6 +310,19 @@ const MoodDetail = () => {
         >
           <img style={{ width: "30px" }} src={Save} alt="Save Image" />
           <Typography sx={{ fontSize: "0.7rem" }}>Save</Typography>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: "pointer",
+          }}
+          onClick={shareDesign}
+        >
+          <FiShare2 size={28} color="#e226bf" />
+          <Typography sx={{ fontSize: "0.7rem" }}>Share</Typography>
         </Box>
         <Box
           sx={{

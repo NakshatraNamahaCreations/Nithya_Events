@@ -53,3 +53,33 @@
         }
     }
 }
+.MuiTextField-root {
+  background-color: #fff !important;
+  border-radius: 10px !important;
+}
+
+.MuiOutlinedInput-root {
+  border-radius: 10px !important;
+}
+
+.MuiOutlinedInput-input {
+  padding: 10px 12px !important;
+  font-size: 0.9rem !important;
+}
+
+.MuiInputLabel-root {
+  color: #6b6b6b !important;
+  font-size: 0.85rem !important;
+}
+
+.Mui-focused .MuiInputLabel-root {
+  color: #c026d3 !important;
+}
+
+.MuiOutlinedInput-notchedOutline {
+  border-color: #e0e0e0 !important;
+}
+
+.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #c026d3 !important;
+}

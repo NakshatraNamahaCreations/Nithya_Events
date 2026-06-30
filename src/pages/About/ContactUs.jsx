@@ -6,7 +6,7 @@ const ContactUs = () => {
   const navigate = useNavigate();
 
   return (
-    <Container maxWidth="md" sx={{marginBottom:'4rem'}}>
+    <Container maxWidth="md" sx={{margin:'4rem auto'}}>
       {/* Back Button */}
       <Button 
         startIcon={<ArrowBack />} 

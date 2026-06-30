@@ -1,0 +1,64 @@
+.par-bg {
+  max-width: 1400px;
+  margin: 40px auto;
+  height: 430px;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  border-radius: 20px;
+}
+
+.par-section {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr; 
+  align-items: center;
+  width: 100%;
+  padding: 0 40px;
+}
+
+
+
+/* LEFT — BLOG HEADING */
+.par-heading h2 {
+  font-family: 'poppinsmed';
+  font-size: 55px;
+  color: #000;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* RIGHT — BLOG IMAGE */
+.par-image {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.par-image img {
+  width: 700px;
+  height: 430px;
+  object-fit: cover;
+}
+
+.step1-img{
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+  .par-section {
+    grid-template-columns: 1fr; /* stack */
+    text-align: center;
+  }
+
+  .par-image {
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .par-heading h2 {
+    font-size: 42px;
+  }
+}
