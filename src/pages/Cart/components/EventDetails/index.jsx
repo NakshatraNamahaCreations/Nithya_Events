@@ -64,6 +64,8 @@ const EventDetails = ({
     eventSetupStartDate: null,
     eventSetupEndDate: null,
     rehearsalDate: null,
+    rehearsalStartTime: null,
+    rehearsalEndTime: null,
     startTime: null,
     endTime: null,
     eventName: "",
@@ -142,6 +144,8 @@ const EventDetails = ({
       !eventDetails.eventSetupStartDate ||
       !eventDetails.eventSetupEndDate ||
       !eventDetails.rehearsalDate ||
+      !eventDetails.rehearsalStartTime ||
+      !eventDetails.rehearsalEndTime ||
       !eventDetails.eventName.trim() ||
       !eventDetails.eventVenue.trim() ||
       !eventDetails.receiverName.trim() ||
@@ -182,6 +186,8 @@ const EventDetails = ({
       !eventDetails.eventSetupStartDate ||
       !eventDetails.eventSetupEndDate ||
       !eventDetails.rehearsalDate ||
+      !eventDetails.rehearsalStartTime ||
+      !eventDetails.rehearsalEndTime ||
       !eventDetails.eventName.trim() ||
       !eventDetails.eventVenue.trim() ||
       !eventDetails.receiverName.trim() ||
@@ -369,7 +375,57 @@ const EventDetails = ({
   };
 
   const handleTimeChange = (field, newTime) => {
-    setEventDetails({ ...eventDetails, [field]: newTime });
+    // Map each END time to its START time and a human label, for validation.
+    const endToStart = {
+      venueEndTime: { start: "venueStartTime", label: "Event Setup" },
+      rehearsalEndTime: { start: "rehearsalStartTime", label: "Rehearsal" },
+      endTime: { start: "startTime", label: "Event" },
+    };
+    // Map each START time to its END time, so changing a start can clear a now
+    // invalid end.
+    const startToEnd = {
+      venueStartTime: "venueEndTime",
+      rehearsalStartTime: "rehearsalEndTime",
+      startTime: "endTime",
+    };
+
+    // Ignore incomplete/invalid time while the user is still typing.
+    if (newTime && typeof newTime.isValid === "function" && !newTime.isValid()) {
+      return;
+    }
+
+    // Validate an end time against its start time (must be after; start first).
+    if (newTime && endToStart[field]) {
+      const { start, label } = endToStart[field];
+      const startVal = eventDetails[start];
+      if (!startVal) {
+        toast.error(`Please select ${label} Start Time first.`, {
+          position: "top-right",
+          autoClose: 2500,
+        });
+        return;
+      }
+      if (!newTime.isAfter(startVal)) {
+        toast.error(`${label} End Time must be after ${label} Start Time.`, {
+          position: "top-right",
+          autoClose: 2500,
+        });
+        return;
+      }
+    }
+
+    setEventDetails((prev) => {
+      const next = { ...prev, [field]: newTime };
+      // If a start time changed and an end time is now no longer after it, clear
+      // the end so the user must re-select a valid one.
+      if (newTime && startToEnd[field]) {
+        const endVal = prev[startToEnd[field]];
+        if (endVal && !endVal.isAfter(newTime)) {
+          next[startToEnd[field]] = null;
+        }
+      }
+      return next;
+    });
   };
 
   const handleFileChange = (e) => {
@@ -419,6 +475,14 @@ const EventDetails = ({
       formData.append(
         "rehearsal_date",
         eventDetails.rehearsalDate ? formatDate(eventDetails.rehearsalDate) : ""
+      );
+      formData.append(
+        "rehearsal_start_time",
+        eventDetails.rehearsalStartTime?.format("hh:mm A") || ""
+      );
+      formData.append(
+        "rehearsal_end_time",
+        eventDetails.rehearsalEndTime?.format("hh:mm A") || ""
       );
 
       formData.append(
@@ -522,6 +586,8 @@ const EventDetails = ({
       eventDetails.eventSetupStartDate &&
       eventDetails.eventSetupEndDate &&
       eventDetails.rehearsalDate &&
+      eventDetails.rehearsalStartTime &&
+      eventDetails.rehearsalEndTime &&
       eventDetails.eventName.trim() &&
       eventDetails.eventVenue.trim() &&
       eventDetails.receiverName.trim() &&
@@ -727,6 +793,50 @@ const EventDetails = ({
                 value={eventDetails.venueEndTime}
                 onChange={(newTime) =>
                   handleTimeChange("venueEndTime", newTime)
+                }
+                viewRenderers={{
+                  hours: renderTimeViewClock,
+                  minutes: renderTimeViewClock,
+                  seconds: renderTimeViewClock,
+                }}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TimePicker
+                label={<FieldLabel label="Rehearsal Start Time" />}
+                value={eventDetails.rehearsalStartTime}
+                onChange={(newTime) =>
+                  handleTimeChange("rehearsalStartTime", newTime)
+                }
+                viewRenderers={{
+                  hours: renderTimeViewClock,
+                  minutes: renderTimeViewClock,
+                  seconds: renderTimeViewClock,
+                }}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TimePicker
+                label={<FieldLabel label="Rehearsal End Time" />}
+                value={eventDetails.rehearsalEndTime}
+                onChange={(newTime) =>
+                  handleTimeChange("rehearsalEndTime", newTime)
                 }
                 viewRenderers={{
                   hours: renderTimeViewClock,

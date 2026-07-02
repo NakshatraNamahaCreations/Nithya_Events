@@ -25,9 +25,32 @@ const Vendors = () => {
 
   useEffect(() => {
     const fetchVendors = async () => {
-      const res = await authService.vendorLists();
+      // Fetch product vendors and service vendors independently so the list
+      // shows BOTH types. Each returns 404 when its category is empty — that's
+      // not an error, just an empty result, so we swallow failures per call.
+      const safeList = async (fn) => {
+        try {
+          const res = await fn();
+          return Array.isArray(res?.data?.data) ? res.data.data : [];
+        } catch (error) {
+          if (error?.response?.status !== 404) {
+            console.error("Failed to fetch vendors:", error);
+          }
+          return [];
+        }
+      };
 
-      setVendors(res.data.data);
+      const [productVendors, serviceVendors] = await Promise.all([
+        safeList(authService.vendorLists),
+        safeList(authService.serviceVendorLists),
+      ]);
+
+      // Merge and de-duplicate by _id (a vendor could appear in both lists).
+      const merged = [...productVendors, ...serviceVendors];
+      const unique = Array.from(
+        new Map(merged.map((v) => [v._id, v])).values()
+      );
+      setVendors(unique);
     };
     fetchVendors();
   }, []);
@@ -65,7 +88,7 @@ const Vendors = () => {
               >
                 <LocationOnIcon />
                 <p className="vendor-address">
-                  {vendor.address[0]?.cityDownVillage}
+                  {vendor.address?.[0]?.cityDownVillage}
                 </p>
               </Box>
             </div>

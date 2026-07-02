@@ -19,6 +19,7 @@ export const config = {
 
   // VENDOR
   GET_ALL_PRODUCT_VENDOR: "/vendor/get-product-vendor",
+  GET_ALL_SERVICE_VENDOR: "/vendor/get-service-vendor",
   GET_VENDOR_PROFILE: "/vendor/getprofile/",
   GET_SERVICES_BY_SERVICE_NAME: "/vendor/get-vendor-by-servicename",
 

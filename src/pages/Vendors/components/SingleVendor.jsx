@@ -22,6 +22,7 @@ const SingleVendor = () => {
   const { id } = useParams();
   const [vendor, setVendor] = useState(null);
   const [vendorProduct, setVendorProduct] = useState([]);
+  const [vendorService, setVendorService] = useState([]);
   const [isReviewModalOpen, setReviewModalOpen] = useState(false);
   const [error, setError] = useState(null);
   const dispatch = useDispatch();
@@ -68,11 +69,30 @@ const SingleVendor = () => {
   const fetchParticularVendorProducts = async () => {
     try {
       const res = await authService.getParticularVendorProduct(id);
-      console.log(res.data[0]._id);
-
-      setVendorProduct(res.data);
+      // Backend returns an array of products; guard against unexpected shapes.
+      setVendorProduct(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
-      getErrorMessage(error);
+      // A 404 simply means this vendor has no approved products — not an error.
+      if (error?.response?.status === 404) {
+        setVendorProduct([]);
+      } else {
+        getErrorMessage(error);
+      }
+    }
+  };
+
+  const fetchParticularVendorServices = async () => {
+    try {
+      const res = await authService.getIndividualService(id);
+      // Endpoint returns { service: [...] }.
+      setVendorService(Array.isArray(res.data?.service) ? res.data.service : []);
+    } catch (error) {
+      // A 404 simply means this vendor has no approved services — not an error.
+      if (error?.response?.status === 404) {
+        setVendorService([]);
+      } else {
+        getErrorMessage(error);
+      }
     }
   };
 
@@ -89,9 +109,15 @@ const SingleVendor = () => {
   const handleProductClick = (id) => {
     navigate(`/products/${id}`);
   };
+
+  const handleServiceClick = (service) => {
+    navigate(`/service/${service.service_name}/${service._id}`);
+  };
+
   useEffect(() => {
     fetchVendors();
     fetchParticularVendorProducts();
+    fetchParticularVendorServices();
   }, [id]);
 
   if (error) return <Box className="error">{error}</Box>;
@@ -148,37 +174,87 @@ const SingleVendor = () => {
             </Box>
           </Box>
 
-          <Box className="items-section">
-            <h3>✨ ITEMS ✨</h3>
-            <Box className="items-grid">
-              {vendorProduct?.map((item) => (
-                <Box
-                  className="item-card"
-                  key={item._id}
-                  onClick={() => handleProductClick(item._id)}
-                >
-                  <Box className="item-image">
-                    <img
-                      src={
-                        (Array.isArray(item.product_image)
-                          ? item.product_image[0]
-                          : item.product_image) || NO_IMAGE
-                      }
-                      alt={item.product_name || "Product"}
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.src = NO_IMAGE;
-                      }}
-                    />
+          {/* Products */}
+          {vendorProduct?.length > 0 && (
+            <Box className="items-section">
+              <h3>✨ PRODUCTS ✨</h3>
+              <Box className="items-grid">
+                {vendorProduct.map((item) => (
+                  <Box
+                    className="item-card"
+                    key={item._id}
+                    onClick={() => handleProductClick(item._id)}
+                  >
+                    <Box className="item-image">
+                      <img
+                        src={
+                          (Array.isArray(item.product_image)
+                            ? item.product_image[0]
+                            : item.product_image) || NO_IMAGE
+                        }
+                        alt={item.product_name || "Product"}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = NO_IMAGE;
+                        }}
+                      />
+                    </Box>
+                    <Box className="item-info">
+                      <h4>{item.product_name}</h4>
+                      <p>₹{item.product_price}</p>
+                    </Box>
                   </Box>
-                  <Box className="item-info">
-                    <h4>{item.product_name}</h4>
-                    <p>₹{item.product_price}</p>
-                  </Box>
-                </Box>
-              ))}
+                ))}
+              </Box>
             </Box>
-          </Box>
+          )}
+
+          {/* Services */}
+          {vendorService?.length > 0 && (
+            <Box className="items-section">
+              <h3>✨ SERVICES ✨</h3>
+              <Box className="items-grid">
+                {vendorService.map((item) => (
+                  <Box
+                    className="item-card"
+                    key={item._id}
+                    onClick={() => handleServiceClick(item)}
+                  >
+                    <Box className="item-image">
+                      <img
+                        src={
+                          item.service_image ||
+                          (Array.isArray(item.additional_images)
+                            ? item.additional_images[0]
+                            : item.additional_images) ||
+                          NO_IMAGE
+                        }
+                        alt={item.service_name || "Service"}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = NO_IMAGE;
+                        }}
+                      />
+                    </Box>
+                    <Box className="item-info">
+                      <h4>{item.service_name}</h4>
+                      <p>₹{item.price}</p>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          )}
+
+          {/* Empty state */}
+          {vendorProduct?.length === 0 && vendorService?.length === 0 && (
+            <Box className="items-section">
+              <h3>✨ ITEMS ✨</h3>
+              <p style={{ textAlign: "center", color: "#888", padding: "1rem" }}>
+                This vendor has no products or services listed yet.
+              </p>
+            </Box>
+          )}
           <Review
         onSubmit={handleReviewSubmit}
         productId={id}

@@ -39,8 +39,22 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   formatCurrencyIntl,
   getCurrentCity,
-  getCityFromQuery,
 } from "../../utils/helperFunc";
+import GooglePlacesAutocomplete, {
+  geocodeByPlaceId,
+} from "react-google-places-autocomplete";
+
+const GOOGLE_MAPS_API_KEY = "AIzaSyDLyeYKWC3vssuRVGXktAT_cY-8-qHEA_g";
+
+// Product categories the header search can jump to.
+const PRODUCT_CATEGORIES = [
+  "Sound",
+  "Lighting",
+  "Genset",
+  "Video",
+  "Fabrication",
+  "Shamiana",
+];
 import { logout } from "../../redux/slice/authSlice";
 
 // Assests
@@ -174,19 +188,44 @@ const PageHeader = () => {
     return () => clearTimeout(debounceSearch);
   }, [searchTerm]);
 
-  const handleSuggestionClick = (productName) => {
+  // Open a specific product's detail page from a suggestion.
+  const handleSuggestionClick = (product) => {
     setSearchTerm("");
     setSuggestedProducts([]);
-    setTimeout(() => {
-      navigate(`/products?search=${encodeURIComponent(productName)}`);
-    }, 50);
+    const cat = encodeURIComponent(
+      (product.product_category || "products").toLowerCase()
+    );
+    const slug = encodeURIComponent(
+      (product.product_name || "")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-") + "-rental"
+    );
+    navigate(`/products/${cat}/${slug}`);
+  };
+
+  // Open a category page.
+  const handleCategoryClick = (cat) => {
+    setSearchTerm("");
+    setSuggestedProducts([]);
+    navigate(`/category/${encodeURIComponent(cat.toLowerCase())}`);
   };
 
   const handleSearch = () => {
-    if (searchTerm.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
-    }
+    const term = searchTerm.trim();
+    if (!term) return;
     setSuggestedProducts([]);
+    // If the term is a known category, open that category; otherwise run a
+    // product search.
+    const matchedCat = PRODUCT_CATEGORIES.find(
+      (c) => c.toLowerCase() === term.toLowerCase()
+    );
+    if (matchedCat) {
+      navigate(`/category/${encodeURIComponent(matchedCat.toLowerCase())}`);
+    } else {
+      navigate(`/products?search=${encodeURIComponent(term)}`);
+    }
+    setSearchTerm("");
   };
 
   const closeMenuAndNavigate = (path) => {
@@ -264,17 +303,36 @@ const PageHeader = () => {
     }
   };
 
-  const handleApplyTypedLocation = async () => {
+  // User picked a suggestion from the autocomplete dropdown.
+  const handlePlaceSelect = async (place) => {
+    if (!place?.value?.place_id) return;
     setLocating(true);
     setLocationError("");
     try {
-      const locationData = await getCityFromQuery(locationQuery);
-      persistLocation(locationData);
+      const results = await geocodeByPlaceId(place.value.place_id);
+      const result = results[0];
+      const comps = result?.address_components || [];
+      const city =
+        comps.find((c) => c.types.includes("locality"))?.long_name ||
+        comps.find((c) => c.types.includes("administrative_area_level_2"))
+          ?.long_name ||
+        place.label;
+      const town =
+        comps.find((c) => c.types.includes("sublocality_level_1"))?.long_name ||
+        comps.find((c) => c.types.includes("administrative_area_level_1"))
+          ?.long_name ||
+        "";
+      const loc = result?.geometry?.location;
+      persistLocation({
+        lat: loc ? loc.lat() : null,
+        lng: loc ? loc.lng() : null,
+        city,
+        town,
+      });
       setLocationDialogOpen(false);
     } catch (error) {
-      setLocationError(
-        error?.message || "Location not found. Try a different search."
-      );
+      console.error("Place select error:", error);
+      setLocationError("Could not resolve that address. Try another.");
     } finally {
       setLocating(false);
     }
@@ -454,45 +512,114 @@ const PageHeader = () => {
               </Paper>
             )}
 
-            {/* Suggested Products */}
-            {suggestedProducts.length > 0 && searchTerm && (
-              <Paper
-                sx={{
-                  position: "absolute",
-                  top: "100%",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  width: "100%",
-                  maxWidth: "400px",
-                  backgroundColor: "white",
-                  zIndex: 10,
-                  boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
-                  maxHeight: "400px",
-                  overflowY: "auto",
-                  borderRadius: "8px",
-                  marginTop: "5px",
-                  padding: "10px",
-                }}
-              >
-                <List>
-                  {suggestedProducts.map((product) => (
-                    <ListItem
-                      key={product.id}
-                      button
-                      onClick={() =>
-                        handleSuggestionClick(product.product_name)
-                      }
-                      sx={{ padding: "10px" }}
-                    >
-                      <ListItemText
-                        primary={product.product_name}
-                        sx={{ color: "#333", fontWeight: "bold" }}
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </Paper>
-            )}
+            {/* Suggested Categories + Products */}
+            {searchTerm.trim() &&
+              (() => {
+                const term = searchTerm.trim().toLowerCase();
+                const matchedCategories = PRODUCT_CATEGORIES.filter((c) =>
+                  c.toLowerCase().includes(term)
+                );
+                if (matchedCategories.length === 0 && suggestedProducts.length === 0)
+                  return null;
+                return (
+                  <Paper
+                    sx={{
+                      position: "absolute",
+                      top: "100%",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      width: "100%",
+                      maxWidth: "400px",
+                      backgroundColor: "white",
+                      zIndex: 1300,
+                      boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+                      maxHeight: "400px",
+                      overflowY: "auto",
+                      borderRadius: "8px",
+                      marginTop: "5px",
+                      padding: "10px",
+                    }}
+                  >
+                    <List dense>
+                      {matchedCategories.length > 0 && (
+                        <Typography
+                          sx={{
+                            px: 1,
+                            fontSize: "0.7rem",
+                            fontWeight: "bold",
+                            color: "#9e9e9e",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Categories
+                        </Typography>
+                      )}
+                      {matchedCategories.map((cat) => (
+                        <ListItem
+                          key={`cat-${cat}`}
+                          button
+                          onClick={() => handleCategoryClick(cat)}
+                          sx={{ padding: "8px 10px" }}
+                        >
+                          <SearchIcon
+                            sx={{ color: "#c026d3", fontSize: 18, mr: 1 }}
+                          />
+                          <ListItemText
+                            primary={cat}
+                            sx={{ color: "#333", fontWeight: "bold" }}
+                          />
+                        </ListItem>
+                      ))}
+
+                      {suggestedProducts.length > 0 && (
+                        <Typography
+                          sx={{
+                            px: 1,
+                            mt: matchedCategories.length ? 1 : 0,
+                            fontSize: "0.7rem",
+                            fontWeight: "bold",
+                            color: "#9e9e9e",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Products
+                        </Typography>
+                      )}
+                      {suggestedProducts.map((product) => (
+                        <ListItem
+                          key={product._id}
+                          button
+                          onClick={() => handleSuggestionClick(product)}
+                          sx={{ padding: "8px 10px" }}
+                        >
+                          <img
+                            src={
+                              Array.isArray(product.product_image)
+                                ? product.product_image[0]
+                                : product.product_image
+                            }
+                            alt={product.product_name}
+                            style={{
+                              width: 34,
+                              height: 34,
+                              objectFit: "cover",
+                              borderRadius: 4,
+                              marginRight: 10,
+                            }}
+                          />
+                          <ListItemText
+                            primary={product.product_name}
+                            secondary={product.product_category}
+                            primaryTypographyProps={{
+                              sx: { color: "#333", fontWeight: 600, fontSize: "0.9rem" },
+                            }}
+                          />
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Paper>
+                );
+              })()}
 
             {/* Icons and Profile */}
             <Box sx={{ display: { xs: "none", md: "block" } }}>
@@ -749,7 +876,8 @@ const PageHeader = () => {
         maxWidth="xs"
       >
         <DialogTitle>Select your location</DialogTitle>
-        <DialogContent>
+        {/* min height so the autocomplete dropdown has room to open */}
+        <DialogContent sx={{ minHeight: 320, overflow: "visible" }}>
           <Button
             fullWidth
             variant="outlined"
@@ -771,14 +899,21 @@ const PageHeader = () => {
             or search for a location
           </Typography>
 
-          <TextField
-            fullWidth
-            size="small"
-            placeholder="Enter city or area (e.g. Bangalore)"
-            value={locationQuery}
-            onChange={(e) => setLocationQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleApplyTypedLocation();
+          {/* Google Places autocomplete — shows suggestion dropdown as you type */}
+          <GooglePlacesAutocomplete
+            apiKey={GOOGLE_MAPS_API_KEY}
+            autocompletionRequest={{ componentRestrictions: { country: "in" } }}
+            selectProps={{
+              value: null,
+              onChange: handlePlaceSelect,
+              placeholder: "Search city or area...",
+              // Render the dropdown in a body portal so the Dialog doesn't clip it
+              menuPortalTarget:
+                typeof document !== "undefined" ? document.body : null,
+              styles: {
+                menuPortal: (base) => ({ ...base, zIndex: 99999 }),
+                menu: (base) => ({ ...base, zIndex: 99999 }),
+              },
             }}
           />
 
@@ -790,19 +925,7 @@ const PageHeader = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setLocationDialogOpen(false)} color="primary">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleApplyTypedLocation}
-            variant="contained"
-            disabled={locating || !locationQuery.trim()}
-            sx={{
-              backgroundColor: "#e389eb",
-              "&:hover": { backgroundColor: "#d26cd4" },
-              color: "white",
-            }}
-          >
-            Apply
+            Close
           </Button>
         </DialogActions>
       </Dialog>
