@@ -1097,17 +1097,24 @@ const SingleProducts = () => {
       const res = await authService.rentalProduct();
       const allProducts = res.data.data || [];
 
-      let normalizedProductSlug = params.productSlug;
-      if (normalizedProductSlug.endsWith('-rental')) {
-        normalizedProductSlug = normalizedProductSlug.slice(0, -7);
-      }
-      normalizedProductSlug = normalizedProductSlug.replace(/-/g, ' ').toLowerCase();
+      let foundProduct;
+      if (params.id) {
+        // Direct id-based lookup — used by the Wishlist and vendor product list,
+        // which navigate via /products/:id (no category/slug available).
+        foundProduct = allProducts.find((item) => item._id === params.id);
+      } else {
+        let normalizedProductSlug = params.productSlug || "";
+        if (normalizedProductSlug.endsWith('-rental')) {
+          normalizedProductSlug = normalizedProductSlug.slice(0, -7);
+        }
+        normalizedProductSlug = normalizedProductSlug.replace(/-/g, ' ').toLowerCase();
 
-      const foundProduct = allProducts.find(
-        (item) =>
-          item.product_category.toLowerCase() === params.category.toLowerCase() &&
-          item.product_name.toLowerCase() === normalizedProductSlug
-      );
+        foundProduct = allProducts.find(
+          (item) =>
+            item.product_category?.toLowerCase() === params.category?.toLowerCase() &&
+            item.product_name?.toLowerCase() === normalizedProductSlug
+        );
+      }
 
       if (foundProduct) {
         setProduct(foundProduct);
@@ -1168,7 +1175,7 @@ const SingleProducts = () => {
 
   useEffect(() => {
     fetchSingleProduct();
-  }, [params.category, params.productSlug]);
+  }, [params.category, params.productSlug, params.id]);
 
   const handleAddTechnician = (technician) => {
     const updatedTechnicians = [...technicians, technician];

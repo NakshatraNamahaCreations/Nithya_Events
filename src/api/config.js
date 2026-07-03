@@ -20,6 +20,9 @@ export const config = {
   // VENDOR
   GET_ALL_PRODUCT_VENDOR: "/vendor/get-product-vendor",
   GET_ALL_SERVICE_VENDOR: "/vendor/get-service-vendor",
+  // Single source of truth for the vendor list — same endpoint the User App
+  // uses, so both platforms show identical vendor data.
+  GET_ALL_VENDORS: "/vendor/getallvendor",
   GET_VENDOR_PROFILE: "/vendor/getprofile/",
   GET_SERVICES_BY_SERVICE_NAME: "/vendor/get-vendor-by-servicename",
 

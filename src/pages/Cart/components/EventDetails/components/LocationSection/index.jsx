@@ -431,6 +431,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddLocationAltIcon from "@mui/icons-material/AddLocationAlt";
+import MyLocationIcon from "@mui/icons-material/MyLocation";
 import GooglePlacesAutocomplete, {
   geocodeByPlaceId,
 } from "react-google-places-autocomplete";
@@ -598,6 +599,60 @@ const LocationSection = ({ onContinue, setOpenLocation }) => {
     }
   };
 
+  // Fetch the user's current GPS location and reverse-geocode it to an address.
+  const [locating, setLocating] = useState(false);
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        try {
+          const geocoder = new window.google.maps.Geocoder();
+          geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+            setLocating(false);
+            const address =
+              status === "OK" && results?.[0]
+                ? results[0].formatted_address
+                : `Current Location (${lat.toFixed(5)}, ${lng.toFixed(5)})`;
+            const newLocation = { address, lat, lng };
+            setSearchedLocation(address);
+            setLocationCoords({ lat, lng });
+            setCenter({ lat, lng });
+            setMarkers([newLocation]);
+            setSelectedMarker(newLocation);
+            setSelectedSavedAddress(null);
+            saveToLocalStorage(newLocation);
+            if (map) {
+              map.panTo({ lat, lng });
+              map.setZoom(15);
+            }
+            toast.success("Current location selected.");
+          });
+        } catch (err) {
+          setLocating(false);
+          console.error("Reverse geocode error:", err);
+          toast.error("Could not resolve your current address.");
+        }
+      },
+      (error) => {
+        setLocating(false);
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error(
+            "Location permission denied. Please allow location access in your browser."
+          );
+        } else {
+          toast.error("Unable to fetch your current location.");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  };
+
   const handleContinue = () => {
     const selected =
       searchedLocation && locationCoords.lat
@@ -662,6 +717,24 @@ const LocationSection = ({ onContinue, setOpenLocation }) => {
 
           {/* Body */}
           <Box sx={{ flex: 1, overflowY: "auto", px: 3, py: 1 }}>
+            {/* Use Current Location (GPS) */}
+            <Button
+              variant="contained"
+              fullWidth
+              startIcon={<MyLocationIcon />}
+              disabled={locating}
+              onClick={handleUseCurrentLocation}
+              sx={{
+                mb: 2,
+                backgroundColor: "#c026d3",
+                fontWeight: 600,
+                textTransform: "none",
+                "&:hover": { backgroundColor: "#a11bb3" },
+              }}
+            >
+              {locating ? "Fetching your location..." : "Use Current Location"}
+            </Button>
+
             <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: 600 }}>
               Saved Addresses
             </Typography>

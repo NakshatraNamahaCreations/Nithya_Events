@@ -296,6 +296,20 @@ const Calendar = ({ calendarClose }) => {
   // Handle selecting dates
   const handleDateChange = (dates) => {
     const [start, end] = dates;
+
+    // Reject an out-of-order range: the End Date must not be earlier than the
+    // Start Date. Keep the start selected so the user just re-picks a valid end.
+    if (start && end && end < start) {
+      alert("Event End Date cannot be earlier than the Event Start Date.");
+      setSelectedDates([start, null]);
+      setNumberOfDays(1);
+      setDateType("end");
+      dispatch(
+        setDates({ startDate: start, endDate: null, numberOfDays: 1 })
+      );
+      return;
+    }
+
     setSelectedDates([start, end]);
 
     if (start && !end) {
@@ -328,12 +342,18 @@ const Calendar = ({ calendarClose }) => {
   };
 
   const handleConfirm = () => {
-    if (selectedDates[0] && selectedDates[1]) {
-      navigate("/");
-      calendarClose();
-    } else {
+    // Both dates are required.
+    if (!selectedDates[0] || !selectedDates[1]) {
       alert("Please select both start and end dates.");
+      return;
     }
+    // End must be the same as or later than start — never earlier.
+    if (selectedDates[1] < selectedDates[0]) {
+      alert("Event End Date cannot be earlier than the Event Start Date.");
+      return;
+    }
+    navigate("/");
+    calendarClose();
   };
 
   return (

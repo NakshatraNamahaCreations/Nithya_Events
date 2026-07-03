@@ -179,6 +179,52 @@ import "./styles.scss";
 const NO_IMAGE =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='420'%20height='200'%3E%3Crect%20width='100%25'%20height='100%25'%20fill='%23eeeeee'/%3E%3Ctext%20x='50%25'%20y='50%25'%20fill='%23999999'%20font-family='sans-serif'%20font-size='18'%20text-anchor='middle'%20dominant-baseline='middle'%3ENo%20Image%3C/text%3E%3C/svg%3E";
 
+// Haversine distance (km) between two lat/lng points.
+const toRad = (v) => (v * Math.PI) / 180;
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
+// Read the user's last known location, saved during address selection.
+const getUserCoords = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem("saved_locations") || "[]");
+    if (Array.isArray(saved) && saved.length) {
+      const last = saved[saved.length - 1];
+      const lat = Number(last?.lat);
+      const lng = Number(last?.lng);
+      if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
+    }
+  } catch {
+    /* ignore malformed storage */
+  }
+  return null;
+};
+
+// Sort all vendors by distance (nearest first). No radius limit — vendors
+// without coordinates (or when the user's location is unknown) go to the end.
+const sortVendorsByDistance = (list) => {
+  const userCoords = getUserCoords();
+  return [...list]
+    .map((vendor) => {
+      const vLat = Number(vendor?.address?.[0]?.latitude);
+      const vLng = Number(vendor?.address?.[0]?.longitude);
+      let distance = Infinity;
+      if (userCoords && Number.isFinite(vLat) && Number.isFinite(vLng)) {
+        distance = calculateDistance(userCoords.lat, userCoords.lng, vLat, vLng);
+      }
+      return { vendor, distance };
+    })
+    .sort((a, b) => a.distance - b.distance)
+    .map((x) => x.vendor);
+};
+
 const NearVendor = () => {
   const [vendors, setVendors] = useState([]);
   const scrollRef = useRef(null);
@@ -186,14 +232,17 @@ const NearVendor = () => {
 
   const fetchVendors = async () => {
     try {
-      const res = await authService.vendorLists();
-      // Render each vendor once. (Previously the list was duplicated with
-      // [...data, ...data] just to force horizontal scrolling, which made
-      // every vendor appear twice.)
-      const list = Array.isArray(res?.data?.data) ? res.data.data : [];
-      setVendors(list);
+      // Use the same endpoint as the User App and the Vendor List page so all
+      // platforms show identical vendor data, then sort by distance (nearest
+      // first) with no radius limit.
+      const res = await authService.allVendorLists();
+      const list = Array.isArray(res?.data) ? res.data : [];
+      setVendors(sortVendorsByDistance(list));
     } catch (error) {
-      getErrorMessage(error);
+      if (error?.response?.status !== 404) {
+        getErrorMessage(error);
+      }
+      setVendors([]);
     }
   };
 

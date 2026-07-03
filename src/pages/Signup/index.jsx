@@ -707,7 +707,7 @@ import React, { useState } from "react";
 import "./styles.scss";
 import authService from "../../api/ApiService";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../redux/slice/authSlice";
 import {
   Box,
@@ -722,11 +722,17 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Signup = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -738,6 +744,10 @@ const Signup = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  // The user record created on the first "Sign Up" is kept in redux/session, so
+  // editing details and resubmitting updates it instead of raising a duplicate
+  // error before registration is finalized.
+  const registeredUser = useSelector((state) => state.auth.userDetails);
 
   // ✅ Capitalize each word for final cleaned value
   const capitalizeWords = (str) =>
@@ -931,6 +941,9 @@ const Signup = () => {
     try {
       // const combinedMobile = `${formData.countryCode}${formData.mobilenumber.trim()}`;
       const response = await authService.registerUser({
+        // Resent when editing an in-progress registration so the backend updates
+        // the same record instead of raising a false duplicate error.
+        user_id: registeredUser?._id || undefined,
         username: capitalizeWords(formData.username.trim().replace(/\s{2,}/g, " ")),
         email: formData.email.trim(),
         mobilenumber: formData.mobilenumber.trim(),
@@ -1045,12 +1058,25 @@ const Signup = () => {
             <TextField
               label="Password"
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={formData.password}
               onChange={handleChange}
               fullWidth
               margin="normal"
               error={!!errors.password}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPassword((show) => !show)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               helperText={
                 Array.isArray(errors.password) ? (
                   <List dense sx={{ m: 0, p: 0 }}>
@@ -1080,13 +1106,28 @@ const Signup = () => {
             <TextField
               label="Confirm Password"
               name="confirmPassword"
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               value={formData.confirmPassword}
               onChange={handleChange}
               fullWidth
               margin="normal"
               error={!!errors.confirmPassword}
               helperText={errors.confirmPassword}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm password visibility"
+                      onClick={() =>
+                        setShowConfirmPassword((show) => !show)
+                      }
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               InputLabelProps={{ shrink: true }}
               className="ne-input"
             />

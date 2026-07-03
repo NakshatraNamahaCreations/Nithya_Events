@@ -432,6 +432,7 @@ import {
   Stack,
 } from "@mui/material";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Calendar from "../Calender";
@@ -910,6 +911,14 @@ const CompanyDetails = () => {
         boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
       }}
     >
+      <IconButton
+        aria-label="Back to previous step"
+        onClick={() => navigate(-1)}
+        sx={{ mb: 1, border: "1px solid #e0e0e0" }}
+      >
+        <ArrowBackIcon />
+      </IconButton>
+
       <Typography
         variant="h5"
         align="center"

@@ -73,6 +73,7 @@ const authService = {
   // Vendor Section
   vendorLists: () => api.get(`${config.GET_ALL_PRODUCT_VENDOR}`),
   serviceVendorLists: () => api.get(`${config.GET_ALL_SERVICE_VENDOR}`),
+  allVendorLists: () => api.get(`${config.GET_ALL_VENDORS}`),
   getVendorProfile: (vendorId) =>
     api.get(`${config.GET_VENDOR_PROFILE}${vendorId}`),
   getParticularVendorProduct: (vendorId) =>

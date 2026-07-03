@@ -61,6 +61,7 @@ const EventDetails = ({
 }) => {
   const [eventDetails, setEventDetails] = useState({
     eventDate: null,
+    eventMainDate: null,
     eventSetupStartDate: null,
     eventSetupEndDate: null,
     rehearsalDate: null,
@@ -133,6 +134,26 @@ const EventDetails = ({
   const eventStart = startDate ? dayjs(startDate) : null;
   const eventEnd = endDate ? dayjs(endDate) : null;
 
+  // Auto-fill Event Main Date with the event's start date by default (editable),
+  // mirroring the User App. Only sets it while empty so a manual pick is kept.
+  useEffect(() => {
+    if (!eventDetails.eventMainDate && eventStart) {
+      setEventDetails((prev) => ({ ...prev, eventMainDate: eventStart }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startDate]);
+
+  // Shared style for the grouped-section subheadings (Event Setup / Rehearsal /
+  // Event) so related date + time fields read as one logical block.
+  const sectionHeadingSx = {
+    fontWeight: "bold",
+    color: "#c026d3",
+    fontSize: "0.9rem",
+    mt: 1,
+    borderBottom: "1px solid #f0d3f5",
+    pb: 0.5,
+  };
+
 
   // Trigger the Terms modal
   const handleProceedToTerms = () => {
@@ -141,6 +162,7 @@ const EventDetails = ({
       !eventDetails.endTime ||
       !eventDetails.venueEndTime ||
       !eventDetails.venueStartTime ||
+      !eventDetails.eventMainDate ||
       !eventDetails.eventSetupStartDate ||
       !eventDetails.eventSetupEndDate ||
       !eventDetails.rehearsalDate ||
@@ -183,6 +205,7 @@ const EventDetails = ({
       !eventDetails.endTime ||
       !eventDetails.venueEndTime ||
       !eventDetails.venueStartTime ||
+      !eventDetails.eventMainDate ||
       !eventDetails.eventSetupStartDate ||
       !eventDetails.eventSetupEndDate ||
       !eventDetails.rehearsalDate ||
@@ -196,6 +219,23 @@ const EventDetails = ({
     ) {
       setSnackbarOpen(true);
       return;
+    }
+    // Final sequence guard: every end time must be after its start time.
+    const timePairs = [
+      { start: "venueStartTime", end: "venueEndTime", label: "Event Setup" },
+      { start: "rehearsalStartTime", end: "rehearsalEndTime", label: "Rehearsal" },
+      { start: "startTime", end: "endTime", label: "Event" },
+    ];
+    for (const { start, end, label } of timePairs) {
+      const s = eventDetails[start];
+      const e = eventDetails[end];
+      if (s && e && !e.isAfter(s)) {
+        toast.error(`${label} End Time must be after ${label} Start Time.`, {
+          position: "top-right",
+          autoClose: 2500,
+        });
+        return;
+      }
     }
     if (eventDetails.receiverMobile.length < 10) {
       toast.error(
@@ -510,7 +550,12 @@ const EventDetails = ({
       formData.append("paid_amount", billingDetails.grandTotal);
 
       formData.append("event_name", eventDetails.eventName);
-  formData.append("event_date", eventDate);
+  // Send the single Event Main Date as event_date (matches the User App); the
+  // full range is still sent via event_start_date / event_end_date below.
+  formData.append(
+    "event_date",
+    eventDetails.eventMainDate ? formatDate(eventDetails.eventMainDate) : eventDate
+  );
   // Ensure start/end dates are sent in DD-MM-YYYY format (not ISO)
   formData.append("event_start_date", formatDate(startDate));
   formData.append("event_end_date", formatDate(endDate));
@@ -583,6 +628,7 @@ const EventDetails = ({
       eventDetails.endTime &&
       eventDetails.venueEndTime &&
       eventDetails.venueStartTime &&
+      eventDetails.eventMainDate &&
       eventDetails.eventSetupStartDate &&
       eventDetails.eventSetupEndDate &&
       eventDetails.rehearsalDate &&
@@ -653,53 +699,8 @@ const EventDetails = ({
           </Typography>
 
           <Grid container spacing={2}>
-            <Grid
-              item
-              xs={12}
-              sx={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}
-            >
-              <TextField
-                label="Start Date"
-                value={formatedStartDate}
-                fullWidth
-                InputProps={{ readOnly: true }}
-                sx={{
-                  "& .MuiInputLabel-root": {
-                    fontSize: "0.8rem",
-                    color: "#c026d3",
-                  },
-                  "& .MuiInputBase-input": {
-                    fontSize: "0.8rem",
-                    padding: "16px 18px",
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: "#c026d3" },
-                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
-                    "& input": { color: "black" },
-                  },
-                }}
-              />
-              <TextField
-                label="End Date"
-                value={formatedEndDate}
-                fullWidth
-                InputProps={{ readOnly: true }}
-                sx={{
-                  "& .MuiInputLabel-root": {
-                    fontSize: "0.8rem",
-                    color: "#c026d3",
-                  },
-                  "& .MuiInputBase-input": {
-                    fontSize: "0.8rem",
-                    padding: "16px 18px",
-                  },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: "#c026d3" },
-                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
-                    "& input": { color: "black" },
-                  },
-                }}
-              />
+            <Grid item xs={12}>
+              <Typography sx={sectionHeadingSx}>Event Setup</Typography>
             </Grid>
             <Grid item xs={6}>
               <DatePicker
@@ -734,26 +735,6 @@ const EventDetails = ({
                     ? dayjs(eventDetails.eventSetupStartDate)
                     : eventStart || dayjs()
                 } // not before setup start, within event range
-                maxDate={eventEnd || undefined}
-                renderInput={(params) => <TextField {...params} fullWidth />}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: "#c026d3" },
-                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
-                    "& input": { color: "black" },
-                  },
-                }}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <DatePicker
-                label={<FieldLabel label="Rehearsal Date" />}
-                value={eventDetails.rehearsalDate}
-                onChange={(newDate) =>
-                  handleEventDateChange("rehearsalDate", newDate)
-                }
-                format="DD-MM-YYYY"
-                minDate={eventStart || dayjs()} // within event range
                 maxDate={eventEnd || undefined}
                 renderInput={(params) => <TextField {...params} fullWidth />}
                 sx={{
@@ -809,6 +790,29 @@ const EventDetails = ({
                 }}
               />
             </Grid>
+            <Grid item xs={12}>
+              <Typography sx={sectionHeadingSx}>Rehearsal</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <DatePicker
+                label={<FieldLabel label="Rehearsal Date" />}
+                value={eventDetails.rehearsalDate}
+                onChange={(newDate) =>
+                  handleEventDateChange("rehearsalDate", newDate)
+                }
+                format="DD-MM-YYYY"
+                minDate={eventStart || dayjs()} // within event range
+                maxDate={eventEnd || undefined}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
+                  },
+                }}
+              />
+            </Grid>
             <Grid item xs={6}>
               <TimePicker
                 label={<FieldLabel label="Rehearsal Start Time" />}
@@ -843,6 +847,76 @@ const EventDetails = ({
                   minutes: renderTimeViewClock,
                   seconds: renderTimeViewClock,
                 }}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography sx={sectionHeadingSx}>Event</Typography>
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              sx={{ display: "flex", gap: "1rem" }}
+            >
+              <TextField
+                label="Event Start Date"
+                value={formatedStartDate}
+                fullWidth
+                InputProps={{ readOnly: true }}
+                sx={{
+                  "& .MuiInputLabel-root": {
+                    fontSize: "0.8rem",
+                    color: "#c026d3",
+                  },
+                  "& .MuiInputBase-input": {
+                    fontSize: "0.8rem",
+                    padding: "16px 18px",
+                  },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
+                  },
+                }}
+              />
+              <TextField
+                label="Event End Date"
+                value={formatedEndDate}
+                fullWidth
+                InputProps={{ readOnly: true }}
+                sx={{
+                  "& .MuiInputLabel-root": {
+                    fontSize: "0.8rem",
+                    color: "#c026d3",
+                  },
+                  "& .MuiInputBase-input": {
+                    fontSize: "0.8rem",
+                    padding: "16px 18px",
+                  },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: "#c026d3" },
+                    "&.Mui-focused fieldset": { borderColor: "#c026d3" },
+                    "& input": { color: "black" },
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <DatePicker
+                label={<FieldLabel label="Event Main Date" />}
+                value={eventDetails.eventMainDate}
+                onChange={(newDate) =>
+                  handleEventDateChange("eventMainDate", newDate)
+                }
+                minDate={eventStart || dayjs()}
+                maxDate={eventEnd || undefined}
                 renderInput={(params) => <TextField {...params} fullWidth />}
                 sx={{
                   "& .MuiOutlinedInput-root": {
