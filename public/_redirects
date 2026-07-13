@@ -1,3 +1,0 @@
-# SPA fallback: serve index.html for every route so client-side
-# (BrowserRouter) routing works on direct hits and refreshes.
-/*    /index.html   200
