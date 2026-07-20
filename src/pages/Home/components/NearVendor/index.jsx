@@ -171,7 +171,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../../../../api/ApiService";
-import { getErrorMessage } from "../../../../utils/helperFunc";
+import { getErrorMessage, parseCoords } from "../../../../utils/helperFunc";
 import "./styles.scss";
 
 // Local inline placeholder (no network dependency) used when a vendor image
@@ -199,12 +199,10 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 const getUserCoords = () => {
   try {
     const raw = localStorage.getItem("selectedLocation");
-    if (raw) {
-      const loc = JSON.parse(raw);
-      const lat = Number(loc?.lat);
-      const lng = Number(loc?.lng);
-      if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
-    }
+    // parseCoords rejects null/""/(0,0)/out-of-range — a plain
+    // Number.isFinite(Number(lat)) check treats lat: null as the valid
+    // coordinate 0, which silently puts the user in the Atlantic.
+    if (raw) return parseCoords(JSON.parse(raw));
   } catch {
     /* ignore malformed storage */
   }

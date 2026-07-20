@@ -48,6 +48,28 @@ function pickComponent(results, types) {
   return "";
 }
 
+/**
+ * Strictly validate a { lat, lng } pair, returning numbers or null.
+ *
+ * Do NOT simplify this to Number.isFinite(Number(lat)) — Number(null) is 0 and
+ * Number("") is 0, both of which pass isFinite. A location saved with
+ * lat: null then reads back as the coordinate (0, 0) (in the Atlantic), which
+ * puts every real vendor thousands of km away and empties the "nearby" list.
+ */
+export function parseCoords(loc) {
+  const lat = loc?.lat;
+  const lng = loc?.lng;
+  if (lat === null || lat === undefined || lat === "") return null;
+  if (lng === null || lng === undefined || lng === "") return null;
+  const nLat = Number(lat);
+  const nLng = Number(lng);
+  if (!Number.isFinite(nLat) || !Number.isFinite(nLng)) return null;
+  if (nLat < -90 || nLat > 90 || nLng < -180 || nLng > 180) return null;
+  // Exactly (0,0) is "null island" — in practice always a bug, never a user.
+  if (nLat === 0 && nLng === 0) return null;
+  return { lat: nLat, lng: nLng };
+}
+
 // Pull a display city/town out of Google geocoder results. Shared by the
 // auto-detect and the manual "search a place" flows so both name places the
 // same way.

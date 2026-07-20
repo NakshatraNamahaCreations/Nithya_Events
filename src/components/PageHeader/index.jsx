@@ -40,6 +40,7 @@ import {
   formatCurrencyIntl,
   getCurrentCity,
   extractCityTown,
+  parseCoords,
 } from "../../utils/helperFunc";
 import GooglePlacesAutocomplete, {
   geocodeByPlaceId,
@@ -299,12 +300,10 @@ const PageHeader = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Only trust a saved location that actually has coordinates — otherwise
-        // the distance filter can't work, so fall through to auto-detect.
-        const hasCoords =
-          Number.isFinite(Number(parsed?.lat)) &&
-          Number.isFinite(Number(parsed?.lng));
-        if (hasCoords) {
+        // Only trust a saved location with REAL coordinates. Anything else
+        // (including values written by the older buggy code, e.g. lat: null)
+        // falls through to auto-detect, so bad stored data self-heals.
+        if (parseCoords(parsed)) {
           setCurrLocation(parsed);
           return;
         }
@@ -328,8 +327,19 @@ const PageHeader = () => {
 
   const persistLocation = (loc) => {
     setCurrLocation(loc);
+    const coords = parseCoords(loc);
+    if (!coords) {
+      // Saving a location without usable coordinates is what made the nearby
+      // filter show every vendor regardless of distance. Show the name, but
+      // don't persist a location the distance filter can't use.
+      console.warn("Location has no usable coordinates — not persisting:", loc);
+      return;
+    }
     try {
-      localStorage.setItem("selectedLocation", JSON.stringify(loc));
+      localStorage.setItem(
+        "selectedLocation",
+        JSON.stringify({ ...loc, ...coords })
+      );
       // Notify listeners (e.g. Home "Nearby Vendors") to re-sort by the new
       // location without a page reload.
       window.dispatchEvent(new Event("location:changed"));
