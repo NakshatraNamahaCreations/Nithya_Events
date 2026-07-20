@@ -3,6 +3,9 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+// Only show vendors within this many km of the user's current location.
+const NEARBY_RADIUS_KM = 60;
+
 // Haversine distance (km) between two lat/lng points.
 const toRad = (v) => (v * Math.PI) / 180;
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -15,14 +18,16 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
-// Read the user's last known location, saved during address selection.
+// Read the location the user selected in the header. The header saves it under
+// "selectedLocation" as { lat, lng, city, town } — read the SAME key/shape here
+// (previously this read a different key, so the distance filter never applied).
 const getUserCoords = () => {
   try {
-    const saved = JSON.parse(localStorage.getItem("saved_locations") || "[]");
-    if (Array.isArray(saved) && saved.length) {
-      const last = saved[saved.length - 1];
-      const lat = Number(last?.lat);
-      const lng = Number(last?.lng);
+    const raw = localStorage.getItem("selectedLocation");
+    if (raw) {
+      const loc = JSON.parse(raw);
+      const lat = Number(loc?.lat);
+      const lng = Number(loc?.lng);
       if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
     }
   } catch {
@@ -73,23 +78,26 @@ const Vendors = () => {
   vendor.shop_name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Show ALL vendors sorted by distance (nearest first) — no radius limit, so
-  // no booking is missed. Vendors without coordinates (or when the user's
-  // location is unknown) get a distance of Infinity and fall to the end.
+  // Show vendors within NEARBY_RADIUS_KM of the user's current location,
+  // sorted by distance (nearest first). If the user's location is unknown we
+  // can't compute distance, so we fall back to showing all vendors.
   const userCoords = useMemo(() => getUserCoords(), []);
   const displayedVendors = useMemo(() => {
-    return (filteredVendors || [])
-      .map((vendor) => {
-        const vLat = Number(vendor?.address?.[0]?.latitude);
-        const vLng = Number(vendor?.address?.[0]?.longitude);
-        let distance = Infinity;
-        if (userCoords && Number.isFinite(vLat) && Number.isFinite(vLng)) {
-          distance = calculateDistance(userCoords.lat, userCoords.lng, vLat, vLng);
-        }
-        return { vendor, distance };
-      })
-      .sort((a, b) => a.distance - b.distance)
-      .map((x) => x.vendor);
+    const withDistance = (filteredVendors || []).map((vendor) => {
+      const vLat = Number(vendor?.address?.[0]?.latitude);
+      const vLng = Number(vendor?.address?.[0]?.longitude);
+      let distance = Infinity;
+      if (userCoords && Number.isFinite(vLat) && Number.isFinite(vLng)) {
+        distance = calculateDistance(userCoords.lat, userCoords.lng, vLat, vLng);
+      }
+      return { vendor, distance };
+    });
+    const sorted = withDistance.sort((a, b) => a.distance - b.distance);
+    // Only apply the radius filter when we actually know the user's location.
+    const withinRadius = userCoords
+      ? sorted.filter((x) => x.distance <= NEARBY_RADIUS_KM)
+      : sorted;
+    return withinRadius.map((x) => x.vendor);
   }, [filteredVendors, userCoords]);
 
   return (

@@ -601,44 +601,54 @@ const CompanyDetails = () => {
   const navigate = useNavigate();
 
   /* ---------------------------------------------
-   * Company types (Option B from your tests)
+   * Company types — kept identical to the User App so both platforms match.
    * --------------------------------------------- */
   const COMPANY_TYPES = [
-    "Proprietorship",
-    "Partnership",
     "Private Limited",
-    "Public Limited",
-    "LLP",
-    "NGO",
+    "Partnership & LLP",
+    "Proprietorship",
+    "Limited",
+    "Others",
   ];
 
   /* ---------------------------------------------
-   * Visibility / Required rules (aligned to tests)
+   * Visibility / Required rules — mirrored from the User App.
    * --------------------------------------------- */
-  // GST & PAN required for all types in tests
-  const requiresBusinessIds = useMemo(() => !!companyType, [companyType]);
-
-  // CIN required for Partnership, Private Limited, Public Limited, LLP, NGO
-  const requiresCIN = useMemo(
+  // GST for: Private Limited, Limited, Proprietorship, Partnership & LLP.
+  const requiresGST = useMemo(
     () =>
       [
-        "Partnership",
         "Private Limited",
-        "Public Limited",
-        "LLP",
-        "NGO",
+        "Limited",
+        "Proprietorship",
+        "Partnership & LLP",
       ].includes(companyType),
     [companyType]
   );
 
-  // Trade License required for Proprietorship only
+  // PAN (+ its images) for: Partnership & LLP, Proprietorship.
+  const requiresPAN = useMemo(
+    () => ["Partnership & LLP", "Proprietorship"].includes(companyType),
+    [companyType]
+  );
+
+  // CIN for: Limited, Private Limited.
+  const requiresCIN = useMemo(
+    () => ["Limited", "Private Limited"].includes(companyType),
+    [companyType]
+  );
+
+  // Trade License for Proprietorship only.
   const requiresTradeLicense = useMemo(
     () => companyType === "Proprietorship",
     [companyType]
   );
 
-  // Designation required for all types in tests
-  const showDesignation = useMemo(() => !!companyType, [companyType]);
+  // Designation + TDS for every type except "Others".
+  const showDesignation = useMemo(
+    () => !!companyType && companyType !== "Others",
+    [companyType]
+  );
 
   /* ---------------------------------------------
    * Change Handlers
@@ -806,7 +816,7 @@ const CompanyDetails = () => {
 
   const validatePANImages = () => {
     const errors = {};
-    if (!requiresBusinessIds) return errors;
+    if (!requiresPAN) return errors;
     if (!formData.pan_front_image)
       errors.pan_front_image = "Upload PAN front image.";
     if (!formData.pan_back_image)
@@ -828,13 +838,15 @@ const CompanyDetails = () => {
     const dgErrors = validateDesignation(formData.designation);
     if (dgErrors.length) errors.designation = dgErrors[0];
 
-    if (requiresBusinessIds) {
+    if (requiresPAN) {
       const panErrors = await validatePAN(formData.pan_number);
       if (panErrors.length) errors.pan_number = panErrors[0];
     }
 
-    const gstErrors = validateGST(formData.gst_number);
-    if (gstErrors.length) errors.gst_number = gstErrors[0];
+    if (requiresGST) {
+      const gstErrors = validateGST(formData.gst_number);
+      if (gstErrors.length) errors.gst_number = gstErrors[0];
+    }
 
     const cinErrors = validateCINWrap(formData.cin_number);
     if (cinErrors.length) errors.cin_number = cinErrors[0];
@@ -1017,8 +1029,8 @@ const CompanyDetails = () => {
           </>
         )}
 
-        {/* GST, PAN, and Images */}
-        {requiresBusinessIds && (
+        {/* GST — shown for Private Limited, Limited, Proprietorship, Partnership */}
+        {requiresGST && (
           <>
             <Grid item xs={12}>
               <TextField
@@ -1042,7 +1054,12 @@ const CompanyDetails = () => {
                 }
               />
             </Grid>
+          </>
+        )}
 
+        {/* PAN (+ front/back images) — shown for Partnership & Proprietorship */}
+        {requiresPAN && (
+          <>
             <Grid item xs={12}>
               <TextField
                 fullWidth

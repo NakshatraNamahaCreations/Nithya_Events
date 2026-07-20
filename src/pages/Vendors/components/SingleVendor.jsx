@@ -106,12 +106,26 @@ const SingleVendor = () => {
     setReviewModalOpen(false);
   };
 
-  const handleProductClick = (id) => {
-    navigate(`/products/${id}`);
+  // Open the product the SAME way the Category page does (the flow that
+  // works): use the /products/:category/:productSlug route. The vendor's
+  // products are full objects, so we can build the slug directly.
+  const handleProductClick = (item) => {
+    if (item?.product_category && item?.product_name) {
+      const categorySlug = item.product_category.toLowerCase();
+      const productSlug =
+        item.product_name.toLowerCase().replace(/\s+/g, "-") + "-rental";
+      navigate(`/products/${categorySlug}/${productSlug}`);
+      return;
+    }
+    navigate(`/products/${item?._id}`);
   };
 
   const handleServiceClick = (service) => {
-    navigate(`/service/${service.service_name}/${service._id}`);
+    // SingleService is keyed by VENDOR id (it loads the vendor + their
+    // services), so pass the vendor id — not the service's own _id. On this
+    // page the current vendor is `id` from the route.
+    const vendorId = service.vendor_id || id;
+    navigate(`/service/${encodeURIComponent(service.service_name)}/${vendorId}`);
   };
 
   useEffect(() => {
@@ -183,7 +197,7 @@ const SingleVendor = () => {
                   <Box
                     className="item-card"
                     key={item._id}
-                    onClick={() => handleProductClick(item._id)}
+                    onClick={() => handleProductClick(item)}
                   >
                     <Box className="item-image">
                       <img

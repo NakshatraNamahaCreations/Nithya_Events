@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { config } from "../../api/config";
+
+// Backend host derived from shared config (config.BASEURL ends with "/api",
+// which is stripped because the paths below re-add their own prefixes).
+const BASE_URL = config.BASEURL.replace(/\/api\/?$/, "");
 
 export default function PaymentStatus() {
   const [loading, setLoading] = useState(true);
@@ -16,7 +21,6 @@ export default function PaymentStatus() {
   }, [txnId]);
 
   const verifyPayment = async () => {
-    const BASE_URL = "http://localhost:9000";
     try {
       const userDetail = JSON.parse(sessionStorage.getItem("userDetails"));
       const userId = userDetail?._id;

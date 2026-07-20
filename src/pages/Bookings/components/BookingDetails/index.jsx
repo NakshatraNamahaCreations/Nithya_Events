@@ -2524,6 +2524,58 @@ const BookingDetails = () => {
 
         {/* RIGHT COLUMN */}
         <Grid item xs={12} md={4}>
+          {/* Event OTP (shown to the customer at the venue) */}
+          {booking?.otp && (
+            <Paper
+              variant="outlined"
+              sx={{
+                mb: 3,
+                p: 3,
+                borderRadius: 3,
+                borderColor: "#eee",
+                boxShadow: "0px 6px 18px rgba(0,0,0,0.06)",
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5 }}>
+                OTP for this event
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: "text.secondary", mb: 2 }}
+              >
+                Share this OTP with our team at the venue to verify your event.
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 1.2,
+                }}
+              >
+                {booking.otp
+                  .toString()
+                  .split("")
+                  .map((digit, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        minWidth: 40,
+                        py: 1.2,
+                        textAlign: "center",
+                        backgroundColor: "#256fe8",
+                        color: "#fff",
+                        borderRadius: 2,
+                        fontWeight: 800,
+                        fontSize: "1.2rem",
+                      }}
+                    >
+                      {digit}
+                    </Box>
+                  ))}
+              </Box>
+            </Paper>
+          )}
+
           {/* Payment Summary (your original block kept, just styled) */}
           <Paper
             variant="outlined"

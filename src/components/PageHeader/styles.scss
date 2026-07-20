@@ -43,13 +43,18 @@
   }
 
   .logo-image{
-    height: 8rem;
-    position: absolute;
-    right: -107%;
-    width: 9rem;
-    z-index: 1;
-    top: -12%;
-    left: 0rem;
+    height: 6.5rem;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+    cursor: pointer;
+  }
+  /* Keep the bigger logo from crowding the header on phones/tablets. */
+  @media (max-width: 900px) {
+    .logo-image {
+      height: 4.5rem;
+    }
   }
   img {
     max-width: 100%; /* Ensures logo or images fit the container */

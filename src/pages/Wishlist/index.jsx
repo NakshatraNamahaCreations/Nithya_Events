@@ -137,6 +137,29 @@ const Wishlist = () => {
     alert("Added to cart");
   };
 
+  // Open the product details the SAME way the Category page does (the flow
+  // that works): fetch the product to get its category, then navigate via the
+  // /products/:category/:productSlug route. Falls back to the id route.
+  const openProduct = async (item) => {
+    const pid = item?.product_id;
+    if (!pid) return;
+    try {
+      const res = await authService.singleProduct(pid);
+      const product = res?.data?.product;
+      if (product?.product_category && product?.product_name) {
+        const categorySlug = product.product_category.toLowerCase();
+        const productSlug =
+          product.product_name.toLowerCase().replace(/\s+/g, "-") + "-rental";
+        navigate(`/products/${categorySlug}/${productSlug}`);
+        return;
+      }
+    } catch (err) {
+      console.error("Failed to open wishlist product:", err);
+    }
+    // Fallback: id-based route.
+    navigate(`/products/${pid}`);
+  };
+
   return (
     <Box
       sx={{
@@ -177,7 +200,7 @@ const Wishlist = () => {
                       justifyContent: "center",
                       alignItems: "center",
                     }}
-                    onClick={() => navigate(`/products/${item?.product_id}`)}
+                    onClick={() => openProduct(item)}
                   >
                     <Box
                       component="img"
@@ -201,7 +224,7 @@ const Wishlist = () => {
                     <Typography
                       variant="p"
                       sx={{ color: "#333" }}
-                      onClick={() => navigate(`/products/${item?.product_id}`)}
+                      onClick={() => openProduct(item)}
                     >
                       {item.product_name.slice(0, 23)}
                     </Typography>
@@ -221,7 +244,7 @@ const Wishlist = () => {
                         alignItems: "center",
                         gap: "0.5rem",
                       }}
-                      onClick={() => navigate(`/products/${item?.product_id}`)}
+                      onClick={() => openProduct(item)}
                     >
                       <Typography
                         variant="p"

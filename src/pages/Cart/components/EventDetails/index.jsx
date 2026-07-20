@@ -113,6 +113,79 @@ const EventDetails = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mobileError, setMobileError] = useState(false);
+  // Per-field validation messages, shown beside each field instead of a
+  // single generic "fill all fields" message.
+  const [fieldErrors, setFieldErrors] = useState({});
+
+  // renderInput for MUI pickers that surfaces the field's validation message
+  // beside/below the picker.
+  const pickerInput = (field) => (params) =>
+    (
+      <TextField
+        {...params}
+        fullWidth
+        error={!!fieldErrors[field]}
+        helperText={fieldErrors[field]}
+      />
+    );
+
+  // Clear a single field's error (called as fields are edited).
+  const clearFieldError = (field) =>
+    setFieldErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+
+  // Build a per-field error map for the whole form. Empty map = valid.
+  const validateEventDetails = () => {
+    const errs = {};
+    const req = {
+      eventSetupStartDate: "Please select the setup start date.",
+      eventSetupEndDate: "Please select the setup end date.",
+      venueStartTime: "Please select the setup start time.",
+      venueEndTime: "Please select the setup end time.",
+      rehearsalDate: "Please select the rehearsal date.",
+      rehearsalStartTime: "Please select the rehearsal start time.",
+      rehearsalEndTime: "Please select the rehearsal end time.",
+      eventMainDate: "Please select the event main date.",
+      startTime: "Please select the event start time.",
+      endTime: "Please select the event end time.",
+    };
+    Object.keys(req).forEach((k) => {
+      if (!eventDetails[k]) errs[k] = req[k];
+    });
+    if (!eventDetails.eventName.trim())
+      errs.eventName = "Please enter the event name.";
+    if (!eventDetails.eventVenue.trim())
+      errs.eventVenue = "Please enter the venue name.";
+    if (!eventDetails.receiverName.trim())
+      errs.receiverName = "Please enter the receiver name.";
+    if (!eventDetails.receiverMobile.trim())
+      errs.receiverMobile = "Please enter the receiver mobile number.";
+    else if (eventDetails.receiverMobile.length !== 10)
+      errs.receiverMobile = "Enter a valid 10-digit mobile number.";
+    if (!addLocation.address) errs.location = "Please select an address.";
+
+    // End time must be after its start time.
+    const pairs = [
+      { start: "venueStartTime", end: "venueEndTime", label: "Setup" },
+      {
+        start: "rehearsalStartTime",
+        end: "rehearsalEndTime",
+        label: "Rehearsal",
+      },
+      { start: "startTime", end: "endTime", label: "Event" },
+    ];
+    pairs.forEach(({ start, end, label }) => {
+      const s = eventDetails[start];
+      const e = eventDetails[end];
+      if (s && e && typeof e.isAfter === "function" && !e.isAfter(s))
+        errs[end] = `${label} end time must be after the start time.`;
+    });
+    return errs;
+  };
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -200,49 +273,14 @@ const EventDetails = ({
       navigate("/login");
       return;
     }
-    if (
-      !eventDetails.startTime ||
-      !eventDetails.endTime ||
-      !eventDetails.venueEndTime ||
-      !eventDetails.venueStartTime ||
-      !eventDetails.eventMainDate ||
-      !eventDetails.eventSetupStartDate ||
-      !eventDetails.eventSetupEndDate ||
-      !eventDetails.rehearsalDate ||
-      !eventDetails.rehearsalStartTime ||
-      !eventDetails.rehearsalEndTime ||
-      !eventDetails.eventName.trim() ||
-      !eventDetails.eventVenue.trim() ||
-      !eventDetails.receiverName.trim() ||
-      !eventDetails.receiverMobile.trim() ||
-      !addLocation.address
-    ) {
-      setSnackbarOpen(true);
+    // Field-level validation: show messages beside each field, not a single
+    // generic error.
+    const errs = validateEventDetails();
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
       return;
     }
-    // Final sequence guard: every end time must be after its start time.
-    const timePairs = [
-      { start: "venueStartTime", end: "venueEndTime", label: "Event Setup" },
-      { start: "rehearsalStartTime", end: "rehearsalEndTime", label: "Rehearsal" },
-      { start: "startTime", end: "endTime", label: "Event" },
-    ];
-    for (const { start, end, label } of timePairs) {
-      const s = eventDetails[start];
-      const e = eventDetails[end];
-      if (s && e && !e.isAfter(s)) {
-        toast.error(`${label} End Time must be after ${label} Start Time.`, {
-          position: "top-right",
-          autoClose: 2500,
-        });
-        return;
-      }
-    }
-    if (eventDetails.receiverMobile.length < 10) {
-      toast.error(
-        "Please enter a valid 10-digit mobile number for the receiver."
-      );
-      return;
-    }
+    setFieldErrors({});
     if (!termsAccepted) {
       toast.error("Please accept the Terms & Conditions.");
       return;
@@ -261,6 +299,7 @@ const EventDetails = ({
       lat: locationData.lat,
       lng: locationData.lng,
     });
+    clearFieldError("location");
     setEventDetails((prevDetails) => ({
       ...prevDetails,
       event_location: locationData.address,
@@ -277,6 +316,7 @@ const EventDetails = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    clearFieldError(name);
 
     if (name === "receiverMobile") {
       if (value.length <= 10 && /^[0-9]*$/.test(value)) {
@@ -383,6 +423,7 @@ const EventDetails = ({
   // (and the setup start <= setup end rule), so out-of-range values typed
   // manually are rejected too — not just disabled in the calendar.
   const handleEventDateChange = (field, newDate) => {
+    clearFieldError(field);
     // Allow clearing the field.
     if (!newDate) {
       setEventDetails((prev) => ({ ...prev, [field]: null }));
@@ -415,6 +456,7 @@ const EventDetails = ({
   };
 
   const handleTimeChange = (field, newTime) => {
+    clearFieldError(field);
     // Map each END time to its START time and a human label, for validation.
     const endToStart = {
       venueEndTime: { start: "venueStartTime", label: "Event Setup" },
@@ -479,6 +521,20 @@ const EventDetails = ({
     }
   };
 
+  // Convert an uploaded File to a base64 data URI so the order payload can be
+  // stored in sessionStorage and survive the full-page redirect to PhonePe.
+  const fileToBase64 = (file) =>
+    new Promise((resolve) => {
+      if (!file) return resolve(null);
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+    });
+
+  // Builds the full booking payload and STASHES it in sessionStorage (does NOT
+  // create the order). The order is created only AFTER a successful payment,
+  // from the payment-success page. Returns true when stashed successfully.
   const handleConfirmOrder = async () => {
     try {
       const formData = new FormData();
@@ -547,7 +603,19 @@ const EventDetails = ({
       formData.append("cart_total", billingDetails.cartValue);
       formData.append("tds_deduction", billingDetails.tdsCharges);
       formData.append("amount_after_deduction", billingDetails.amountAfterTds);
-      formData.append("paid_amount", billingDetails.grandTotal);
+
+      // Apply any coupon selected on the Order Summary (bridged via sessionStorage).
+      const appliedCoupon = JSON.parse(
+        sessionStorage.getItem("appliedCoupon") || "null"
+      );
+      const couponDiscount = Number(appliedCoupon?.discount) || 0;
+      const payableAmount = Math.max(
+        0,
+        Number(billingDetails.grandTotal) - couponDiscount
+      );
+      formData.append("paid_amount", payableAmount);
+      formData.append("coupon_code", appliedCoupon?.code || "");
+      formData.append("coupon_discount", couponDiscount);
 
       formData.append("event_name", eventDetails.eventName);
   // Send the single Event Main Date as event_date (matches the User App); the
@@ -581,40 +649,39 @@ const EventDetails = ({
       formData.append("merchant_transaction_id", `WEB-MERCHANT-${Date.now()}`);
       formData.append("ordered_date", orderedDate);
 
-      // ✅ Console payload
-      console.log("🧾 FINAL BOOKING PAYLOAD (WEB):");
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
+      // ------------------ Stash payload (create AFTER payment) ------------------
+      // Convert the FormData into a plain, serializable object. Files are
+      // skipped here and re-added below as base64 so the whole payload survives
+      // the redirect to PhonePe in sessionStorage.
+      const payload = {};
+      for (const [key, value] of formData.entries()) {
+        if (value instanceof File) continue;
+        payload[key] = value;
+      }
+      if (eventDetails.upload_gatepass) {
+        payload.upload_gatepass_b64 = await fileToBase64(
+          eventDetails.upload_gatepass
+        );
+        payload.upload_gatepass_name =
+          eventDetails.upload_gatepass.name || "gatepass.jpg";
+      }
+      if (eventDetails.upload_invitation) {
+        payload.upload_invitation_b64 = await fileToBase64(
+          eventDetails.upload_invitation
+        );
+        payload.upload_invitation_name =
+          eventDetails.upload_invitation.name || "invitation.jpg";
       }
 
-      // ------------------ API Call ------------------
-      const response = await axios.post(
-        `${config.BASEURL}${config.CREATE_ORDER}`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-
-      if (response.status === 200) {
-        toast.success("Your order is placed!", {
-          position: "top-right",
-          autoClose: 2000,
-        });
-        setOpenModal(true);
-        setModalMessage("Order Created Successfully");
-        setModalType("success");
-        setIsOrderSummaryOpen(false);
-        handleClearAll();
-      }
+      sessionStorage.setItem("pendingOrderPayload", JSON.stringify(payload));
+      return true;
     } catch (error) {
-      toast.error("Order failed", {
+      console.error("❌ Error preparing order:", error);
+      toast.error("Could not prepare your order. Please try again.", {
         position: "top-right",
-        autoClose: 2000,
+        autoClose: 2500,
       });
-      setOpenModal(true);
-      setModalMessage("Order failed");
-      setModalType("failure");
-      setIsOrderSummaryOpen(false);
-      console.error("❌ Error creating order:", error.response?.data || error);
+      return false;
     }
   };
 
@@ -712,7 +779,7 @@ const EventDetails = ({
                 format="DD-MM-YYYY"
                 minDate={eventStart || dayjs()} // within event range
                 maxDate={eventEnd || undefined}
-                renderInput={(params) => <TextField {...params} fullWidth />}
+                renderInput={pickerInput("eventSetupStartDate")}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: "#c026d3" },
@@ -736,7 +803,7 @@ const EventDetails = ({
                     : eventStart || dayjs()
                 } // not before setup start, within event range
                 maxDate={eventEnd || undefined}
-                renderInput={(params) => <TextField {...params} fullWidth />}
+                renderInput={pickerInput("eventSetupEndDate")}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: "#c026d3" },
@@ -758,7 +825,7 @@ const EventDetails = ({
                   minutes: renderTimeViewClock,
                   seconds: renderTimeViewClock,
                 }}
-                renderInput={(params) => <TextField {...params} fullWidth />}
+                renderInput={pickerInput("venueStartTime")}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: "#c026d3" },
@@ -780,7 +847,7 @@ const EventDetails = ({
                   minutes: renderTimeViewClock,
                   seconds: renderTimeViewClock,
                 }}
-                renderInput={(params) => <TextField {...params} fullWidth />}
+                renderInput={pickerInput("venueEndTime")}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: "#c026d3" },
@@ -803,7 +870,7 @@ const EventDetails = ({
                 format="DD-MM-YYYY"
                 minDate={eventStart || dayjs()} // within event range
                 maxDate={eventEnd || undefined}
-                renderInput={(params) => <TextField {...params} fullWidth />}
+                renderInput={pickerInput("rehearsalDate")}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: "#c026d3" },
@@ -825,7 +892,7 @@ const EventDetails = ({
                   minutes: renderTimeViewClock,
                   seconds: renderTimeViewClock,
                 }}
-                renderInput={(params) => <TextField {...params} fullWidth />}
+                renderInput={pickerInput("rehearsalStartTime")}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: "#c026d3" },
@@ -847,7 +914,7 @@ const EventDetails = ({
                   minutes: renderTimeViewClock,
                   seconds: renderTimeViewClock,
                 }}
-                renderInput={(params) => <TextField {...params} fullWidth />}
+                renderInput={pickerInput("rehearsalEndTime")}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: "#c026d3" },
@@ -915,9 +982,10 @@ const EventDetails = ({
                 onChange={(newDate) =>
                   handleEventDateChange("eventMainDate", newDate)
                 }
+                format="DD-MM-YYYY"
                 minDate={eventStart || dayjs()}
                 maxDate={eventEnd || undefined}
-                renderInput={(params) => <TextField {...params} fullWidth />}
+                renderInput={pickerInput("eventMainDate")}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: "#c026d3" },
@@ -937,7 +1005,7 @@ const EventDetails = ({
                   minutes: renderTimeViewClock,
                   seconds: renderTimeViewClock,
                 }}
-                renderInput={(params) => <TextField {...params} fullWidth />}
+                renderInput={pickerInput("startTime")}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: "#c026d3" },
@@ -957,7 +1025,7 @@ const EventDetails = ({
                   minutes: renderTimeViewClock,
                   seconds: renderTimeViewClock,
                 }}
-                renderInput={(params) => <TextField {...params} fullWidth />}
+                renderInput={pickerInput("endTime")}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": { borderColor: "#c026d3" },
@@ -973,6 +1041,8 @@ const EventDetails = ({
                 name="eventName"
                 value={eventDetails.eventName}
                 onChange={handleChange}
+                error={!!fieldErrors.eventName}
+                helperText={fieldErrors.eventName}
                 fullWidth
                 sx={{
                   "& .MuiInputLabel-root": {
@@ -997,6 +1067,8 @@ const EventDetails = ({
                 name="eventVenue"
                 value={eventDetails.eventVenue}
                 onChange={handleChange}
+                error={!!fieldErrors.eventVenue}
+                helperText={fieldErrors.eventVenue}
                 fullWidth
                 sx={{
                   "& .MuiInputLabel-root": {
@@ -1028,6 +1100,14 @@ const EventDetails = ({
               <Typography>
                 {addLocation.address || "No address selected"}
               </Typography>
+              {fieldErrors.location && (
+                <Typography
+                  variant="caption"
+                  sx={{ color: "#d32f2f", mt: 0.5 }}
+                >
+                  {fieldErrors.location}
+                </Typography>
+              )}
               <Button
                 sx={{
                   width: "33.7rem",
@@ -1058,6 +1138,8 @@ const EventDetails = ({
                 name="receiverName"
                 value={eventDetails.receiverName}
                 onChange={handleChange}
+                error={!!fieldErrors.receiverName}
+                helperText={fieldErrors.receiverName}
                 fullWidth
                 sx={{
                   "& .MuiInputLabel-root": {
@@ -1083,6 +1165,8 @@ const EventDetails = ({
                 name="receiverMobile"
                 value={eventDetails.receiverMobile}
                 onChange={handleChange}
+                error={!!fieldErrors.receiverMobile}
+                helperText={fieldErrors.receiverMobile}
                 fullWidth
                 sx={{
                   "& .MuiInputLabel-root": {
@@ -1117,12 +1201,46 @@ const EventDetails = ({
                 />
               </Button>
               {eventDetails.upload_invitationPreview && (
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#555", marginTop: "5px", textAlign: "center" }}
-                >
-                  {eventDetails.upload_invitation.name}
-                </Typography>
+                <Box sx={{ marginTop: "5px", textAlign: "center" }}>
+                  <Typography variant="body2" sx={{ color: "#555" }}>
+                    {eventDetails.upload_invitation.name}
+                  </Typography>
+                  {eventDetails.upload_invitation?.type?.startsWith(
+                    "image/"
+                  ) && (
+                    <Box
+                      component="img"
+                      src={eventDetails.upload_invitationPreview}
+                      alt="Invitation preview"
+                      onClick={() =>
+                        window.open(
+                          eventDetails.upload_invitationPreview,
+                          "_blank"
+                        )
+                      }
+                      sx={{
+                        marginTop: "6px",
+                        maxWidth: "100%",
+                        maxHeight: 120,
+                        borderRadius: "6px",
+                        border: "1px solid #eee",
+                        cursor: "pointer",
+                      }}
+                    />
+                  )}
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      window.open(
+                        eventDetails.upload_invitationPreview,
+                        "_blank"
+                      )
+                    }
+                    sx={{ color: "#9c27b0", textTransform: "none" }}
+                  >
+                    View
+                  </Button>
+                </Box>
               )}
             </Grid>
             <Grid item xs={6}>
@@ -1141,12 +1259,41 @@ const EventDetails = ({
                 />
               </Button>
               {eventDetails.upload_gatepassPreview && (
-                <Typography
-                  variant="body2"
-                  sx={{ color: "#555", marginTop: "5px", textAlign: "center" }}
-                >
-                  {eventDetails.upload_gatepass.name}
-                </Typography>
+                <Box sx={{ marginTop: "5px", textAlign: "center" }}>
+                  <Typography variant="body2" sx={{ color: "#555" }}>
+                    {eventDetails.upload_gatepass.name}
+                  </Typography>
+                  {eventDetails.upload_gatepass?.type?.startsWith("image/") && (
+                    <Box
+                      component="img"
+                      src={eventDetails.upload_gatepassPreview}
+                      alt="Gate pass preview"
+                      onClick={() =>
+                        window.open(
+                          eventDetails.upload_gatepassPreview,
+                          "_blank"
+                        )
+                      }
+                      sx={{
+                        marginTop: "6px",
+                        maxWidth: "100%",
+                        maxHeight: 120,
+                        borderRadius: "6px",
+                        border: "1px solid #eee",
+                        cursor: "pointer",
+                      }}
+                    />
+                  )}
+                  <Button
+                    size="small"
+                    onClick={() =>
+                      window.open(eventDetails.upload_gatepassPreview, "_blank")
+                    }
+                    sx={{ color: "#9c27b0", textTransform: "none" }}
+                  >
+                    View
+                  </Button>
+                </Box>
               )}
             </Grid>
           </Grid>
@@ -1199,7 +1346,10 @@ const EventDetails = ({
             venueEndTime={eventDetails.venueEndTime || null}
             eventSetupStartDate={eventDetails.eventSetupStartDate || null}
             eventSetupEndDate={eventDetails.eventSetupEndDate || null}
+            eventMainDate={eventDetails.eventMainDate || null}
             rehearsalDate={eventDetails.rehearsalDate || null}
+            rehearsalStartTime={eventDetails.rehearsalStartTime || null}
+            rehearsalEndTime={eventDetails.rehearsalEndTime || null}
             // Location (address + lat/lng)
             location={addLocation.address}
             locationLat={addLocation.lat}

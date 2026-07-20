@@ -948,6 +948,7 @@ const Signup = () => {
         email: formData.email.trim(),
         mobilenumber: formData.mobilenumber.trim(),
         password: formData.password.trim(),
+        registered_from: "web",
       });
 
       dispatch(login(response.data.newUser));
@@ -1101,6 +1102,42 @@ const Signup = () => {
               InputLabelProps={{ shrink: true }}
               className="ne-input"
             />
+
+            {/* Real-time password strength checklist */}
+            {formData.password && (
+              <Box sx={{ mt: 0.5, mb: 0.5, pl: 0.5 }}>
+                <Typography
+                  sx={{ fontSize: "0.78rem", fontWeight: 600, color: "#555", mb: 0.3 }}
+                >
+                  Password must contain:
+                </Typography>
+                {[
+                  { label: "At least 8 characters", ok: formData.password.length >= 8 },
+                  { label: "One uppercase letter (A–Z)", ok: /[A-Z]/.test(formData.password) },
+                  { label: "One lowercase letter (a–z)", ok: /[a-z]/.test(formData.password) },
+                  { label: "One number (0–9)", ok: /[0-9]/.test(formData.password) },
+                  {
+                    label: "One special character (@ $ ! % * ? & #)",
+                    ok: /[@$!%*?&#]/.test(formData.password),
+                  },
+                ].map((rule, i) => (
+                  <Box
+                    key={i}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      fontSize: "0.78rem",
+                      lineHeight: 1.5,
+                      color: rule.ok ? "#2e7d32" : "#9e9e9e",
+                    }}
+                  >
+                    <span>{rule.ok ? "✓" : "○"}</span>
+                    <span>{rule.label}</span>
+                  </Box>
+                ))}
+              </Box>
+            )}
 
             {/* Confirm Password */}
             <TextField

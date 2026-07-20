@@ -15,66 +15,109 @@ export const getErrorMessage = (error) => {
   }
 };
 
-export async function getCurrentCity() {
-  const GOOGLE_API_KEY = "AIzaSyDLyeYKWC3vssuRVGXktAT_cY-8-qHEA_g";
+const GOOGLE_API_KEY = "AIzaSyDLyeYKWC3vssuRVGXktAT_cY-8-qHEA_g";
 
+// Ordered preference for naming a place. Google doesn't always return
+// "locality" (rural areas and many Indian towns only carry the admin levels),
+// so fall through the list instead of giving up on the first miss.
+const CITY_TYPES = [
+  "locality",
+  "postal_town",
+  "administrative_area_level_3",
+  "administrative_area_level_2",
+  "administrative_area_level_1",
+];
+const TOWN_TYPES = [
+  "sublocality_level_1",
+  "sublocality",
+  "neighborhood",
+  "locality",
+];
+
+// Scan EVERY result, not just results[0] — the first is usually the exact
+// street address, which often lacks the locality/sublocality components.
+function pickComponent(results, types) {
+  for (const type of types) {
+    for (const result of results) {
+      const hit = (result.address_components || []).find((c) =>
+        c.types.includes(type)
+      );
+      if (hit?.long_name) return hit.long_name;
+    }
+  }
+  return "";
+}
+
+async function reverseGeocode(latitude, longitude) {
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  if (data.status !== "OK" || !data.results?.length) {
+    // Never invent a placeholder name — an empty string lets the UI show a
+    // sensible prompt instead of literally displaying "City not found".
+    return { lat: latitude, lng: longitude, city: "", town: "" };
+  }
+
+  const city = pickComponent(data.results, CITY_TYPES);
+  const town = pickComponent(data.results, TOWN_TYPES);
+  return {
+    lat: latitude,
+    lng: longitude,
+    city: city || town,
+    // Don't repeat the same name in both fields.
+    town: town && town !== city ? town : "",
+  };
+}
+
+// Try GPS-accurate first; if that times out (common on desktops, which have no
+// GPS and can sit for ~10s before failing), retry once allowing a cached,
+// network-based fix rather than failing outright.
+function getPosition() {
+  const highAccuracy = {
+    enableHighAccuracy: true,
+    timeout: 10000,
+    maximumAge: 0,
+  };
+  const fallback = {
+    enableHighAccuracy: false,
+    timeout: 15000,
+    maximumAge: 5 * 60 * 1000, // a fix from the last 5 min is fine
+  };
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       reject("Geolocation is not supported by this browser.");
       return;
     }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-
-        const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`;
-
-        try {
-          const response = await fetch(geocodingUrl);
-          const data = await response.json();
-
-          if (data.status === "OK" && data.results.length > 0) {
-            const addressComponents = data.results[0].address_components;
-
-            console.log("addressComponents", addressComponents);
-            const city =
-              addressComponents.find((c) => c.types.includes("locality"))
-                ?.long_name || "City not found";
-
-            const town =
-              addressComponents.find((c) =>
-                c.types.includes("sublocality_level_1")
-              )?.long_name || "Town not found";
-
-            resolve({
-              lat: latitude,
-              lng: longitude,
-              city,
-              town,
-            });
-          } else {
-            resolve({
-              lat: latitude,
-              lng: longitude,
-              city: "City not found",
-              town: "Town not found",
-            });
-          }
-        } catch (error) {
-          reject("Error fetching location data.");
-        }
-      },
-      (error) => {
-        reject(error.message || "Error getting location.");
-      },
-      {
-        enableHighAccuracy: true, // ✅ Requests GPS/Wi-Fi precision
-        timeout: 10000, // Wait max 10s
-        maximumAge: 0, // Don’t use cached results
+    navigator.geolocation.getCurrentPosition(resolve, (firstError) => {
+      // A denied permission won't succeed on retry — fail fast so the UI can
+      // tell the user to enable location instead of hanging another 15s.
+      if (firstError.code === firstError.PERMISSION_DENIED) {
+        reject(
+          "Location permission is blocked. Please allow location access in your browser and try again."
+        );
+        return;
       }
-    );
+      navigator.geolocation.getCurrentPosition(
+        resolve,
+        (err) => reject(err.message || "Error getting location."),
+        fallback
+      );
+    }, highAccuracy);
   });
+}
+
+export async function getCurrentCity() {
+  const position = await getPosition();
+  const { latitude, longitude } = position.coords;
+  try {
+    return await reverseGeocode(latitude, longitude);
+  } catch (error) {
+    // Reverse geocoding failed, but the coordinates are still valid and are
+    // what the nearby-vendor distance filter actually needs — keep them.
+    console.warn("Reverse geocoding failed:", error?.message || error);
+    return { lat: latitude, lng: longitude, city: "", town: "" };
+  }
 }
 
 // Forward-geocode a typed location (e.g. "Bangalore") into city/town/coords,

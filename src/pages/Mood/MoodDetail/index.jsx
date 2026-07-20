@@ -19,34 +19,101 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  Modal,
 } from "@mui/material";
 import { FiShare2 } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import { config } from "../../../api/config";
 
 const MoodDetail = () => {
   const [project, setProject] = useState(null);
   const [objects, setObjects] = useState([]);
   const [isSaved, setIsSaved] = useState(false);
+  // Fallback palette (bundled images) used only if the admin hasn't added any
+  // Object Palette items yet, so existing boards never see an empty palette.
+  const staticPaletteItems = [
+    { type: "chair", label: "Chair", image: ChairIcon },
+    { type: "tablecloth", label: "Table", image: TableCloth },
+    { type: "dinning", label: "Dining", image: Dinning },
+    { type: "theater", label: "Theater", image: Theater },
+    { type: "tribune", label: "Tribune", image: Tribune },
+    { type: "mic", label: "Mic Stand", image: MicIcon },
+    { type: "spotlight", label: "Spotlight", image: Spotlight },
+    { type: "spotlight1", label: "Spotlight 2", image: Spotlight1 },
+  ];
+
+  // Object Palette items managed by the admin — added/edited/enabled in the
+  // Admin Panel and reflected here automatically (no code change needed).
+  const [paletteItems, setPaletteItems] = useState(staticPaletteItems);
+
+  useEffect(() => {
+    const fetchPalette = async () => {
+      try {
+        const res = await axios.get(`${config.BASEURL}/mood-palette/get-active`);
+        const list = Array.isArray(res?.data?.items) ? res.data.items : [];
+        const usable = list
+          .filter((it) => it && it.image)
+          .map((it) => ({ type: it.name, label: it.name, image: it.image }));
+        // Show the default palette AND the admin-added items together (the
+        // defaults are no longer replaced).
+        if (usable.length) setPaletteItems([...staticPaletteItems, ...usable]);
+      } catch (err) {
+        console.error("Failed to load mood board palette:", err);
+      }
+    };
+    fetchPalette();
+  }, []);
+
   const canvasRef = useRef(null);
   const { id } = useParams();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
+  const [showBackModal, setShowBackModal] = useState(false);
 
-  const saveLayout = () => {
-    // Validate before saving (match the mobile app): a project must exist and
-    // at least one item must be placed on the layout.
+  // Back button: confirm before leaving if there are unsaved changes.
+  const handleBack = () => {
+    if (objects && objects.length > 0 && !isSaved) {
+      setShowBackModal(true);
+    } else {
+      navigate("/mood-board");
+    }
+  };
+
+  // Returns true on success. When silent, skips the "saved" alert (used by the
+  // Back → "Save & Exit" flow which shows its own navigation).
+  const saveLayout = async (silent = false) => {
     if (!project) {
       alert("Please create or select a project before saving.");
-      return;
+      return false;
     }
+    // Blank-project validation.
     if (!objects || objects.length === 0) {
-      alert("Please add at least one item to the layout before saving.");
-      return;
+      alert("Please create a Mood Board before saving.");
+      return false;
     }
-    localStorage.setItem(`layout_${id}`, JSON.stringify(objects));
-    setIsSaved(true);
-    alert("Layout saved successfully!");
+    try {
+      const userDetails = sessionStorage.getItem("userDetails");
+      const userId = userDetails ? JSON.parse(userDetails)._id : null;
+      // Persist to the database.
+      await axios.post(`${config.BASEURL}/moodboard/save-moodboard`, {
+        user_id: userId,
+        project_name: project.name,
+        items: objects,
+      });
+      // Keep a local copy too (so re-opening this project still shows it).
+      localStorage.setItem(`layout_${id}`, JSON.stringify(objects));
+      setIsSaved(true);
+      if (!silent) alert("Mood board saved successfully!");
+      // Redirect to the Saved Projects page after saving.
+      navigate("/mood-board");
+      return true;
+    } catch (err) {
+      console.error("Failed to save mood board:", err);
+      alert("Failed to save the mood board. Please try again.");
+      return false;
+    }
   };
 
   useEffect(() => {
@@ -112,10 +179,16 @@ const MoodDetail = () => {
   //   localStorage.setItem(`layout_${id}`, JSON.stringify(objects));
   //   alert("Layout saved successfully!");
   // };
-  const addObject = (type) => {
+  // Accepts a category { service_name, service_image } (from the admin) OR a
+  // legacy string type (kept for backward compatibility with old layouts).
+  const addObject = (item) => {
+    // Accepts a palette item object ({ type/name, image }) or a plain type
+    // string (legacy). Carry the image through so dynamic items render.
+    const isObj = item && typeof item === "object";
     const newObject = {
-      id: Date.now(), // Use Date.now() to generate a unique id for each object
-      type,
+      id: Date.now(), // unique id per object
+      type: isObj ? item.type || item.name || item.service_name : item,
+      image: isObj ? item.image || item.service_image : undefined,
       x: Math.floor(Math.random() * 300),
       y: Math.floor(Math.random() * 300),
       rotation: 0,
@@ -178,13 +251,25 @@ const MoodDetail = () => {
     document.body.removeChild(link);
   };
 
-  const downloadDesign = () => {
-    html2canvas(canvasRef.current).then((canvas) => {
+  const downloadDesign = async () => {
+    if (!canvasRef.current) return;
+    try {
+      // useCORS renders remote (S3) images; the link MUST be added to the DOM
+      // before click() or the download silently fails in some browsers.
+      const canvas = await html2canvas(canvasRef.current, {
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
       const link = document.createElement("a");
       link.href = canvas.toDataURL("image/png");
-      link.download = "design.png";
+      link.download = `${project?.name || "mood-board"}.png`;
+      document.body.appendChild(link);
       link.click();
-    });
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error("Mood board download failed:", err);
+      alert("Could not download the mood board. Please try again.");
+    }
   };
 
   const shareDesign = async () => {
@@ -291,6 +376,19 @@ const MoodDetail = () => {
             justifyContent: "center",
             alignItems: "center",
             cursor: "pointer",
+            marginRight: "auto",
+          }}
+          onClick={handleBack}
+        >
+          <Button sx={{ fontSize: "0.7rem", color: "#e226bf" }}>← Back</Button>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: "pointer",
           }}
           onClick={clearAllObjects}
         >
@@ -352,31 +450,25 @@ const MoodDetail = () => {
           <Box>
             <div className="palette-mobile">
               <h2>Object Palette</h2>
-              {[
-                "chair",
-                "mic",
-                "spotlight1",
-                "spotlight",
-                "dinning",
-                "tablecloth",
-                "tribune",
-                "theater",
-              ].map((type) => (
-                <div key={type} className="palette-item">
-                  <img src={renderIcon(type)} alt={type} className="icon" />
-                  <button onClick={() => addObject(type)} className="add-btn">
+              {paletteItems.map((item) => (
+                <div key={item.type} className="palette-item">
+                  <img src={item.image} alt={item.label} className="icon" />
+                  <button
+                    onClick={() => addObject(item)}
+                    className="add-btn"
+                  >
                     +
                   </button>
                   <Typography
                     sx={{ minWidth: "20px", textAlign: "center", color: "red" }}
                   >
                     {" "}
-                    {objects.filter((obj) => obj.type === type).length}
+                    {objects.filter((obj) => obj.type === item.type).length}
                   </Typography>
                   <button
                     onClick={() => {
                       const objectToRemove = objects.find(
-                        (obj) => obj.type === type
+                        (obj) => obj.type === item.type
                       );
                       if (objectToRemove) {
                         removeObjectOfType(objectToRemove.id);
@@ -396,26 +488,20 @@ const MoodDetail = () => {
           <Box>
             <div className="palette">
               <h2>Object Palette</h2>
-              {[
-                "chair",
-                "mic",
-                "spotlight1",
-                "spotlight",
-                "dinning",
-                "tablecloth",
-                "tribune",
-                "theater",
-              ].map((type) => (
-                <div key={type} className="palette-item">
-                  <img src={renderIcon(type)} alt={type} className="icon" />
-                  <button onClick={() => addObject(type)} className="add-btn">
+              {paletteItems.map((item) => (
+                <div key={item.type} className="palette-item">
+                  <img src={item.image} alt={item.label} className="icon" />
+                  <button
+                    onClick={() => addObject(item)}
+                    className="add-btn"
+                  >
                     +
                   </button>
-                  {objects.filter((obj) => obj.type === type).length}
+                  {objects.filter((obj) => obj.type === item.type).length}
                   <button
                     onClick={() => {
                       const objectToRemove = objects.find(
-                        (obj) => obj.type === type
+                        (obj) => obj.type === item.type
                       );
                       if (objectToRemove) {
                         removeObjectOfType(objectToRemove.id);
@@ -452,7 +538,7 @@ const MoodDetail = () => {
           onClick={() => handleRotate(obj.id)} 
         >
           <img
-            src={renderIcon(obj.type)}
+            src={obj.image || renderIcon(obj.type)}
             alt={obj.type}
             className="object-img"
           />
@@ -461,6 +547,58 @@ const MoodDetail = () => {
           ))}
         </div>
       </div>
+
+      {/* Back-navigation confirmation */}
+      <Modal open={showBackModal} onClose={() => setShowBackModal(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 360,
+            bgcolor: "#fff",
+            borderRadius: 2,
+            boxShadow: 24,
+            p: 3,
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            Unsaved Changes
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 3, color: "#555" }}>
+            You have unsaved changes to your mood board. What would you like to
+            do?
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: "#c026d3" }}
+              onClick={() => {
+                setShowBackModal(false);
+                saveLayout(true);
+              }}
+            >
+              Save &amp; Exit
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={() => {
+                setShowBackModal(false);
+                setIsSaved(true);
+                navigate("/mood-board");
+              }}
+            >
+              Exit Without Saving
+            </Button>
+            <Button variant="text" onClick={() => setShowBackModal(false)}>
+              Cancel
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   );
 };

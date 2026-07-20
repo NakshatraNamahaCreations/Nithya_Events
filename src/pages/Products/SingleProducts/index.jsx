@@ -999,7 +999,7 @@
 // export default SingleProducts;
 
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -1051,6 +1051,9 @@ const SingleProducts = () => {
   const [showProduct, setShowProduct] = useState(false);
   const [productId, setProductId] = useState("");
   const [mainImage, setMainImage] = useState("");
+  // Index of the currently shown media within the product's image/video list —
+  // drives the auto-scroll slideshow and the prev/next arrows.
+  const [mediaIndex, setMediaIndex] = useState(0);
   const [relatedProduct, setRelatedProduct] = useState([]);
   const relatedScrollRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -1067,6 +1070,49 @@ const SingleProducts = () => {
     (state) => state.date
   );
   const [wishlist, setWishlist] = useState([]);
+
+  // Ordered list of all media (images first, then video) for the main-image
+  // slideshow.
+  const mediaList = useMemo(() => {
+    const imgs = Array.isArray(product?.product_image)
+      ? product.product_image
+      : [];
+    const vid = product?.product_video ? [product.product_video] : [];
+    return [...imgs, ...vid];
+  }, [product?.product_image, product?.product_video]);
+
+  // Keep the shown media in sync with the index (arrows / auto-scroll). Falls
+  // back to the first item if the index is stale (e.g. after switching to a
+  // product with fewer images).
+  useEffect(() => {
+    if (mediaList.length) {
+      const target = mediaList[mediaIndex] ?? mediaList[0];
+      if (target !== mainImage) setMainImage(target);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mediaIndex, mediaList]);
+
+  // When a thumbnail is clicked (sets mainImage directly), sync the index so
+  // the slideshow continues from the selected image.
+  useEffect(() => {
+    const idx = mediaList.indexOf(mainImage);
+    if (idx >= 0 && idx !== mediaIndex) setMediaIndex(idx);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mainImage, mediaList]);
+
+  // Auto-scroll the main image every 3s (only when there's more than one).
+  useEffect(() => {
+    if (mediaList.length <= 1) return;
+    const timer = setInterval(() => {
+      setMediaIndex((i) => (i + 1) % mediaList.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [mediaList]);
+
+  const goToPrevMedia = () =>
+    setMediaIndex((i) => (i - 1 + mediaList.length) % mediaList.length);
+  const goToNextMedia = () =>
+    setMediaIndex((i) => (i + 1) % mediaList.length);
 
   const userDetail = sessionStorage.getItem("userDetails");
   let userId = null;
@@ -1094,15 +1140,18 @@ const SingleProducts = () => {
   const fetchSingleProduct = async () => {
     try {
       dispatch(setLoading(true));
-      const res = await authService.rentalProduct();
-      const allProducts = res.data.data || [];
 
       let foundProduct;
       if (params.id) {
         // Direct id-based lookup — used by the Wishlist and vendor product list,
-        // which navigate via /products/:id (no category/slug available).
-        foundProduct = allProducts.find((item) => item._id === params.id);
+        // which navigate via /products/:id (no category/slug available). Fetch
+        // the product by id so it opens for ANY product/category, not just
+        // rental products.
+        const res = await authService.singleProduct(params.id);
+        foundProduct = res?.data?.product || null;
       } else {
+        const res = await authService.rentalProduct();
+        const allProducts = res.data.data || [];
         let normalizedProductSlug = params.productSlug || "";
         if (normalizedProductSlug.endsWith('-rental')) {
           normalizedProductSlug = normalizedProductSlug.slice(0, -7);
@@ -1122,6 +1171,7 @@ const SingleProducts = () => {
         setShowProduct(true);
         
         // Set initial main image - prioritize first image, then video
+        setMediaIndex(0); // reset slideshow to the first media on load
         if (foundProduct.product_image && foundProduct.product_image.length > 0) {
           setMainImage(foundProduct.product_image[0]);
         } else if (foundProduct.product_video) {
@@ -1461,33 +1511,70 @@ const SingleProducts = () => {
             }}
           >
             <Box className="product-content">
-              {/* Main Image/Video Display */}
-              {isVideoFile(mainImage) ? (
-                <Box className="image-container-01">
-                  <video
-                    controls
-                    autoPlay
-                    muted
-                    loop
-                    style={{
-                      width: "100%",
-                      height: "300px",
-                      objectFit: "cover",
-                      borderRadius: "8px"
-                    }}
-                  >
-                    <source src={mainImage} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                </Box>
-              ) : (
-                <img
-                  className="image-container-01"
-                  src={mainImage}
-                  alt="Main Product Image"
-                />
-              )}
-              
+              {/* Main Image/Video Display with auto-scroll + prev/next arrows */}
+              <Box sx={{ position: "relative" }}>
+                {isVideoFile(mainImage) ? (
+                  <Box className="image-container-01">
+                    <video
+                      controls
+                      autoPlay
+                      muted
+                      loop
+                      style={{
+                        width: "100%",
+                        height: "300px",
+                        objectFit: "cover",
+                        borderRadius: "8px"
+                      }}
+                    >
+                      <source src={mainImage} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </Box>
+                ) : (
+                  <img
+                    className="image-container-01"
+                    src={mainImage}
+                    alt="Main Product Image"
+                  />
+                )}
+
+                {mediaList.length > 1 && (
+                  <>
+                    <IconButton
+                      onClick={goToPrevMedia}
+                      aria-label="Previous image"
+                      sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "8px",
+                        transform: "translateY(-50%)",
+                        backgroundColor: "rgba(255,255,255,0.8)",
+                        "&:hover": { backgroundColor: "white" },
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+                      }}
+                    >
+                      <ArrowBackIosNewIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      onClick={goToNextMedia}
+                      aria-label="Next image"
+                      sx={{
+                        position: "absolute",
+                        top: "50%",
+                        right: "8px",
+                        transform: "translateY(-50%)",
+                        backgroundColor: "rgba(255,255,255,0.8)",
+                        "&:hover": { backgroundColor: "white" },
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+                      }}
+                    >
+                      <ArrowForwardIosIcon fontSize="small" />
+                    </IconButton>
+                  </>
+                )}
+              </Box>
+
               <ImageSlider
                 productImages={product.product_image || []}
                 setMainImage={setMainImage}
@@ -1570,6 +1657,28 @@ const SingleProducts = () => {
                     </Typography>
                   </Box>
                 </Box>
+                {(product.vendor_name || product.shop_name) &&
+                  product.vendor_id && (
+                    <Box sx={{ mb: 2 }}>
+                      <Typography
+                        variant="body2"
+                        onClick={() =>
+                          navigate(`/vendors/${product.vendor_id}`)
+                        }
+                        sx={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          color: "#c026d3",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          "&:hover": { textDecoration: "underline" },
+                        }}
+                      >
+                        Sold by: {product.shop_name || product.vendor_name} →
+                      </Typography>
+                    </Box>
+                  )}
                 <Box display="flex" alignItems="center" gap={1} mb={2}>
                   <Typography variant="p">Quantity:</Typography>
                   <Box

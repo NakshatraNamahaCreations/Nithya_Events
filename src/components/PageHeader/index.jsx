@@ -103,6 +103,10 @@ import { clearTechnicians } from "../../redux/slice/technicianSlice";
 const PageHeader = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestedProducts, setSuggestedProducts] = useState([]);
+  // Cached lists so the header search can also match vendors & services
+  // (fetched once; filtered client-side as the user types).
+  const [allVendors, setAllVendors] = useState([]);
+  const [allServices, setAllServices] = useState([]);
   const [currLocation, setCurrLocation] = useState({ city: "", town: "" });
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
@@ -188,6 +192,46 @@ const PageHeader = () => {
     return () => clearTimeout(debounceSearch);
   }, [searchTerm]);
 
+  // Load vendors & services once so the header search can match them too.
+  useEffect(() => {
+    (async () => {
+      try {
+        const [vRes, sRes] = await Promise.all([
+          axios.get(`${config.BASEURL}/vendor/getallvendor`),
+          axios.get(`${config.BASEURL}/service/get-all-service`),
+        ]);
+        setAllVendors(Array.isArray(vRes?.data) ? vRes.data : []);
+        const svc = Array.isArray(sRes?.data)
+          ? sRes.data
+          : sRes?.data?.data || sRes?.data?.services || [];
+        setAllServices(Array.isArray(svc) ? svc : []);
+      } catch (err) {
+        console.error("Header search bootstrap failed:", err);
+      }
+    })();
+  }, []);
+
+  // Open a vendor's profile page.
+  const handleVendorClick = (vendor) => {
+    setSearchTerm("");
+    setSuggestedProducts([]);
+    navigate(`/vendors/${vendor._id}`);
+  };
+
+  // Open a service. SingleService (/service/:name/:id) is keyed by VENDOR id;
+  // if we have one go straight there, otherwise open the services listing for
+  // that service name (which never 404s).
+  const handleServiceClick = (service) => {
+    setSearchTerm("");
+    setSuggestedProducts([]);
+    const name = encodeURIComponent(service.service_name || "");
+    if (service.vendor_id) {
+      navigate(`/service/${name}/${service.vendor_id}`);
+    } else {
+      navigate(`/service/${name}`);
+    }
+  };
+
   // Open a specific product's detail page from a suggestion.
   const handleSuggestionClick = (product) => {
     setSearchTerm("");
@@ -253,8 +297,16 @@ const PageHeader = () => {
     const saved = localStorage.getItem("selectedLocation");
     if (saved) {
       try {
-        setCurrLocation(JSON.parse(saved));
-        return;
+        const parsed = JSON.parse(saved);
+        // Only trust a saved location that actually has coordinates — otherwise
+        // the distance filter can't work, so fall through to auto-detect.
+        const hasCoords =
+          Number.isFinite(Number(parsed?.lat)) &&
+          Number.isFinite(Number(parsed?.lng));
+        if (hasCoords) {
+          setCurrLocation(parsed);
+          return;
+        }
       } catch (e) {
         // fall through to auto-detect on parse error
       }
@@ -262,9 +314,12 @@ const PageHeader = () => {
     const fetchCity = async () => {
       try {
         const locationData = await getCurrentCity();
-        setCurrLocation(locationData);
+        // Persist (not just display) so the coordinates are saved to
+        // "selectedLocation" — otherwise the Nearby-Vendors distance filter has
+        // no coords and shows every vendor unsorted.
+        persistLocation(locationData);
       } catch (error) {
-        setCurrLocation(error);
+        console.warn("Auto location detect failed:", error);
       }
     };
     fetchCity();
@@ -274,6 +329,9 @@ const PageHeader = () => {
     setCurrLocation(loc);
     try {
       localStorage.setItem("selectedLocation", JSON.stringify(loc));
+      // Notify listeners (e.g. Home "Nearby Vendors") to re-sort by the new
+      // location without a page reload.
+      window.dispatchEvent(new Event("location:changed"));
     } catch (e) {
       // ignore storage errors
     }
@@ -504,8 +562,8 @@ const PageHeader = () => {
                     fontSize: "18px",
                     backgroundColor: "transparent",
                   }}
-                  placeholder='Search "Products"'
-                  inputProps={{ "aria-label": "search products" }}
+                  placeholder="Search products, vendors, services…"
+                  inputProps={{ "aria-label": "search" }}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -519,7 +577,27 @@ const PageHeader = () => {
                 const matchedCategories = PRODUCT_CATEGORIES.filter((c) =>
                   c.toLowerCase().includes(term)
                 );
-                if (matchedCategories.length === 0 && suggestedProducts.length === 0)
+                const matchedVendors = allVendors
+                  .filter(
+                    (v) =>
+                      v?.vendor_name?.toLowerCase().includes(term) ||
+                      v?.shop_name?.toLowerCase().includes(term) ||
+                      v?.profession?.toLowerCase().includes(term)
+                  )
+                  .slice(0, 5);
+                const matchedServices = allServices
+                  .filter(
+                    (s) =>
+                      s?.service_name?.toLowerCase().includes(term) ||
+                      s?.service_category?.toLowerCase().includes(term)
+                  )
+                  .slice(0, 5);
+                if (
+                  matchedCategories.length === 0 &&
+                  suggestedProducts.length === 0 &&
+                  matchedVendors.length === 0 &&
+                  matchedServices.length === 0
+                )
                   return null;
                 return (
                   <Paper
@@ -610,6 +688,90 @@ const PageHeader = () => {
                           <ListItemText
                             primary={product.product_name}
                             secondary={product.product_category}
+                            primaryTypographyProps={{
+                              sx: { color: "#333", fontWeight: 600, fontSize: "0.9rem" },
+                            }}
+                          />
+                        </ListItem>
+                      ))}
+
+                      {/* Vendors */}
+                      {matchedVendors.length > 0 && (
+                        <Typography
+                          sx={{
+                            px: 1,
+                            mt: 1,
+                            fontSize: "0.7rem",
+                            fontWeight: "bold",
+                            color: "#9e9e9e",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Vendors
+                        </Typography>
+                      )}
+                      {matchedVendors.map((vendor) => (
+                        <ListItem
+                          key={`vendor-${vendor._id}`}
+                          button
+                          onClick={() => handleVendorClick(vendor)}
+                          sx={{ padding: "8px 10px" }}
+                        >
+                          {vendor.shop_image_or_logo ? (
+                            <img
+                              src={vendor.shop_image_or_logo}
+                              alt={vendor.shop_name || vendor.vendor_name}
+                              style={{
+                                width: 34,
+                                height: 34,
+                                objectFit: "cover",
+                                borderRadius: 4,
+                                marginRight: 10,
+                              }}
+                            />
+                          ) : (
+                            <SearchIcon
+                              sx={{ color: "#c026d3", fontSize: 18, mr: 1 }}
+                            />
+                          )}
+                          <ListItemText
+                            primary={vendor.shop_name || vendor.vendor_name}
+                            secondary={vendor.profession}
+                            primaryTypographyProps={{
+                              sx: { color: "#333", fontWeight: 600, fontSize: "0.9rem" },
+                            }}
+                          />
+                        </ListItem>
+                      ))}
+
+                      {/* Services */}
+                      {matchedServices.length > 0 && (
+                        <Typography
+                          sx={{
+                            px: 1,
+                            mt: 1,
+                            fontSize: "0.7rem",
+                            fontWeight: "bold",
+                            color: "#9e9e9e",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          Services
+                        </Typography>
+                      )}
+                      {matchedServices.map((service) => (
+                        <ListItem
+                          key={`service-${service._id}`}
+                          button
+                          onClick={() => handleServiceClick(service)}
+                          sx={{ padding: "8px 10px" }}
+                        >
+                          <SearchIcon
+                            sx={{ color: "#c026d3", fontSize: 18, mr: 1 }}
+                          />
+                          <ListItemText
+                            primary={service.service_name}
+                            secondary={service.service_category}
                             primaryTypographyProps={{
                               sx: { color: "#333", fontWeight: 600, fontSize: "0.9rem" },
                             }}

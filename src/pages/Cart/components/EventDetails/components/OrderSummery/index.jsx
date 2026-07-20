@@ -1545,6 +1545,7 @@ import dayjs from "dayjs";
 import Calendar from "../../../../../Calender";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { config } from "../../../../../../api/config";
 
 const OrderSummary = ({
   cartItems = [],
@@ -1561,7 +1562,10 @@ const OrderSummary = ({
   venueEndTime = null,
   eventSetupStartDate = null,
   eventSetupEndDate = null,
+  eventMainDate = null,
   rehearsalDate = null,
+  rehearsalStartTime = null,
+  rehearsalEndTime = null,
   receiverName = "",
   receiverMobile = "",
   location = "",
@@ -1579,7 +1583,11 @@ const OrderSummary = ({
   const defaultCenter = { lat: 12.9716, lng: 77.5946 };
   const [center, setCenter] = useState(defaultCenter);
 
-  const BASE_URL = "http://localhost:9000";
+  // Derive the API host from the shared config so payment works in production
+  // instead of pointing at a developer's localhost. config.BASEURL already
+  // ends with "/api", which is stripped here because the payment path below
+  // re-adds "/api/payment/...".
+  const BASE_URL = config.BASEURL.replace(/\/api\/?$/, "");
 
   const navigate = useNavigate();
 
@@ -1658,10 +1666,17 @@ const OrderSummary = ({
         return;
       }
 
+      // Prepare & stash the booking payload FIRST. The booking is only created
+      // after a successful payment (from the payment-success page).
+      if (typeof handleConfirmOrder === "function") {
+        const stashed = await handleConfirmOrder();
+        if (!stashed) return; // couldn't prepare the order — don't start payment
+      }
+
       const initRes = await axios.post(`${BASE_URL}/api/payment/web-initiate`, {
         MUID: userId,
         name: receiverName,
-        // amount: grandTotal,
+        // amount: payableAmount, // real amount (after coupon) — restore for production
         amount: 1,
         number: receiverMobile,
       });
@@ -1699,6 +1714,53 @@ const OrderSummary = ({
       2
     );
 
+  // ---- Coupon ----
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null); // { code, discount }
+  const [couponError, setCouponError] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+
+  const couponDiscount = appliedCoupon?.discount || 0;
+  const payableAmount = Math.max(0, Number(grandTotal) - couponDiscount);
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+    setCouponLoading(true);
+    setCouponError("");
+    try {
+      const userDetails = JSON.parse(
+        sessionStorage.getItem("userDetails") || "null"
+      );
+      const res = await axios.post(`${config.BASEURL}/coupon/validate`, {
+        code: couponCode.trim(),
+        cart_value: Number(grandTotal),
+        user_id: userDetails?._id,
+      });
+      setAppliedCoupon({ code: res.data.code, discount: res.data.discount });
+      // Bridge to EventDetails.handleConfirmOrder (which builds the order) so the
+      // coupon is recorded on the order and redeemed after a successful booking.
+      sessionStorage.setItem(
+        "appliedCoupon",
+        JSON.stringify({ code: res.data.code, discount: res.data.discount })
+      );
+    } catch (err) {
+      setAppliedCoupon(null);
+      setCouponError(err?.response?.data?.message || "Invalid coupon code");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError("");
+    sessionStorage.removeItem("appliedCoupon");
+  };
+
   const formatTime = (time) =>
     time
       ? dayjs(time).isValid()
@@ -1717,6 +1779,11 @@ const OrderSummary = ({
   const formattedSetupStartDate = formatDate(eventSetupStartDate);
   const formattedSetupEndDate = formatDate(eventSetupEndDate);
   const formattedRehearsalDate = formatDate(rehearsalDate);
+  const formattedEventMainDate = formatDate(eventMainDate);
+  const formattedSetupStartTime = formatTime(venueStartTime);
+  const formattedSetupEndTime = formatTime(venueEndTime);
+  const formattedRehearsalStartTime = formatTime(rehearsalStartTime);
+  const formattedRehearsalEndTime = formatTime(rehearsalEndTime);
 
   const renderFilePreview = (file, previewUrl, label) => {
     if (!file) return null;
@@ -1906,24 +1973,76 @@ const OrderSummary = ({
         <Typography variant="body2">
           Address: {selectedAddress || location}
         </Typography>
-        <Typography variant="body2">
-          📆 {startDate} to {endDate}
+
+        {/* Date & timings grouped into sections — kept in sync with the app. */}
+        {/* Event Setup */}
+        <Typography
+          variant="subtitle2"
+          fontWeight="bold"
+          sx={{ mt: 1.5, mb: 0.5, color: "#c026d3" }}
+        >
+          Event Setup
         </Typography>
         <Typography variant="body2">
-          ⏰ {formattedStartTime} - {formattedEndTime}
+          Setup Start Date: {formattedSetupStartDate || "N/A"}
         </Typography>
-        {formattedSetupStartDate && (
-          <Typography variant="body2">
-            Setup: {formattedSetupStartDate} to {formattedSetupEndDate}
-          </Typography>
-        )}
-        {formattedRehearsalDate && (
-          <Typography variant="body2">
-            Rehearsal: {formattedRehearsalDate}
-          </Typography>
-        )}
         <Typography variant="body2">
-          👤 {receiverName} 📞 {receiverMobile}
+          Setup End Date: {formattedSetupEndDate || "N/A"}
+        </Typography>
+        <Typography variant="body2">
+          Setup Start Time: {formattedSetupStartTime || "N/A"}
+        </Typography>
+        <Typography variant="body2">
+          Setup End Time: {formattedSetupEndTime || "N/A"}
+        </Typography>
+
+        {/* Rehearsal */}
+        <Typography
+          variant="subtitle2"
+          fontWeight="bold"
+          sx={{ mt: 1.5, mb: 0.5, color: "#c026d3" }}
+        >
+          Rehearsal
+        </Typography>
+        <Typography variant="body2">
+          Rehearsal Date: {formattedRehearsalDate || "N/A"}
+        </Typography>
+        <Typography variant="body2">
+          Rehearsal Start Time: {formattedRehearsalStartTime || "N/A"}
+        </Typography>
+        <Typography variant="body2">
+          Rehearsal End Time: {formattedRehearsalEndTime || "N/A"}
+        </Typography>
+
+        {/* Event */}
+        <Typography
+          variant="subtitle2"
+          fontWeight="bold"
+          sx={{ mt: 1.5, mb: 0.5, color: "#c026d3" }}
+        >
+          Event
+        </Typography>
+        <Typography variant="body2">Event Start Date: {startDate}</Typography>
+        <Typography variant="body2">Event End Date: {endDate}</Typography>
+        <Typography variant="body2">
+          Event Main Date: {formattedEventMainDate || "N/A"}
+        </Typography>
+        <Typography variant="body2">
+          Event Start Time: {formattedStartTime || "N/A"}
+        </Typography>
+        <Typography variant="body2">
+          Event End Time: {formattedEndTime || "N/A"}
+        </Typography>
+
+        <Typography
+          variant="subtitle2"
+          fontWeight="bold"
+          sx={{ mt: 1.5, mb: 0.5 }}
+        >
+          Receiver Details
+        </Typography>
+        <Typography variant="body2">
+          👤 {receiverName} 📞 +91-{receiverMobile}
         </Typography>
       </Box>
 
@@ -1951,6 +2070,76 @@ const OrderSummary = ({
         )}
       </Box>
 
+      {/* ✅ APPLY COUPON */}
+      <Box sx={{ mt: 3, p: 2, border: "1px solid #e0e0e0", borderRadius: 2 }}>
+        {appliedCoupon ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              backgroundColor: "#eafbea",
+              border: "1px solid #2e7d32",
+              borderRadius: 1,
+              p: 1.2,
+            }}
+          >
+            <Typography sx={{ color: "#2e7d32", fontWeight: 600, fontSize: "0.85rem" }}>
+              "{appliedCoupon.code}" applied — you saved ₹
+              {couponDiscount.toLocaleString()}
+            </Typography>
+            <Typography
+              onClick={removeCoupon}
+              sx={{ color: "#d32f2f", fontWeight: 600, fontSize: "0.8rem", cursor: "pointer" }}
+            >
+              Remove
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <input
+                value={couponCode}
+                onChange={(e) => {
+                  setCouponCode(e.target.value.toUpperCase());
+                  setCouponError("");
+                }}
+                placeholder="Enter coupon code"
+                style={{
+                  flex: 1,
+                  padding: "10px 12px",
+                  border: "1px solid #ccc",
+                  borderRadius: 6,
+                  fontSize: "0.9rem",
+                  outline: "none",
+                }}
+              />
+              <Button
+                variant="contained"
+                onClick={applyCoupon}
+                disabled={couponLoading}
+                sx={{ backgroundColor: "#c026d3", fontWeight: 600 }}
+              >
+                {couponLoading ? "..." : "Apply"}
+              </Button>
+            </Box>
+            {couponError && (
+              <Typography sx={{ color: "#d32f2f", fontSize: "0.78rem", mt: 0.5 }}>
+                {couponError}
+              </Typography>
+            )}
+          </>
+        )}
+        {appliedCoupon && (
+          <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1.5 }}>
+            <Typography sx={{ fontWeight: 700 }}>Payable Amount</Typography>
+            <Typography sx={{ fontWeight: 700 }}>
+              ₹{payableAmount.toLocaleString()}
+            </Typography>
+          </Box>
+        )}
+      </Box>
+
       {/* ✅ PAY BUTTON */}
       <Button
         variant="contained"
@@ -1967,7 +2156,7 @@ const OrderSummary = ({
         }}
         onClick={handleOpenModal}
       >
-        Proceed to Pay ₹{grandTotal.toLocaleString()}
+        Proceed to Pay ₹{payableAmount.toLocaleString()}
       </Button>
 
       {/* ✅ CONFIRM PAYMENT MODAL */}
@@ -2005,7 +2194,7 @@ const OrderSummary = ({
             sx={{ backgroundColor: "#c026d3", fontWeight: "bold" }}
             onClick={handleConfirm}
           >
-            Confirm & Pay ₹{grandTotal.toLocaleString()}
+            Confirm & Pay ₹{payableAmount.toLocaleString()}
           </Button>
         </Box>
       </Modal>

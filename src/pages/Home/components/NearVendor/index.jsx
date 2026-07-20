@@ -168,7 +168,7 @@ import { Box, Button, IconButton, Typography } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../../../../api/ApiService";
 import { getErrorMessage } from "../../../../utils/helperFunc";
@@ -178,6 +178,9 @@ import "./styles.scss";
 // is missing or fails to load.
 const NO_IMAGE =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='420'%20height='200'%3E%3Crect%20width='100%25'%20height='100%25'%20fill='%23eeeeee'/%3E%3Ctext%20x='50%25'%20y='50%25'%20fill='%23999999'%20font-family='sans-serif'%20font-size='18'%20text-anchor='middle'%20dominant-baseline='middle'%3ENo%20Image%3C/text%3E%3C/svg%3E";
+
+// Only show vendors within this many km of the user's current location.
+const NEARBY_RADIUS_KM = 60;
 
 // Haversine distance (km) between two lat/lng points.
 const toRad = (v) => (v * Math.PI) / 180;
@@ -191,14 +194,15 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 };
 
-// Read the user's last known location, saved during address selection.
+// Read the location the user selected in the header ("selectedLocation" =
+// { lat, lng, city, town }). Read the SAME key the header writes.
 const getUserCoords = () => {
   try {
-    const saved = JSON.parse(localStorage.getItem("saved_locations") || "[]");
-    if (Array.isArray(saved) && saved.length) {
-      const last = saved[saved.length - 1];
-      const lat = Number(last?.lat);
-      const lng = Number(last?.lng);
+    const raw = localStorage.getItem("selectedLocation");
+    if (raw) {
+      const loc = JSON.parse(raw);
+      const lat = Number(loc?.lat);
+      const lng = Number(loc?.lng);
       if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
     }
   } catch {
@@ -207,48 +211,70 @@ const getUserCoords = () => {
   return null;
 };
 
-// Sort all vendors by distance (nearest first). No radius limit — vendors
-// without coordinates (or when the user's location is unknown) go to the end.
+// Sort vendors by distance (nearest first) and keep only those within
+// NEARBY_RADIUS_KM of the user. If the user's location is unknown we can't
+// compute distance, so we fall back to showing all vendors.
 const sortVendorsByDistance = (list) => {
   const userCoords = getUserCoords();
-  return [...list]
-    .map((vendor) => {
-      const vLat = Number(vendor?.address?.[0]?.latitude);
-      const vLng = Number(vendor?.address?.[0]?.longitude);
-      let distance = Infinity;
-      if (userCoords && Number.isFinite(vLat) && Number.isFinite(vLng)) {
-        distance = calculateDistance(userCoords.lat, userCoords.lng, vLat, vLng);
-      }
-      return { vendor, distance };
-    })
-    .sort((a, b) => a.distance - b.distance)
-    .map((x) => x.vendor);
+  const withDistance = [...list].map((vendor) => {
+    const vLat = Number(vendor?.address?.[0]?.latitude);
+    const vLng = Number(vendor?.address?.[0]?.longitude);
+    let distance = Infinity;
+    if (userCoords && Number.isFinite(vLat) && Number.isFinite(vLng)) {
+      distance = calculateDistance(userCoords.lat, userCoords.lng, vLat, vLng);
+    }
+    return { vendor, distance };
+  });
+  const sorted = withDistance.sort((a, b) => a.distance - b.distance);
+  const withinRadius = userCoords
+    ? sorted.filter((x) => x.distance <= NEARBY_RADIUS_KM)
+    : sorted;
+  return withinRadius.map((x) => x.vendor);
 };
 
 const NearVendor = () => {
-  const [vendors, setVendors] = useState([]);
+  // Keep the raw list so we can re-sort/re-filter whenever the user changes
+  // their location in the header (without re-fetching).
+  const [rawVendors, setRawVendors] = useState([]);
+  const [locVersion, setLocVersion] = useState(0);
   const scrollRef = useRef(null);
   const navigate = useNavigate();
 
   const fetchVendors = async () => {
     try {
-      // Use the same endpoint as the User App and the Vendor List page so all
-      // platforms show identical vendor data, then sort by distance (nearest
-      // first) with no radius limit.
       const res = await authService.allVendorLists();
       const list = Array.isArray(res?.data) ? res.data : [];
-      setVendors(sortVendorsByDistance(list));
+      setRawVendors(list);
     } catch (error) {
       if (error?.response?.status !== 404) {
         getErrorMessage(error);
       }
-      setVendors([]);
+      setRawVendors([]);
     }
   };
 
   useEffect(() => {
     fetchVendors();
   }, []);
+
+  // Re-sort when the header location changes (custom event) or the tab regains
+  // focus, so the "nearby" list reflects the currently selected location.
+  useEffect(() => {
+    const bump = () => setLocVersion((v) => v + 1);
+    window.addEventListener("location:changed", bump);
+    window.addEventListener("focus", bump);
+    return () => {
+      window.removeEventListener("location:changed", bump);
+      window.removeEventListener("focus", bump);
+    };
+  }, []);
+
+  // Vendors sorted by distance to the selected location (nearest first, within
+  // the radius). Recomputed on data or location change.
+  const vendors = useMemo(
+    () => sortVendorsByDistance(rawVendors),
+    [rawVendors, locVersion]
+  );
 
   const handleVendorClick = (id) => {
     navigate(`/vendors/${id}`);

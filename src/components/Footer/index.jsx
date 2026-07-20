@@ -12,11 +12,67 @@ import { Box, Button, Typography } from "@mui/material";
 import get1 from "../../assets/getgp.png";
 import appPng from "../../assets/download1.jpg";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import axios from "axios";
+import { config } from "../../api/config";
 // import temp from "../../assets/temp.png";
+
+// App store listings — update these when the apps are published.
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.neuserapp";
+const APP_STORE_URL = "https://apps.apple.com/app/nithya-event/id0000000000";
+
+// Shown until the admin's company profile loads (and if the request fails).
+const FALLBACK_PHONE = "+91 9743888803";
+const FALLBACK_EMAIL = "support@nithyaevents.com";
+
+// Maps the admin's "social_media_name" to its icon. Keyed in lower case so the
+// admin can type "YouTube"/"Youtube"/"youtube". A platform we have no icon for
+// is skipped rather than rendered blank.
+const SOCIAL_ICONS = {
+  facebook: Facebook,
+  instagram: Instagram,
+  twitter: Twitter,
+  x: Twitter,
+  youtube: YouTube,
+};
 
 const Footer = () => {
   const navigate = useNavigate();
   const [showButton, setShowButton] = useState(false);
+  const [contact, setContact] = useState({
+    phone: FALLBACK_PHONE,
+    email: FALLBACK_EMAIL,
+  });
+  const [socials, setSocials] = useState([]);
+
+  // Keep the footer contact details in sync with Admin → Company Profile.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await axios.get(`${config.BASEURL}${config.GET_PROFILE}`);
+        const profile = res.data?.profile;
+        if (cancelled || !profile) return;
+        setContact({
+          phone: profile.contact_phone || FALLBACK_PHONE,
+          email: profile.contact_email || FALLBACK_EMAIL,
+        });
+        // Keep only links we have an icon for and that actually have a URL.
+        setSocials(
+          (profile.social_media || []).filter(
+            (s) => s?.social_media_url && SOCIAL_ICONS[
+              String(s.social_media_name || "").trim().toLowerCase()
+            ]
+          )
+        );
+      } catch (err) {
+        console.error("Footer: could not load company profile:", err?.message);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -88,8 +144,23 @@ const Footer = () => {
               <li>Contact Us</li>
             </Link>
             <p>Contact Us</p>
-            <p>support@nithyaevents.com</p>
-            <p>Phone: +91 9743888803</p>
+            <p>
+              <a
+                href={`mailto:${contact.email}`}
+                style={{ color: "inherit", textDecoration: "none" }}
+              >
+                {contact.email}
+              </a>
+            </p>
+            <p>
+              Phone:{" "}
+              <a
+                href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}
+                style={{ color: "inherit", textDecoration: "none" }}
+              >
+                {contact.phone}
+              </a>
+            </p>
           </ul>
         </Box>
 
@@ -141,42 +212,51 @@ const Footer = () => {
                 gap: "2rem",
               }}
             >
-              <img style={{ width: "135px" }} src={get1} alt="Not Found" />
-              <img style={{ width: "135px" }} src={appPng} alt="Not Found" />
+              <a
+                href={PLAY_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get it on Google Play"
+              >
+                <img
+                  style={{ width: "135px", cursor: "pointer" }}
+                  src={get1}
+                  alt="Get it on Google Play"
+                />
+              </a>
+              <a
+                href={APP_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Download on the App Store"
+              >
+                <img
+                  style={{ width: "135px", cursor: "pointer" }}
+                  src={appPng}
+                  alt="Download on the App Store"
+                />
+              </a>
             </Typography>
           </Box>
           <Box
             className="social-media"
             sx={{ display: "flex", justifyContent: "center" }}
           >
-            <a
-              href="https://www.facebook.com/people/Nithya-event/61571314384247/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Facebook className="icon" />
-            </a>
-            <a
-              href="https://www.instagram.com/nithya_event/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Instagram className="icon" />
-            </a>
-            <a
-              href="https://x.com/Nithya_Event"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Twitter className="icon" />
-            </a>
-            <a
-              href="https://www.youtube.com/@nithyaevent"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <YouTube className="icon" />
-            </a>
+            {socials.map((social) => {
+              const key = String(social.social_media_name).trim().toLowerCase();
+              const Icon = SOCIAL_ICONS[key];
+              return (
+                <a
+                  key={social._id || key}
+                  href={social.social_media_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.social_media_name}
+                >
+                  <Icon className="icon" />
+                </a>
+              );
+            })}
           </Box>
         </Box>
 

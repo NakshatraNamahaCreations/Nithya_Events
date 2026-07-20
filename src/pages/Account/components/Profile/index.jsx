@@ -468,15 +468,10 @@ const Profile = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      // Company details are read-only after registration, so only the name and
+      // profile image can be updated from this page.
       const formData = new FormData();
       formData.append("username", updatedDetails.name);
-      formData.append("company_name", updatedDetails.companyName);
-      formData.append("company_type", updatedDetails.companyType);
-      formData.append("designation", updatedDetails.designation);
-      formData.append("pan_number", updatedDetails.panNumber);
-      formData.append("gst_number", updatedDetails.gstNumber);
-      formData.append("cin_number", updatedDetails.cinNumber);
-      // Only append the file object for the image if it exists
       if (updatedDetails.profileImage) {
         formData.append("profile_image", updatedDetails.profileImage);
       }
@@ -679,10 +674,8 @@ const Profile = () => {
             fullWidth
             label="Company Name"
             variant="outlined"
-            name="companyName"
-            value={updatedDetails.companyName || ""}
-            onChange={handleInputChange}
-            disabled={!isEditing}
+            value={accountDetails.companyName || ""}
+            InputProps={{ readOnly: true }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -690,10 +683,8 @@ const Profile = () => {
             fullWidth
             label="Company Type"
             variant="outlined"
-            name="companyType"
-            value={updatedDetails.companyType || ""}
-            onChange={handleInputChange}
-            disabled={!isEditing}
+            value={accountDetails.companyType || ""}
+            InputProps={{ readOnly: true }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -701,10 +692,8 @@ const Profile = () => {
             fullWidth
             label="Designation"
             variant="outlined"
-            name="designation"
-            value={updatedDetails.designation || ""}
-            onChange={handleInputChange}
-            disabled={!isEditing}
+            value={accountDetails.designation || ""}
+            InputProps={{ readOnly: true }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -712,10 +701,8 @@ const Profile = () => {
             fullWidth
             label="PAN Number"
             variant="outlined"
-            name="panNumber"
-            value={updatedDetails.panNumber || ""}
-            onChange={handleInputChange}
-            disabled={!isEditing}
+            value={accountDetails.panNumber || ""}
+            InputProps={{ readOnly: true }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -723,10 +710,8 @@ const Profile = () => {
             fullWidth
             label="GST Number"
             variant="outlined"
-            name="gstNumber"
-            value={updatedDetails.gstNumber || ""}
-            onChange={handleInputChange}
-            disabled={!isEditing}
+            value={accountDetails.gstNumber || ""}
+            InputProps={{ readOnly: true }}
           />
         </Grid>
         <Grid item xs={12}>
@@ -734,10 +719,8 @@ const Profile = () => {
             fullWidth
             label="CIN Number"
             variant="outlined"
-            name="cinNumber"
-            value={updatedDetails.cinNumber || ""}
-            onChange={handleInputChange}
-            disabled={!isEditing}
+            value={accountDetails.cinNumber || ""}
+            InputProps={{ readOnly: true }}
           />
         </Grid>
       </Grid>
