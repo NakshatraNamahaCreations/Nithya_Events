@@ -39,6 +39,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   formatCurrencyIntl,
   getCurrentCity,
+  extractCityTown,
 } from "../../utils/helperFunc";
 import GooglePlacesAutocomplete, {
   geocodeByPlaceId,
@@ -368,25 +369,26 @@ const PageHeader = () => {
     setLocationError("");
     try {
       const results = await geocodeByPlaceId(place.value.place_id);
-      const result = results[0];
-      const comps = result?.address_components || [];
-      const city =
-        comps.find((c) => c.types.includes("locality"))?.long_name ||
-        comps.find((c) => c.types.includes("administrative_area_level_2"))
-          ?.long_name ||
-        place.label;
-      const town =
-        comps.find((c) => c.types.includes("sublocality_level_1"))?.long_name ||
-        comps.find((c) => c.types.includes("administrative_area_level_1"))
-          ?.long_name ||
-        "";
-      const loc = result?.geometry?.location;
-      persistLocation({
-        lat: loc ? loc.lat() : null,
-        lng: loc ? loc.lng() : null,
-        city,
-        town,
-      });
+      // Scan every result (the first is often a precise street address with no
+      // locality component) using the same rules as auto-detect.
+      const { city, town } = extractCityTown(results, place.label);
+
+      const loc = results?.[0]?.geometry?.location;
+      // The Maps JS API returns lat/lng as functions; the REST API as numbers.
+      const lat = typeof loc?.lat === "function" ? loc.lat() : loc?.lat;
+      const lng = typeof loc?.lng === "function" ? loc.lng() : loc?.lng;
+
+      // Without coordinates the nearby-vendor distance filter silently falls
+      // back to showing every vendor (which is how far-away vendors turned up
+      // in a local search). Refuse to save a coordinate-less location.
+      if (typeof lat !== "number" || typeof lng !== "number") {
+        setLocationError(
+          "Could not get coordinates for that place. Please pick a more specific address."
+        );
+        return;
+      }
+
+      persistLocation({ lat, lng, city, town });
       setLocationDialogOpen(false);
     } catch (error) {
       console.error("Place select error:", error);

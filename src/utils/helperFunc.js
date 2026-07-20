@@ -48,6 +48,22 @@ function pickComponent(results, types) {
   return "";
 }
 
+// Pull a display city/town out of Google geocoder results. Shared by the
+// auto-detect and the manual "search a place" flows so both name places the
+// same way.
+export function extractCityTown(results, fallbackLabel = "") {
+  const list = Array.isArray(results) ? results : [results].filter(Boolean);
+  const city = pickComponent(list, CITY_TYPES);
+  const town = pickComponent(list, TOWN_TYPES);
+  return {
+    city: city || town || fallbackLabel,
+    // Never repeat the same name in both fields (previously the town could
+    // fall back to administrative_area_level_1 — the STATE — so the header
+    // showed e.g. "Bengaluru, Karnataka" instead of the actual locality).
+    town: town && town !== city ? town : "",
+  };
+}
+
 async function reverseGeocode(latitude, longitude) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`;
   const response = await fetch(url);
