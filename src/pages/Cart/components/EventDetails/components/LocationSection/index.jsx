@@ -495,14 +495,9 @@ const LocationSection = ({ onContinue, setOpenLocation }) => {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
+          // List saved addresses as options, but do NOT auto-select one —
+          // nothing should be shown as chosen until the user picks/searches.
           setLocalAddresses(parsed);
-          const last = parsed[parsed.length - 1];
-          setSearchedLocation(last.address);
-          setLocationCoords({ lat: last.lat, lng: last.lng });
-          setCenter({ lat: last.lat, lng: last.lng });
-          setMarkers([last]);
-          setSelectedMarker(last);
-          setSelectedSavedAddress({ ...last, id: "local" });
         }
       } catch (err) {
         console.error("Error parsing local locations:", err);

@@ -579,15 +579,41 @@ const EventDetails = ({
     setEventDetails((prev) => ({ ...prev, [field]: newTime }));
   };
 
+  const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5MB
+
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files && files[0]) {
+      const file = files[0];
+      if (file.size > MAX_UPLOAD_BYTES) {
+        toast.error("File size too large. Maximum allowed is 5MB.", {
+          position: "top-right",
+          autoClose: 2500,
+        });
+        e.target.value = ""; // reset so the same file can be retried
+        return;
+      }
       setEventDetails((prevState) => ({
         ...prevState,
-        [name]: files[0],
-        [`${name}Preview`]: URL.createObjectURL(files[0]),
+        [name]: file,
+        [`${name}Preview`]: URL.createObjectURL(file),
       }));
     }
+  };
+
+  // Remove an uploaded file + its preview so the user can upload again.
+  const handleRemoveFile = (name) => {
+    setEventDetails((prev) => {
+      const preview = prev[`${name}Preview`];
+      if (preview) {
+        try {
+          URL.revokeObjectURL(preview);
+        } catch {
+          /* ignore */
+        }
+      }
+      return { ...prev, [name]: "", [`${name}Preview`]: "" };
+    });
   };
 
   // Convert an uploaded File to a base64 data URI so the order payload can be
@@ -1328,6 +1354,13 @@ const EventDetails = ({
                   >
                     View
                   </Button>
+                  <Button
+                    size="small"
+                    onClick={() => handleRemoveFile("upload_invitation")}
+                    sx={{ color: "#d32f2f", textTransform: "none" }}
+                  >
+                    Remove
+                  </Button>
                 </Box>
               )}
             </Grid>
@@ -1380,6 +1413,13 @@ const EventDetails = ({
                     sx={{ color: "#9c27b0", textTransform: "none" }}
                   >
                     View
+                  </Button>
+                  <Button
+                    size="small"
+                    onClick={() => handleRemoveFile("upload_gatepass")}
+                    sx={{ color: "#d32f2f", textTransform: "none" }}
+                  >
+                    Remove
                   </Button>
                 </Box>
               )}
