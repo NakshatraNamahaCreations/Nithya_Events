@@ -156,10 +156,16 @@ const EventDetails = ({
     Object.keys(req).forEach((k) => {
       if (!eventDetails[k]) errs[k] = req[k];
     });
-    if (!eventDetails.eventName.trim())
-      errs.eventName = "Please enter the event name.";
-    if (!eventDetails.eventVenue.trim())
-      errs.eventVenue = "Please enter the venue name.";
+    const eventNameMsg = validateEntityName(
+      eventDetails.eventName,
+      NAME_RULES.eventName
+    );
+    if (eventNameMsg) errs.eventName = eventNameMsg;
+    const eventVenueMsg = validateEntityName(
+      eventDetails.eventVenue,
+      NAME_RULES.eventVenue
+    );
+    if (eventVenueMsg) errs.eventVenue = eventVenueMsg;
     if (!eventDetails.receiverName.trim())
       errs.receiverName = "Please enter the receiver name.";
     if (!eventDetails.receiverMobile.trim())
@@ -314,6 +320,23 @@ const EventDetails = ({
     setIsAddressModalOpen(false);
   };
 
+  // Event/Venue name rules (min/max chars + labels for messages).
+  const NAME_RULES = {
+    eventName: { min: 3, max: 200, label: "Event Name" },
+    eventVenue: { min: 3, max: 150, label: "Venue Name" },
+  };
+  const validateEntityName = (raw, rule) => {
+    const collapsed = (raw || "").replace(/\s+/g, " ").trim();
+    if (!collapsed) return `${rule.label} is required`;
+    if (!/^[A-Za-z0-9 &.,'-]+$/.test(collapsed))
+      return "Special characters not allowed";
+    if (!/[A-Za-z]/.test(collapsed)) return `${rule.label} must contain letters`;
+    if (collapsed.length < rule.min)
+      return `${rule.label} must contain minimum ${rule.min} characters`;
+    if (collapsed.length > rule.max) return "Maximum length exceeded";
+    return "";
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     clearFieldError(name);
@@ -342,6 +365,10 @@ const EventDetails = ({
           autoClose: 2000,
         });
       }
+    } else if (name === "eventName" || name === "eventVenue") {
+      setEventDetails({ ...eventDetails, [name]: value });
+      const msg = validateEntityName(value, NAME_RULES[name]);
+      setFieldErrors((prev) => ({ ...prev, [name]: msg }));
     } else {
       setEventDetails({ ...eventDetails, [name]: value });
     }
@@ -471,12 +498,17 @@ const EventDetails = ({
       startTime: "endTime",
     };
 
-    // Map each START time to the date it belongs to, so we can reject a start
+    // Map each START/END time to the date it belongs to, so we can reject a
     // time that falls in the past when that date is today.
     const startToDate = {
       venueStartTime: "eventSetupStartDate",
       rehearsalStartTime: "rehearsalDate",
       startTime: "eventMainDate",
+    };
+    const endToDate = {
+      venueEndTime: "eventSetupEndDate",
+      rehearsalEndTime: "rehearsalDate",
+      endTime: "eventMainDate",
     };
 
     // Ignore incomplete/invalid time while the user is still typing.
@@ -484,9 +516,10 @@ const EventDetails = ({
       return;
     }
 
-    // Reject a start time in the past (only when its date is today).
-    if (newTime && startToDate[field]) {
-      const dateVal = eventDetails[startToDate[field]];
+    // Reject a time in the past (only when its date is today).
+    const dateField = startToDate[field] || endToDate[field];
+    if (newTime && dateField) {
+      const dateVal = eventDetails[dateField];
       const now = dayjs();
       if (dateVal && dateVal.isSame(now, "day")) {
         const combined = dateVal
@@ -494,10 +527,12 @@ const EventDetails = ({
           .minute(newTime.minute())
           .second(0);
         if (combined.isBefore(now)) {
-          toast.error("Start Time cannot be in the past.", {
-            position: "top-right",
-            autoClose: 2500,
-          });
+          toast.error(
+            startToDate[field]
+              ? "Start Time cannot be in the past."
+              : "End Time cannot be in the past.",
+            { position: "top-right", autoClose: 2500 }
+          );
           return;
         }
       }
@@ -515,7 +550,7 @@ const EventDetails = ({
         return;
       }
       if (!newTime.isAfter(startVal)) {
-        toast.error(`${label} End Time must be after ${label} Start Time.`, {
+        toast.error("End Time must be greater than Start Time.", {
           position: "top-right",
           autoClose: 2500,
         });
@@ -523,18 +558,25 @@ const EventDetails = ({
       }
     }
 
-    setEventDetails((prev) => {
-      const next = { ...prev, [field]: newTime };
-      // If a start time changed and an end time is now no longer after it, clear
-      // the end so the user must re-select a valid one.
-      if (newTime && startToEnd[field]) {
-        const endVal = prev[startToEnd[field]];
-        if (endVal && !endVal.isAfter(newTime)) {
-          next[startToEnd[field]] = null;
-        }
+    // If a start time changed and an existing end time is no longer after it,
+    // surface an error and clear the end so the user must re-pick a valid one.
+    if (newTime && startToEnd[field]) {
+      const endVal = eventDetails[startToEnd[field]];
+      if (endVal && !endVal.isAfter(newTime)) {
+        toast.error("End Time must be greater than Start Time.", {
+          position: "top-right",
+          autoClose: 2500,
+        });
+        setEventDetails((prev) => ({
+          ...prev,
+          [field]: newTime,
+          [startToEnd[field]]: null,
+        }));
+        return;
       }
-      return next;
-    });
+    }
+
+    setEventDetails((prev) => ({ ...prev, [field]: newTime }));
   };
 
   const handleFileChange = (e) => {
@@ -1068,6 +1110,14 @@ const EventDetails = ({
                 name="eventName"
                 value={eventDetails.eventName}
                 onChange={handleChange}
+                onBlur={(e) => {
+                  const trimmed = e.target.value.replace(/\s+/g, " ").trim();
+                  setEventDetails((prev) => ({ ...prev, eventName: trimmed }));
+                  setFieldErrors((prev) => ({
+                    ...prev,
+                    eventName: validateEntityName(trimmed, NAME_RULES.eventName),
+                  }));
+                }}
                 error={!!fieldErrors.eventName}
                 helperText={fieldErrors.eventName}
                 fullWidth
@@ -1094,6 +1144,17 @@ const EventDetails = ({
                 name="eventVenue"
                 value={eventDetails.eventVenue}
                 onChange={handleChange}
+                onBlur={(e) => {
+                  const trimmed = e.target.value.replace(/\s+/g, " ").trim();
+                  setEventDetails((prev) => ({ ...prev, eventVenue: trimmed }));
+                  setFieldErrors((prev) => ({
+                    ...prev,
+                    eventVenue: validateEntityName(
+                      trimmed,
+                      NAME_RULES.eventVenue
+                    ),
+                  }));
+                }}
                 error={!!fieldErrors.eventVenue}
                 helperText={fieldErrors.eventVenue}
                 fullWidth
