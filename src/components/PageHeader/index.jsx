@@ -71,7 +71,7 @@ import DesignServicesOutlinedIcon from "@mui/icons-material/DesignServicesOutlin
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import Homes from "../../assets/hom.png";
 import Serv from "../../assets/serv.png";
-import Calend from "../../assets/calend.png";
+import Calend from "../../assets/Calend.png";
 import Products from "../../assets/prod.png";
 import Locations from "../../assets/loc.png";
 import DigiService from "../../assets/digitalService.png";
