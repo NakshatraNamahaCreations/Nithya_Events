@@ -1311,13 +1311,24 @@ const CompanyDetails = () => {
               label="CIN Number"
               name="cin_number"
               value={formData.cin_number}
-              onChange={handleChange}
-              onBlur={(e) =>
-                setFormData((p) => ({
-                  ...p,
-                  cin_number: (e.target.value || "").toUpperCase().trim(), // trim ends only
-                }))
-              }
+              onChange={(e) => {
+                handleChange(e);
+                // Live-validate so the inline error shows as the user types
+                const errs = validateCIN(e.target.value);
+                setFormErrors((prev) => ({
+                  ...prev,
+                  cin_number: errs[0] || "",
+                }));
+              }}
+              onBlur={(e) => {
+                const v = (e.target.value || "").toUpperCase().trim(); // trim ends only
+                setFormData((p) => ({ ...p, cin_number: v }));
+                const errs = validateCIN(v);
+                setFormErrors((prev) => ({
+                  ...prev,
+                  cin_number: errs[0] || "",
+                }));
+              }}
               variant="outlined"
               error={!!formErrors.cin_number}
               helperText={
