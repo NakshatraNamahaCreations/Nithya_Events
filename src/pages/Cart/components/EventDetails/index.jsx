@@ -471,9 +471,36 @@ const EventDetails = ({
       startTime: "endTime",
     };
 
+    // Map each START time to the date it belongs to, so we can reject a start
+    // time that falls in the past when that date is today.
+    const startToDate = {
+      venueStartTime: "eventSetupStartDate",
+      rehearsalStartTime: "rehearsalDate",
+      startTime: "eventMainDate",
+    };
+
     // Ignore incomplete/invalid time while the user is still typing.
     if (newTime && typeof newTime.isValid === "function" && !newTime.isValid()) {
       return;
+    }
+
+    // Reject a start time in the past (only when its date is today).
+    if (newTime && startToDate[field]) {
+      const dateVal = eventDetails[startToDate[field]];
+      const now = dayjs();
+      if (dateVal && dateVal.isSame(now, "day")) {
+        const combined = dateVal
+          .hour(newTime.hour())
+          .minute(newTime.minute())
+          .second(0);
+        if (combined.isBefore(now)) {
+          toast.error("Start Time cannot be in the past.", {
+            position: "top-right",
+            autoClose: 2500,
+          });
+          return;
+        }
+      }
     }
 
     // Validate an end time against its start time (must be after; start first).

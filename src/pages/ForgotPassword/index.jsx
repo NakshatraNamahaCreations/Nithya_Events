@@ -16,8 +16,15 @@ const ForgotPassword = () => {
   };
 
   const handleSubmit = async () => {
-    if (!email) {
+    const trimmed = email.trim();
+    if (!trimmed) {
       setError("Please enter your email");
+      return;
+    }
+    // Validate email format before hitting the API
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRe.test(trimmed)) {
+      setError("Please enter a valid email address");
       return;
     }
 
@@ -26,20 +33,25 @@ const ForgotPassword = () => {
     setMessage("");
 
     try {
-      const response = await axios.post(`${config.BASEURL}/user/forgot-user-password`, { email });
-        
-      navigate("/verify-otp", { state: { email } }); 
-      if (response.data.success) {
-        console.log("check");
+      const response = await axios.post(
+        `${config.BASEURL}/user/forgot-user-password`,
+        { email: trimmed }
+      );
 
-        setTimeout(() => {
-          
-        }, 1500);
+      // Only advance to OTP screen when the request actually succeeded.
+      if (response.data?.success === false) {
+        setError(response.data?.message || "Something went wrong!");
       } else {
-        setError(response.data.message || "Something went wrong!");
+        setMessage("Verification code sent to your email.");
+        setTimeout(() => {
+          navigate("/verify-otp", { state: { email: trimmed } });
+        }, 1200);
       }
     } catch (err) {
-      setError("Failed to send OTP. Please try again.");
+      setError(
+        err?.response?.data?.message ||
+          "Failed to send OTP. Please try again."
+      );
     } finally {
       setLoading(false);
     }

@@ -6,9 +6,23 @@ import {
 import { Edit, Delete } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
+const MAX_PROJECT_CHARS = 100;
+// Letters, numbers, spaces, hyphen and underscore only — no special characters.
+const RE_PROJECT = /^[A-Za-z0-9 _-]+$/;
+
+const validateProjectName = (raw) => {
+  const v = (raw || "").trim();
+  if (!v) return "Project name cannot be empty!";
+  if (v.length > MAX_PROJECT_CHARS)
+    return `Project name must be at most ${MAX_PROJECT_CHARS} characters`;
+  if (!RE_PROJECT.test(v)) return "Special characters are not allowed";
+  return "";
+};
+
 const Mood = () => {
   const [open, setOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
+  const [projectError, setProjectError] = useState("");
   const [projects, setProjects] = useState([]);
   const navigate = useNavigate();
 
@@ -24,15 +38,17 @@ const Mood = () => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
-    setProjectName(""); 
+    setProjectName("");
+    setProjectError("");
   };
 
   const handleSave = () => {
-    if (projectName.trim() === "") {
-      alert("Project name cannot be empty!");
+    const err = validateProjectName(projectName);
+    if (err) {
+      setProjectError(err);
       return;
     }
-    const newProject = { id: Date.now(), name: projectName };
+    const newProject = { id: Date.now(), name: projectName.trim() };
     const updatedProjects = [...projects, newProject];
     setProjects(updatedProjects);
     localStorage.setItem(`projects_${userId}`, JSON.stringify(updatedProjects));
@@ -85,7 +101,13 @@ const Mood = () => {
             fullWidth label="Project Name"
             variant="outlined"
             value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
+            onChange={(e) => {
+              setProjectName(e.target.value);
+              setProjectError(validateProjectName(e.target.value));
+            }}
+            inputProps={{ maxLength: MAX_PROJECT_CHARS }}
+            error={!!projectError}
+            helperText={projectError}
             sx={{ mb: 2 }}
           />
           <Box sx={{ display: "flex", justifyContent: "space-between" }}>
