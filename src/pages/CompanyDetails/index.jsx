@@ -604,37 +604,41 @@ const CompanyDetails = () => {
    * Company types — kept identical to the User App so both platforms match.
    * --------------------------------------------- */
   const COMPANY_TYPES = [
-    "Private Limited",
-    "Partnership & LLP",
     "Proprietorship",
-    "Limited",
-    "Others",
+    "Partnership",
+    "Private Limited",
+    "Public Limited",
+    "LLP",
+    "NGO",
   ];
 
   /* ---------------------------------------------
    * Visibility / Required rules — mirrored from the User App.
    * --------------------------------------------- */
-  // GST for: Private Limited, Limited, Proprietorship, Partnership & LLP.
+  // GST for every registered entity type.
   const requiresGST = useMemo(
     () =>
       [
-        "Private Limited",
-        "Limited",
         "Proprietorship",
-        "Partnership & LLP",
+        "Partnership",
+        "Private Limited",
+        "Public Limited",
+        "LLP",
+        "NGO",
       ].includes(companyType),
     [companyType]
   );
 
-  // PAN (+ its images) for: Partnership & LLP, Proprietorship.
+  // PAN (+ its images) for non-CIN entities: Proprietorship, Partnership, LLP, NGO.
   const requiresPAN = useMemo(
-    () => ["Partnership & LLP", "Proprietorship"].includes(companyType),
+    () =>
+      ["Proprietorship", "Partnership", "LLP", "NGO"].includes(companyType),
     [companyType]
   );
 
-  // CIN for: Limited, Private Limited.
+  // CIN for MCA-registered companies: Private Limited, Public Limited.
   const requiresCIN = useMemo(
-    () => ["Limited", "Private Limited"].includes(companyType),
+    () => ["Private Limited", "Public Limited"].includes(companyType),
     [companyType]
   );
 
@@ -644,11 +648,8 @@ const CompanyDetails = () => {
     [companyType]
   );
 
-  // Designation + TDS for every type except "Others".
-  const showDesignation = useMemo(
-    () => !!companyType && companyType !== "Others",
-    [companyType]
-  );
+  // Designation + TDS for every selected company type.
+  const showDesignation = useMemo(() => !!companyType, [companyType]);
 
   /* ---------------------------------------------
    * Change Handlers
