@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import Success from "../../assets/success02.gif";
+import Success from "../../assets/Success02.gif";
 import { Modal, Box, Typography, Button } from "@mui/material";
 
 const CustomModal = ({ open, onClose, message, type }) => {

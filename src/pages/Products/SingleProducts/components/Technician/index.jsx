@@ -12,7 +12,7 @@
 // import authService from "../../../../../api/ApiService";
 
 // // Assests
-// import ProfileImage from "../../../../../assets/profile.jpg";
+// import ProfileImage from "../../../../../assets/Profile.jpg";
 
 // const Technician = ({
 //   productCategory,
@@ -179,7 +179,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import authService from "../../../../../api/ApiService";
-import ProfileImage from "../../../../../assets/profile.jpg";
+import ProfileImage from "../../../../../assets/Profile.jpg";
 
 const Technician = ({
   productCategory,

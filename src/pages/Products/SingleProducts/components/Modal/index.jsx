@@ -1,5 +1,5 @@
 import { Box, Button, Typography } from "@mui/material";
-import Success from "../../../../../assets/successGif.gif";
+import Success from "../../../../../assets/SuccessGif.gif";
 import { Navigate, useNavigate } from "react-router-dom";
 
 
