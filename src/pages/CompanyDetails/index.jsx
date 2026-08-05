@@ -975,13 +975,28 @@ const CompanyDetails = () => {
             label="Company Name"
             name="company_name"
             value={formData.company_name}
-            onChange={handleChange}
-            onBlur={(e) =>
+            onChange={(e) => {
+              handleChange(e);
+              // Live-validate so the inline error shows as the user types
+              const errs = validateCompanyName(e.target.value);
+              setFormErrors((prev) => ({
+                ...prev,
+                company_name: errs[0] || "",
+              }));
+            }}
+            onBlur={(e) => {
+              const raw = e.target.value;
               setFormData((prev) => ({
                 ...prev,
-                company_name: smartTrim(e.target.value),
-              }))
-            }
+                company_name: smartTrim(raw),
+              }));
+              // Validate the raw value so "only spaces" still flags "Invalid name"
+              const errs = validateCompanyName(raw);
+              setFormErrors((prev) => ({
+                ...prev,
+                company_name: errs[0] || "",
+              }));
+            }}
             inputProps={{ maxLength: MAX_COMPANY_CHARS + 5 }}
             variant="outlined"
             error={!!formErrors.company_name}
