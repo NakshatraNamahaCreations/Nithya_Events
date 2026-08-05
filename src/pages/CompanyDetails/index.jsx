@@ -1016,13 +1016,28 @@ const CompanyDetails = () => {
                 label="Designation"
                 name="designation"
                 value={formData.designation}
-                onChange={handleChange}
-                onBlur={(e) =>
+                onChange={(e) => {
+                  handleChange(e);
+                  // Live-validate so the inline error shows as the user types
+                  const errs = validateDesignation(e.target.value);
+                  setFormErrors((prev) => ({
+                    ...prev,
+                    designation: errs[0] || "",
+                  }));
+                }}
+                onBlur={(e) => {
+                  const raw = e.target.value;
                   setFormData((prev) => ({
                     ...prev,
-                    designation: smartTrim(e.target.value),
-                  }))
-                }
+                    designation: smartTrim(raw),
+                  }));
+                  // Validate raw so "only spaces" still flags "Invalid designation"
+                  const errs = validateDesignation(raw);
+                  setFormErrors((prev) => ({
+                    ...prev,
+                    designation: errs[0] || "",
+                  }));
+                }}
                 variant="outlined"
                 error={!!formErrors.designation}
                 helperText={
