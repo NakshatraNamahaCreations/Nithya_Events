@@ -753,7 +753,8 @@ const CompanyDetails = () => {
     return errors;
   };
 
-  const validatePAN = async (raw) => {
+  // Synchronous format/length/required checks (no API call) — used for live typing.
+  const validatePANFormat = (raw) => {
     const errors = [];
     const v = (raw || "").toUpperCase().replace(/\s+/g, "");
     if (!v) {
@@ -771,8 +772,14 @@ const CompanyDetails = () => {
     if (!RE_PAN.test(v)) {
       if (/[^A-Z0-9]/.test(v)) errors.push("Invalid characters not allowed");
       else errors.push("Invalid PAN format");
-      return errors;
     }
+    return errors;
+  };
+
+  const validatePAN = async (raw) => {
+    const errors = validatePANFormat(raw);
+    if (errors.length) return errors;
+    const v = (raw || "").toUpperCase().replace(/\s+/g, "");
     const exists = await checkPanDuplicate(v);
     if (exists) errors.push("Pan number already exists");
     return errors;
@@ -1097,23 +1104,26 @@ const CompanyDetails = () => {
                 label="PAN Number"
                 name="pan_number"
                 value={formData.pan_number}
-                onChange={handleChange}
+                onChange={(e) => {
+                  handleChange(e);
+                  // Live format/length/required feedback (no API call while typing)
+                  const errs = validatePANFormat(e.target.value);
+                  setFormErrors((prev) => ({
+                    ...prev,
+                    pan_number: errs[0] || "",
+                  }));
+                }}
                 onBlur={async (e) => {
                   const v = (e.target.value || "")
                     .toUpperCase()
                     .replace(/\s+/g, "");
                   setFormData((p) => ({ ...p, pan_number: v }));
-                  try {
-                    const exists = await checkPanDuplicate(v);
-                    setFormErrors((prev) => ({
-                      ...prev,
-                      pan_number: exists
-                        ? "Pan number already exists"
-                        : prev.pan_number,
-                    }));
-                  } catch {
-                    /* ignore */
-                  }
+                  // Full validation incl. duplicate check on blur
+                  const errs = await validatePAN(v);
+                  setFormErrors((prev) => ({
+                    ...prev,
+                    pan_number: errs[0] || "",
+                  }));
                 }}
                 variant="outlined"
                 error={!!formErrors.pan_number}
