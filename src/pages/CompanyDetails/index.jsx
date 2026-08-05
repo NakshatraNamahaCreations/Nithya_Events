@@ -799,6 +799,11 @@ const CompanyDetails = () => {
       return errors;
     }
 
+    if (/[^A-Z0-9]/.test(v)) {
+      errors.push("Special characters not allowed");
+      return errors;
+    }
+
     if (v.length !== 15) {
       errors.push("GST Number must be 15 characters");
       return errors;
@@ -1076,13 +1081,24 @@ const CompanyDetails = () => {
                 label="GST Number"
                 name="gst_number"
                 value={formData.gst_number}
-                onChange={handleChange}
-                onBlur={(e) =>
-                  setFormData((p) => ({
-                    ...p,
-                    gst_number: (e.target.value || "").toUpperCase().trim(),
-                  }))
-                }
+                onChange={(e) => {
+                  handleChange(e);
+                  // Live-validate so the inline error shows as the user types
+                  const errs = validateGST(e.target.value);
+                  setFormErrors((prev) => ({
+                    ...prev,
+                    gst_number: errs[0] || "",
+                  }));
+                }}
+                onBlur={(e) => {
+                  const v = (e.target.value || "").toUpperCase().trim();
+                  setFormData((p) => ({ ...p, gst_number: v }));
+                  const errs = validateGST(v);
+                  setFormErrors((prev) => ({
+                    ...prev,
+                    gst_number: errs[0] || "",
+                  }));
+                }}
                 variant="outlined"
                 error={!!formErrors.gst_number}
                 helperText={
