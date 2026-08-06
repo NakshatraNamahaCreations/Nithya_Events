@@ -7,15 +7,19 @@ import { Edit, Delete } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
 const MAX_PROJECT_CHARS = 100;
-// Letters, numbers, spaces, hyphen and underscore only — no special characters.
+// Letters, numbers, spaces, hyphen and underscore only — no special
+// characters or emojis.
 const RE_PROJECT = /^[A-Za-z0-9 _-]+$/;
 
-const validateProjectName = (raw) => {
+const validateProjectName = (raw, existingNames = []) => {
   const v = (raw || "").trim();
-  if (!v) return "Project name cannot be empty!";
+  if (!v) return "Project name is required"; // blank / only spaces
+  if (!RE_PROJECT.test(v)) return "Special characters are not allowed"; // specials / emoji
+  if (!/[A-Za-z]/.test(v)) return "Project name must contain letters"; // numbers only
   if (v.length > MAX_PROJECT_CHARS)
     return `Project name must be at most ${MAX_PROJECT_CHARS} characters`;
-  if (!RE_PROJECT.test(v)) return "Special characters are not allowed";
+  if (existingNames.some((n) => (n || "").trim().toLowerCase() === v.toLowerCase()))
+    return "Project name already exists";
   return "";
 };
 
@@ -43,7 +47,10 @@ const Mood = () => {
   };
 
   const handleSave = () => {
-    const err = validateProjectName(projectName);
+    const err = validateProjectName(
+      projectName,
+      projects.map((p) => p.name)
+    );
     if (err) {
       setProjectError(err);
       return;
@@ -103,9 +110,13 @@ const Mood = () => {
             value={projectName}
             onChange={(e) => {
               setProjectName(e.target.value);
-              setProjectError(validateProjectName(e.target.value));
+              setProjectError(
+                validateProjectName(
+                  e.target.value,
+                  projects.map((p) => p.name)
+                )
+              );
             }}
-            inputProps={{ maxLength: MAX_PROJECT_CHARS }}
             error={!!projectError}
             helperText={projectError}
             sx={{ mb: 2 }}
