@@ -89,7 +89,13 @@ const AppContent = () => {
       <Loading loading={loading} />
       <ScrollToTop />
 
-      <Box style={{ paddingTop: isLandingPage ? "0" : "4rem" }}>
+      <Box
+        sx={{
+          // Offset the fixed header so page content isn't hidden underneath it.
+          // Header logo is 6.5rem on desktop and 4.5rem at <=900px, so match it.
+          paddingTop: isLandingPage ? 0 : { xs: "5rem", md: "7rem" },
+        }}
+      >
         <Suspense fallback={<Loading />}>
           {!isLandingPage && <PageHeader />}
           <Routes>
