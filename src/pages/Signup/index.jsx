@@ -703,9 +703,12 @@
 
 // export default Signup;
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./styles.scss";
 import authService from "../../api/ApiService";
+import axios from "axios";
+import { config } from "../../api/config";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../redux/slice/authSlice";
@@ -727,8 +730,14 @@ import {
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import GoogleIcon from "@mui/icons-material/Google";
+import FacebookIcon from "@mui/icons-material/Facebook";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+// Facebook App ID — set this to your app's ID from developers.facebook.com.
+// Until it's a real ID, the Facebook button will prompt to configure it.
+const FB_APP_ID = "YOUR_FACEBOOK_APP_ID";
 
 const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -748,6 +757,127 @@ const Signup = () => {
   // editing details and resubmitting updates it instead of raising a duplicate
   // error before registration is finalized.
   const registeredUser = useSelector((state) => state.auth.userDetails);
+
+  // ---------------------------------------------------------------------------
+  // Social sign-up (Google / Facebook).
+  // Authenticate with the provider, then: if the account already exists -> log
+  // in; otherwise prefill the form with the provider's email/name so the user
+  // completes signup by adding a mobile number + password (mobile is required).
+  // ---------------------------------------------------------------------------
+  const handleSocialUser = async ({ email, name }) => {
+    if (!email) {
+      toast.error("Could not get your email from the provider.", {
+        position: "top-right",
+        autoClose: 2500,
+      });
+      return;
+    }
+    try {
+      const res = await axios.post(
+        `${config.BASEURL}/user/auth/validate-token`,
+        { email }
+      );
+      if (res?.data?.user) {
+        dispatch(login(res.data.user));
+        toast.success("Signed in successfully!", {
+          position: "top-right",
+          autoClose: 1500,
+        });
+        setTimeout(() => navigate("/"), 800);
+        return;
+      }
+    } catch (err) {
+      // 404 = no account yet -> fall through to prefill a new signup.
+      if (err?.response?.status && err.response.status !== 404) {
+        toast.error("Something went wrong. Please try again.", {
+          position: "top-right",
+          autoClose: 2500,
+        });
+        return;
+      }
+    }
+    setFormData((prev) => ({
+      ...prev,
+      email,
+      username: name || prev.username,
+    }));
+    toast.info("Almost there! Add your mobile number and a password to finish.", {
+      position: "top-right",
+      autoClose: 3500,
+    });
+  };
+
+  const googleSignup = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const { data: profile } = await axios.get(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          { headers: { Authorization: `Bearer ${tokenResponse.access_token}` } }
+        );
+        await handleSocialUser({ email: profile.email, name: profile.name });
+      } catch {
+        toast.error("Google sign-up failed. Please try again.", {
+          position: "top-right",
+          autoClose: 2500,
+        });
+      }
+    },
+    onError: () =>
+      toast.error("Google sign-up was cancelled or failed.", {
+        position: "top-right",
+        autoClose: 2500,
+      }),
+  });
+
+  // Load the Facebook SDK once (only when a real App ID is configured).
+  useEffect(() => {
+    if (!FB_APP_ID || FB_APP_ID === "YOUR_FACEBOOK_APP_ID") return;
+    if (document.getElementById("facebook-jssdk")) return;
+    window.fbAsyncInit = function () {
+      window.FB.init({
+        appId: FB_APP_ID,
+        cookie: true,
+        xfbml: false,
+        version: "v19.0",
+      });
+    };
+    const js = document.createElement("script");
+    js.id = "facebook-jssdk";
+    js.src = "https://connect.facebook.net/en_US/sdk.js";
+    document.body.appendChild(js);
+  }, []);
+
+  const facebookSignup = () => {
+    if (!FB_APP_ID || FB_APP_ID === "YOUR_FACEBOOK_APP_ID") {
+      toast.info("Facebook sign-up isn't configured yet.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+    if (!window.FB) {
+      toast.error("Facebook is still loading. Please try again.", {
+        position: "top-right",
+        autoClose: 2500,
+      });
+      return;
+    }
+    window.FB.login(
+      (response) => {
+        if (response.status !== "connected") {
+          toast.error("Facebook sign-up was cancelled.", {
+            position: "top-right",
+            autoClose: 2500,
+          });
+          return;
+        }
+        window.FB.api("/me", { fields: "name,email" }, (profile) => {
+          handleSocialUser({ email: profile.email, name: profile.name });
+        });
+      },
+      { scope: "public_profile,email" }
+    );
+  };
 
   // ✅ Capitalize each word for final cleaned value
   const capitalizeWords = (str) =>
@@ -1184,10 +1314,24 @@ const Signup = () => {
             OR
           </Typography>
 
-          <Button fullWidth variant="outlined" className="social-btn-outline" sx={{ mt: 2 }}>
+          <Button
+            fullWidth
+            variant="outlined"
+            className="social-btn-outline"
+            sx={{ mt: 2 }}
+            startIcon={<GoogleIcon sx={{ color: "#DB4437" }} />}
+            onClick={() => googleSignup()}
+          >
             Sign Up with Google
           </Button>
-          <Button fullWidth variant="outlined" className="social-btn-outline" sx={{ mt: 1 }}>
+          <Button
+            fullWidth
+            variant="outlined"
+            className="social-btn-outline"
+            sx={{ mt: 1 }}
+            startIcon={<FacebookIcon sx={{ color: "#1877F2" }} />}
+            onClick={facebookSignup}
+          >
             Sign Up with Facebook
           </Button>
 
