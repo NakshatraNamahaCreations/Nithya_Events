@@ -23,6 +23,10 @@ import { useDispatch } from "react-redux";
 import { setLoading } from "../../redux/slice/LoaderSlice";
 import { useNavigate } from "react-router-dom";
 
+// Inline placeholder shown when a service image is missing or fails to load.
+const NO_IMAGE =
+  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='300'%20height='300'%3E%3Crect%20width='100%25'%20height='100%25'%20fill='%23eeeeee'/%3E%3Ctext%20x='50%25'%20y='50%25'%20fill='%23999999'%20font-family='sans-serif'%20font-size='18'%20text-anchor='middle'%20dominant-baseline='middle'%3ENo%20Image%3C/text%3E%3C/svg%3E";
+
 const ServicePage = () => {
   const [services, setServices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -146,8 +150,12 @@ const ServicePage = () => {
             {/* Image + Label */}
             <Box sx={{ position: "relative", height: "300px" }}>
               <img
-                src={service.service_image}
+                src={service.service_image || NO_IMAGE}
                 alt={service.service_name}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = NO_IMAGE;
+                }}
                 style={{
                   width: "100%",
                   // height: "100%",

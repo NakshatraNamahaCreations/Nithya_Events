@@ -2,6 +2,9 @@ import React from "react";
 import "./Footer.css";
 import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaYoutube } from "react-icons/fa";
 
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.neuserapp";
+
 /**
  * Props:
  * - logo: url / path to small footer logo
@@ -80,7 +83,7 @@ export default function Footer({
       </div>
       <div className="fe-badges">
         <a href="#"><img src={appleBadge} alt="App Store" /></a>
-        <a href="#"><img src={googleBadge} alt="Google Play" /></a>
+        <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer"><img src={googleBadge} alt="Google Play" /></a>
       </div>
     </div>
   </nav>

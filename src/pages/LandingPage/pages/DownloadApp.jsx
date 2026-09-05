@@ -1,6 +1,7 @@
 import "./DownloadApp.css";
 
-
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.neuserapp";
 
 export default function DownloadApp({
   title = "Download the app now!",
@@ -20,8 +21,9 @@ export default function DownloadApp({
           <div className="dw-badges" role="group" aria-label="Get the app">
             <a
               className="dw-badge"
-              href="#"
-              onClick={(e) => e.preventDefault()}
+              href={PLAY_STORE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="Get it on Google Play"
             >
               <img src={playStoreSrc} alt="Get it on Google Play" />
