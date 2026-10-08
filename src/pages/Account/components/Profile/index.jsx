@@ -374,6 +374,10 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./styles.scss";
 
+// Inline avatar placeholder shown when the user has no profile image.
+const NO_AVATAR =
+  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='120'%20height='120'%3E%3Crect%20width='100%25'%20height='100%25'%20fill='%23e0e0e0'/%3E%3Ccircle%20cx='60'%20cy='45'%20r='24'%20fill='%23bdbdbd'/%3E%3Cpath%20d='M20%20110%20a40%2035%200%200%201%2080%200%20z'%20fill='%23bdbdbd'/%3E%3C/svg%3E";
+
 const Profile = () => {
   const navigate = useNavigate();
   const [accountDetails, setAccountDetails] = useState({
@@ -580,9 +584,13 @@ const Profile = () => {
               ? URL.createObjectURL(updatedDetails.profileImage)
               : updatedDetails.profileImage
               ? updatedDetails.profileImage
-              : "https://www.ohe.org/external_stakeholder/ken-buckingham/?modal=yes"
+              : NO_AVATAR
           }
           alt="Profile"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = NO_AVATAR;
+          }}
           style={{
             borderRadius: "50%",
             width: "120px",
