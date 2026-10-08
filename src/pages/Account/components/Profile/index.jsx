@@ -365,7 +365,23 @@
 
 // export default Profile;
 import React, { useState, useEffect } from "react";
-import { Box, TextField, Typography, Grid, Button } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Typography,
+  Grid,
+  Button,
+  MenuItem,
+} from "@mui/material";
+import {
+  validateCompanyName,
+  validateDesignation,
+  validatePAN,
+  validateGST,
+  validateCIN,
+  smartTrim,
+  COMPANY_TYPES,
+} from "../../../../utils/companyValidators";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import authService from "../../../../api/ApiService"; // API call
@@ -399,6 +415,17 @@ const Profile = () => {
   const [originalDetails, setOriginalDetails] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [companyErrors, setCompanyErrors] = useState({});
+
+  // Map each editable company field to its validator (returns [] when valid).
+  const COMPANY_VALIDATORS = {
+    companyName: validateCompanyName,
+    designation: validateDesignation,
+    panNumber: validatePAN,
+    gstNumber: validateGST,
+    cinNumber: validateCIN,
+    companyType: (v) => (v ? [] : ["Company type is required"]),
+  };
 
   const userDetail = sessionStorage.getItem("userDetails");
   let userId = null;
@@ -454,6 +481,10 @@ const Profile = () => {
     const { name, value } = e.target;
     setUpdatedDetails((prev) => ({ ...prev, [name]: value }));
     setIsEditing(true);
+    if (COMPANY_VALIDATORS[name]) {
+      const errs = COMPANY_VALIDATORS[name](value);
+      setCompanyErrors((prev) => ({ ...prev, [name]: errs[0] || "" }));
+    }
   };
 
   // Handle Profile Image Upload
@@ -470,15 +501,44 @@ const Profile = () => {
 
   // Save Profile Updates
   const handleSave = async () => {
+    // Validate every editable company field before saving.
+    const nextErrors = {};
+    Object.keys(COMPANY_VALIDATORS).forEach((field) => {
+      const errs = COMPANY_VALIDATORS[field](updatedDetails[field] || "");
+      if (errs.length) nextErrors[field] = errs[0];
+    });
+    setCompanyErrors(nextErrors);
+    if (Object.values(nextErrors).some((e) => e)) {
+      toast.error("Please fix the highlighted fields.", {
+        position: "top-right",
+        autoClose: 2500,
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
-      // Company details are read-only after registration, so only the name and
-      // profile image can be updated from this page.
       const formData = new FormData();
       formData.append("username", updatedDetails.name);
       if (updatedDetails.profileImage) {
         formData.append("profile_image", updatedDetails.profileImage);
       }
+      // Company details (now editable on this page).
+      formData.append("company_name", smartTrim(updatedDetails.companyName || ""));
+      formData.append("company_type", updatedDetails.companyType || "");
+      formData.append("designation", smartTrim(updatedDetails.designation || ""));
+      formData.append(
+        "pan_number",
+        (updatedDetails.panNumber || "").toUpperCase().replace(/\s+/g, "")
+      );
+      formData.append(
+        "gst_number",
+        (updatedDetails.gstNumber || "").toUpperCase().trim()
+      );
+      formData.append(
+        "cin_number",
+        (updatedDetails.cinNumber || "").toUpperCase().trim()
+      );
 
       await axios.put(
         `https://api.nithyaevent.com/api/user/edit-profile/${userId}`,
@@ -681,54 +741,85 @@ const Profile = () => {
           <TextField
             fullWidth
             label="Company Name"
+            name="companyName"
             variant="outlined"
-            value={accountDetails.companyName || ""}
-            InputProps={{ readOnly: true }}
+            value={updatedDetails.companyName || ""}
+            onChange={handleInputChange}
+            disabled={!isEditing}
+            error={!!companyErrors.companyName}
+            helperText={companyErrors.companyName}
           />
         </Grid>
         <Grid item xs={12}>
           <TextField
+            select
             fullWidth
             label="Company Type"
+            name="companyType"
             variant="outlined"
-            value={accountDetails.companyType || ""}
-            InputProps={{ readOnly: true }}
-          />
+            value={updatedDetails.companyType || ""}
+            onChange={handleInputChange}
+            disabled={!isEditing}
+            error={!!companyErrors.companyType}
+            helperText={companyErrors.companyType}
+          >
+            {COMPANY_TYPES.map((t) => (
+              <MenuItem key={t} value={t}>
+                {t}
+              </MenuItem>
+            ))}
+          </TextField>
         </Grid>
         <Grid item xs={12}>
           <TextField
             fullWidth
             label="Designation"
+            name="designation"
             variant="outlined"
-            value={accountDetails.designation || ""}
-            InputProps={{ readOnly: true }}
+            value={updatedDetails.designation || ""}
+            onChange={handleInputChange}
+            disabled={!isEditing}
+            error={!!companyErrors.designation}
+            helperText={companyErrors.designation}
           />
         </Grid>
         <Grid item xs={12}>
           <TextField
             fullWidth
             label="PAN Number"
+            name="panNumber"
             variant="outlined"
-            value={accountDetails.panNumber || ""}
-            InputProps={{ readOnly: true }}
+            value={updatedDetails.panNumber || ""}
+            onChange={handleInputChange}
+            disabled={!isEditing}
+            error={!!companyErrors.panNumber}
+            helperText={companyErrors.panNumber}
           />
         </Grid>
         <Grid item xs={12}>
           <TextField
             fullWidth
             label="GST Number"
+            name="gstNumber"
             variant="outlined"
-            value={accountDetails.gstNumber || ""}
-            InputProps={{ readOnly: true }}
+            value={updatedDetails.gstNumber || ""}
+            onChange={handleInputChange}
+            disabled={!isEditing}
+            error={!!companyErrors.gstNumber}
+            helperText={companyErrors.gstNumber}
           />
         </Grid>
         <Grid item xs={12}>
           <TextField
             fullWidth
             label="CIN Number"
+            name="cinNumber"
             variant="outlined"
-            value={accountDetails.cinNumber || ""}
-            InputProps={{ readOnly: true }}
+            value={updatedDetails.cinNumber || ""}
+            onChange={handleInputChange}
+            disabled={!isEditing}
+            error={!!companyErrors.cinNumber}
+            helperText={companyErrors.cinNumber}
           />
         </Grid>
       </Grid>
